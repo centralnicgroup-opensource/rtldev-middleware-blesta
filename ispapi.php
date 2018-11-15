@@ -832,11 +832,12 @@ class Ispapi extends Module
         $fields = new ModuleFields();
 
         $types = [
-            'domain' => Language::_('Ispapi.package_fields.type_domain', true),
+            'domain' => Language::_('Ispapi.package_fields.type_domain', true), 
         ];
 
         // Set type of package
         $type = $fields->label(Language::_('Ispapi.package_fields.type', true), 'ispapi_type');
+
         $type->attach(
             $fields->fieldSelect(
                 'meta[type]',
@@ -847,23 +848,19 @@ class Ispapi extends Module
         );
         $fields->setField($type);
 
-        // Set all TLD checkboxes
+        // Set all TLDs
         $tld_options = $fields->label(Language::_('Ispapi.package_fields.tld_options', true));
 
         $tlds = Configure::get('Ispapi.tlds');
+
         sort($tlds);
-        foreach ($tlds as $tld) {
-            $tld_label = $fields->label($tld, 'tld_' . $tld);
-            $tld_options->attach(
-                $fields->fieldCheckbox(
-                    'meta[tlds][]',
-                    $tld,
-                    (isset($vars->meta['tlds']) && in_array($tld, $vars->meta['tlds'])),
-                    ['id' => 'tld_' . $tld],
-                    $tld_label
-                )
-            );
+
+        // Set all TLDs Dropdown
+        foreach($tlds as $key => $val) {
+            $tlds_array[$val]=$val;
         }
+        $tld_options->attach($fields->fieldSelect("meta[tlds][]", $tlds_array, $this->Html->ifSet($vars->meta['tlds']), array('id'=>"tlds")));
+
         $fields->setField($tld_options);
 
         // Set nameservers
@@ -1692,7 +1689,7 @@ class Ispapi extends Module
     }
 
     /**
-     * Validates that the given connection details are correct by attempting to check the availability of a domain
+     * Validates that the given connection details
      *
      * @param string $key The API key
      * @param string $user The API user
