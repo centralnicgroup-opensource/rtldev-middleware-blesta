@@ -1,0 +1,87 @@
+{
+    "name": "blesta-ispapi-registrar",
+    "description": "The ISPAPI Registrar Module for BLESTA",
+    "version": "0.0.0-development",
+    "private": true,
+    "author": {
+        "name": "Tulasi Seelamkurthi",
+        "email": "tseelamkurthi@hexonet.net"
+    },
+    "license": "MIT",
+    "engines": {
+        "node": ">=8.3.0"
+    },
+    "homepage": "https://github.com/hexonet/blesta-ispapi-registrar",
+    "repository": "github:hexonet/blesta-ispapi-registrar",
+    "bugs": "https://github.com/hexonet/blesta-ispapi-registrar/issues",
+    "maintainers": [
+        {
+            "name": "Tulasi Seelamkurthi",
+            "email": "tseelamkurthi@hexonet.net"
+        }
+    ],
+    "keywords": [
+        "blesta",
+        "web host automation platform",
+        "registrar module",
+        "domain registrar module",
+        "hexonet",
+        "ispapi",
+        "domain",
+        "isp",
+        "registration"
+    ],
+    "devDependencies": {
+        "@semantic-release/changelog": "3.0.1",
+        "@semantic-release/commit-analyzer": "6.1.0",
+        "@semantic-release/exec": "3.3.0",
+        "@semantic-release/git": "7.0.5",
+        "@semantic-release/github": "5.2.1",
+        "conventional-changelog": "2.0.3",
+        "semantic-release": "15.10.6",
+        "travis-deploy-once": "5.0.9"
+    },
+    "release": {
+        "debug": false,
+        "analyzeCommits": {
+            "preset": "angular"
+        },
+        "generateNotes": {
+            "preset": "angular"
+        },
+        "verifyConditions": [
+            "@semantic-release/changelog",
+            "@semantic-release/git",
+            "@semantic-release/github"
+        ],
+        "prepare": [
+            {
+                "path": "@semantic-release/changelog",
+                "changelogFile": "HISTORY.md"
+            },
+            {
+                "path": "@semantic-release/exec",
+                "cmd": "./updateVersion.sh ${nextRelease.version} ${options.branch}"
+            },
+            {
+                "path": "@semantic-release/git",
+                "assets": [
+                    "HISTORY.md",
+                    "package.json",
+                    "package-lock.json",
+                    "composer.json",
+                    "composer.lock",
+                    "ispapi.php"
+                ],
+                "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+            }
+        ],
+        "publish": [
+            "@semantic-release/github"
+        ]
+    },
+    "scripts": {
+        "semantic-release": "semantic-release",
+        "travis-deploy-once": "travis-deploy-once"
+    }
+}
