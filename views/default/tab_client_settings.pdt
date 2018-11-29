@@ -1,0 +1,59 @@
+
+    <?php
+    $this->Form->create();
+    ?>
+    <div class="row panel-fix">
+        <div class="col-md-12">
+            <h4><?php $this->_('Ispapi.tab_settings.field_registrar_lock');?></h4>
+            <div class="form-group">
+                <div class="radio">
+                    <label>
+                        <?php
+                        $this->Form->fieldRadio('registrar_lock', 'true', $this->Html->ifSet($vars->registrar_lock) == 'true');
+                        $this->_('Ispapi.tab_settings.field_registrar_lock_yes');
+                        ?>
+                    </label>
+                </div>
+                <div class="radio">
+                    <label>
+                        <?php
+                        $this->Form->fieldRadio('registrar_lock', 'false', $this->Html->ifSet($vars->registrar_lock) == 'false');
+                        $this->_('Ispapi.tab_settings.field_registrar_lock_no');
+                        ?>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="checkbox">
+                    <label>
+                        <?php
+                        $this->Form->fieldCheckbox("whois_privacy", "true", $this->Html->ifSet($vars->whois_privacy) == "true", array('id' => "whois_privacy"));
+                        $this->Form->label($this->_("Ispapi.domain.WhoisPrivacy", true), "whois_privacy", array('class' => "inline"));
+                        ?>
+                    </label>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <div>
+                    <label>
+                        <button class="btn btn-default>
+                             <i class="fa fa edit"></i> <?php $this->_('Ispapi.tab_settings.field_request_epp');?>
+                        </button>
+                        <?php
+                        $this->Form->fieldText('request_epp', $this->Html->ifSet($vars->auth), ['id' => 'auth']);
+                        ?>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button class="btn btn-default pull-right" type="submit" name="save">
+        <i class="fa fa-edit"></i> <?php $this->_('Ispapi.tab_settings.field_submit');
+        ?>
+    </button>
+    <?php
+    $this->Form->end();
+    ?>
