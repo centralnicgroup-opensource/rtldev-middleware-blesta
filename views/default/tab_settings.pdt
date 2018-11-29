@@ -1,0 +1,43 @@
+
+    <?php
+    $this->Form->create();
+    ?>
+    <div class="pad">
+        <ul>
+            <li>
+                <?php
+                $this->Form->label($this->_('Ispapi.tab_settings.field_registrar_lock', true), 'registrar_lock');
+
+                $this->Form->fieldRadio('registrar_lock', 'true', $this->Html->ifSet($vars->registrar_lock) == 'true', ['id' => 'registrar_lock_yes']);
+                $this->Form->label($this->_('Ispapi.tab_settings.field_registrar_lock_yes', true), 'registrar_lock_yes', ['class' => 'inline']);
+
+                $this->Form->fieldRadio('registrar_lock', 'false', $this->Html->ifSet($vars->registrar_lock) == 'false', ['id' => 'registrar_lock_no']);
+                $this->Form->label($this->_('Ispapi.tab_settings.field_registrar_lock_no', true), 'registrar_lock_no', ['class' => 'inline']);
+                ?>
+            </li>
+            <li>
+                <?php
+                $this->Form->fieldSubmit('request_epp', $this->_('Ispapi.tab_settings.field_request_epp', true));
+                $this->Form->fieldText('',$this->Html->ifSet($vars->auth), ['id' => 'auth']);
+                ?>
+            </li>
+
+            <li>
+                <?php
+                if($vars->whois_privacy_supported) {
+                    $this->Form->fieldCheckbox("whois_privacy", "true", $this->Html->ifSet($vars->whois_privacy) == "true", array('id' => "whois_privacy"));
+                    $this->Form->label($this->_("Ispapi.domain.WhoisPrivacy", true), "whois_privacy", array('class' => "inline"));
+                }
+                ?>
+            </li>
+
+        </ul>
+    </div>
+    <div class="button_row">
+        <?php
+        $this->Form->fieldSubmit('save', $this->_('Ispapi.tab_settings.field_submit', true), ['class' => 'btn btn-primary pull-right']);
+        ?>
+    </div>
+    <?php
+    $this->Form->end();
+    ?>
