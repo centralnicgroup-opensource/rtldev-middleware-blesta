@@ -70,6 +70,7 @@ $lang['Ispapi.tab_transfer.field_submit'] = 'Transfer Domain';
 $lang['Ispapi.manage.manual_renewal'] = "Manually Renew (select years)";
 
 // Domain Data
+$lang['Ispapi.renew.note'] = 'Please note that the HEXONET prices will be applied when you renew a domain';
 $lang['Ispapi.domain.domaininformation'] = 'Domain data at your registrar system:';
 $lang['Ispapi.domain.domainstatus'] = 'Status';
 $lang['Ispapi.domain.expirydate'] = 'Expiry Date';
