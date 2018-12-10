@@ -513,29 +513,19 @@ Configure::set('Ispapi.domain_fields.sg', [
 ]);
 
 // .COM.SG
-Configure::set('Ispapi.domain_fields.com.sg',
-    Configure::get('Ispapi.domain_fields.sg', true)
-);
+Configure::set('Ispapi.domain_fields.com.sg', Configure::get('Ispapi.domain_fields.sg', true));
 
 // .EDU.SG
-Configure::set('Ispapi.domain_fields.edu.sg',
-    Configure::get('Ispapi.domain_fields.sg', true)
-);
+Configure::set('Ispapi.domain_fields.edu.sg', Configure::get('Ispapi.domain_fields.sg', true));
 
 // .NET.SG
-Configure::set('Ispapi.domain_fields.net.sg',
-    Configure::get('Ispapi.domain_fields.sg', true)
-);
+Configure::set('Ispapi.domain_fields.net.sg', Configure::get('Ispapi.domain_fields.sg', true));
 
 // .ORG.SG
-Configure::set('Ispapi.domain_fields.org.sg',
-    Configure::get('Ispapi.domain_fields.sg', true)
-);
+Configure::set('Ispapi.domain_fields.org.sg', Configure::get('Ispapi.domain_fields.sg', true));
 
 // .PER.SG
-Configure::set('Ispapi.domain_fields.per.sg',
-    Configure::get('Ispapi.domain_fields.sg', true)
-);
+Configure::set('Ispapi.domain_fields.per.sg', Configure::get('Ispapi.domain_fields.sg', true));
 
 // .CA
 Configure::set('Ispapi.domain_fields.ca', [
@@ -646,29 +636,19 @@ Configure::set('Ispapi.domain_fields.fr', [
 ]);
 
 // .PM
-Configure::set('Ispapi.domain_fields.pm',
-    Configure::get('Ispapi.domain_fields.fr', true)
-);
+Configure::set('Ispapi.domain_fields.pm', Configure::get('Ispapi.domain_fields.fr', true));
 
 // .RE
-Configure::set('Ispapi.domain_fields.re',
-    Configure::get('Ispapi.domain_fields.fr', true)
-);
+Configure::set('Ispapi.domain_fields.re', Configure::get('Ispapi.domain_fields.fr', true));
 
 // .TF
-Configure::set('Ispapi.domain_fields.tf',
-    Configure::get('Ispapi.domain_fields.fr', true)
-);
+Configure::set('Ispapi.domain_fields.tf', Configure::get('Ispapi.domain_fields.fr', true));
 
 // .WF
-Configure::set('Ispapi.domain_fields.wf',
-    Configure::get('Ispapi.domain_fields.fr', true)
-);
+Configure::set('Ispapi.domain_fields.wf', Configure::get('Ispapi.domain_fields.fr', true));
 
 // .YT
-Configure::set('Ispapi.domain_fields.yt',
-    Configure::get('Ispapi.domain_fields.fr', true)
-);
+Configure::set('Ispapi.domain_fields.yt', Configure::get('Ispapi.domain_fields.fr', true));
 
 // .JOBS
 Configure::set('Ispapi.domain_fields.jobs', [
@@ -804,7 +784,7 @@ Configure::set('Ispapi.domain_fields.se', [
     ]
 ]);
 
-// .DK 
+// .DK
 Configure::set('Ispapi.domain_fields.dk', [
     'X-REGISTRANT-VATID' => [
         'label' => Language::_('Ispapi.domain.RegistrantVatID', true),
@@ -937,7 +917,7 @@ Configure::set('Ispapi.domain_fields.es', [
     ]
 ]);
 
-// .IE 
+// .IE
 Configure::set('Ispapi.domain_fields.ie', [
     'X-IE-REGISTRANT-CLASS' => [
         'label' => Language::_('Ispapi.domain.RegistrantClass', true),
@@ -1021,17 +1001,11 @@ Configure::set('Ispapi.domain_fields.cn', [
 ]);
 
 // .COM.CN
-Configure::set('Ispapi.domain_fields.com.cn',
-    Configure::get('Ispapi.domain_fields.cn', true)
-);
+Configure::set('Ispapi.domain_fields.com.cn', Configure::get('Ispapi.domain_fields.cn', true));
 // .NET.CN
-Configure::set('Ispapi.domain_fields.net.cn',
-    Configure::get('Ispapi.domain_fields.cn', true)
-);
+Configure::set('Ispapi.domain_fields.net.cn', Configure::get('Ispapi.domain_fields.cn', true));
 // .ORG.CN
-Configure::set('Ispapi.domain_fields.org.cn',
-    Configure::get('Ispapi.domain_fields.cn', true)
-);
+Configure::set('Ispapi.domain_fields.org.cn', Configure::get('Ispapi.domain_fields.cn', true));
 
 // .COM.AU
 Configure::set('Ispapi.domain_fields.com.au', [
@@ -1048,17 +1022,11 @@ Configure::set('Ispapi.domain_fields.com.au', [
 ]);
 
 // .NET.AU
-Configure::set('Ispapi.domain_fields.net.au',
-    Configure::get('Ispapi.domain_fields.com.au', true)
-);
+Configure::set('Ispapi.domain_fields.net.au', Configure::get('Ispapi.domain_fields.com.au', true));
 // .ORG.AU
-Configure::set('Ispapi.domain_fields.org.au',
-    Configure::get('Ispapi.domain_fields.com.au', true)
-);
+Configure::set('Ispapi.domain_fields.org.au', Configure::get('Ispapi.domain_fields.com.au', true));
 // .ID.AU
-Configure::set('Ispapi.domain_fields.id.au',
-    Configure::get('Ispapi.domain_fields.com.au', true)
-);
+Configure::set('Ispapi.domain_fields.id.au', Configure::get('Ispapi.domain_fields.com.au', true));
 
 // .LV
 Configure::set('Ispapi.domain_fields.lv', [

@@ -1,4 +1,6 @@
 <?php
+namespace ISPAPI;
+
 /**
  * Ispapi API response handler
  *
@@ -25,7 +27,7 @@ class IspapiResponse
     public function __construct($response)
     {
         $this->raw = $response;
-        $this->hash = $response; 
+        $this->hash = $response;
     }
 
     /**
@@ -35,35 +37,37 @@ class IspapiResponse
      */
     public function response()
     {
-        if (is_array($this->hash)) return $this->hash;
+        if (is_array($this->hash)) {
+            return $this->hash;
+        }
         $response = array(
             "PROPERTY" => array(),
             "CODE" => "423",
             "DESCRIPTION" => "Empty response from API"
         );
-        if (!$this->hash) return $response;
-        $rlist = explode( "\n", $this->hash );
-        foreach ( $rlist as $item ) {
-            if ( preg_match("/^([^\=]*[^\t\= ])[\t ]*=[\t ]*(.*)$/", $item, $m) ) {
+        if (!$this->hash) {
+            return $response;
+        }
+        $rlist = explode("\n", $this->hash);
+        foreach ($rlist as $item) {
+            if (preg_match("/^([^\=]*[^\t\= ])[\t ]*=[\t ]*(.*)$/", $item, $m)) {
                 $attr = $m[1];
                 $value = $m[2];
-                $value = preg_replace( "/[\t ]*$/", "", $value );
-                if ( preg_match( "/^property\[([^\]]*)\]/i", $attr, $m) ) {
+                $value = preg_replace("/[\t ]*$/", "", $value);
+                if (preg_match("/^property\[([^\]]*)\]/i", $attr, $m)) {
                     $prop = strtoupper($m[1]);
-                    $prop = preg_replace( "/\s/", "", $prop );                    
-                    if ( in_array($prop, array_keys($response["PROPERTY"])) ) {                    
+                    $prop = preg_replace("/\s/", "", $prop);
+                    if (in_array($prop, array_keys($response["PROPERTY"]))) {
                         array_push($response["PROPERTY"][$prop], $value);
-                    }
-                    else {
+                    } else {
                         $response["PROPERTY"][$prop] = array($value);
                     }
-                }
-                else {
+                } else {
                     $response[strtoupper($attr)] = $value;
                 }
             }
         }
-        if ( (!$response["CODE"]) || (!$response["DESCRIPTION"]) ) {
+        if ((!$response["CODE"]) || (!$response["DESCRIPTION"])) {
             $response = array(
                 "PROPERTY" => array(),
                 "CODE" => "423",
@@ -83,5 +87,4 @@ class IspapiResponse
     {
         return $this->raw;
     }
-
 }
