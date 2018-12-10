@@ -1,4 +1,6 @@
 <?php
+namespace ISPAPI;
+
 /**
  * Ispapi API request funnel
  *
@@ -29,8 +31,8 @@ class IspapiAll
      * @param array $vars An array of input params
      * @return IspapiResponse
      */
-    public function ispapi_call($command)
-    {  
+    public function ispapiCall($command)
+    {
         return $this->api->submit($command);
     }
 }

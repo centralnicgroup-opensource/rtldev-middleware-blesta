@@ -1,4 +1,6 @@
 <?php
+namespace ISPAPI;
+
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'ispapi_response.php';
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'commands' . DIRECTORY_SEPARATOR . 'ispapi_all.php';
 
@@ -18,7 +20,7 @@ class IspapiApi
     /**
      * @var string The user to connect as
      */
-    private $user; 
+    private $user;
 
     /**
      * @var string The key to use when connecting
@@ -33,7 +35,7 @@ class IspapiApi
     /**
      * @var string The user to connect as
      */
-    private $entity; 
+    private $entity;
 
     /**
      * @var array An array representing the last request made
@@ -73,7 +75,7 @@ class IspapiApi
             $entity = '1234';
         }
         
-        $args["s_command"] =  $this->ispapi_encode_command($command);
+        $args["s_command"] =  $this->ispapiEncodeCommand($command);
 
         $args['s_login'] = $this->user;
         $args['s_pw'] = html_entity_decode($this->key, ENT_QUOTES);
@@ -85,38 +87,40 @@ class IspapiApi
         ];
 
         $ch = curl_init($url);
-        if ( $ch === FALSE ) {
+        if ($ch === false) {
             return "[RESPONSE]\nCODE=423\nAPI access error: curl_init failed\nEOF\n";
         }
 
         $postfields = array();
-	    foreach ( $args as $key => $value ) {
-		    $postfields[] = urlencode($key)."=".urlencode($value);
+        foreach ($args as $key => $value) {
+            $postfields[] = urlencode($key)."=".urlencode($value);
         }
         $postfields = implode('&', $postfields);
-        curl_setopt( $ch, CURLOPT_POST, 1 );
-	    curl_setopt( $ch, CURLOPT_POSTFIELDS, $postfields );
-	    curl_setopt( $ch, CURLOPT_HEADER, 0 );
-        curl_setopt( $ch, CURLOPT_RETURNTRANSFER , 1 );
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $postfields);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $response = curl_exec($ch);
 
         return new IspapiResponse($response);
     }
 
     // Provided command needs to be encoded.
-    private function ispapi_encode_command( $commandarray ) {
-        if (!is_array($commandarray)) return $commandarray;
+    private function ispapiEncodeCommand($commandarray)
+    {
+        if (!is_array($commandarray)) {
+            return $commandarray;
+        }
         $command = "";
-        foreach ( $commandarray as $k => $v ) {
-            if ( is_array($v) ) {
-            $v = $this->ispapi_encode_command($v);
+        foreach ($commandarray as $k => $v) {
+            if (is_array($v)) {
+                $v = $this->ispapiEncodeCommand($v);
                 $l = explode("\n", trim($v));
-                foreach ( $l as $line ) {
+                foreach ($l as $line) {
                     $command .= "$k$line\n";
                 }
-            }
-            else {
-                $v = preg_replace( "/\r|\n/", "", $v );
+            } else {
+                $v = preg_replace("/\r|\n/", "", $v);
                 $command .= "$k=$v\n";
             }
         }
@@ -136,4 +140,3 @@ class IspapiApi
         return $this->last_request;
     }
 }
-
