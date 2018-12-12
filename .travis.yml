@@ -1,23 +1,23 @@
 language: php
 php:
-  - '5.6'
-  - '7.2'
+- '5.6'
+- '7.2'
 cache:
   directories:
   - "~/.composer/cache"
   - "~/.npm"
-  - "node_modules"
+  - node_modules
 install:
-  - sudo apt install graphviz
-  - composer install
+- sudo apt install graphviz
+- composer install
 script:
-  - composer run-script codeCheck
+- composer run-script codeCheck
 after_success:
 - if [[ "$TRAVIS_BRANCH" == "master" && "$TRAVIS_PULL_REQUEST" == "false" ]]; then
-    git config --replace-all remote.origin.fetch +refs/heads/*:refs/remotes/origin/* &&
-    git fetch --tags &&
-    nvm install lts/* &&
-    nvm use lts/* &&
-    npm prune &&
-    npm i &&
-    npx travis-deploy-once "npx semantic-release" ; fi
+  git config --replace-all remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
+  && git fetch --tags && nvm install lts/* && nvm use lts/* && npm prune && npm i
+  && npx travis-deploy-once "npx semantic-release" ; fi
+notifications:
+  slack:
+    rooms:
+      secure: hO3q+2+3VCYXWiY1Ql2pBTYzg1DP+xovSQxZ/JgkMdVW/YQVuhzQbft/vlMn6BgISTsjCZB53PVuCNeYSLV0zjP6QgOdmJuehdqa94219txRePRIuQTZ3D94KuFdcPf2dOcfSE1QTOgmtxcgqGPwht+ae49iRi5g7arY6evYynN7ItyzwGFKvHnu0bGN1cNVQTa5M545NjjnVUUpqHTwLTCSzrao8RUmFat8BvpaKrqaYTjGXxEJI5ICfMAKh3aGAVx8+HiuWw18JpzD154o27je+V4hI1aBnQ1ZhZUSrRtIgQxT+vRgypvC0VLa2pLqZCabc/qtu4ih6cJq7qz9J4mDRZsNbLAnQKbKh4KLLHKbaiKsW0uG8Af2WTISltMy3ZnFUX9TK3XQ1GEIYhlG0ZQqmjYEL1NBHLiQf2O1O6k/TiCPWsI+mOObjdYAKXOG/VUpvNwCq0tqh/rPLWUDTx1X19aSqqfNFTTcMeDWuPdZob+XqmuvfeY8gDhba3JWbAfuTG74OQ6YZB2NGIrTFV1QJPinPptmKczZOntZ16EuE1100IJlPi4Ya7mNZQ6/ryRAhQ+K4FmlTugOyrRHFn5yDc1Jgifx2sL8WH3nhk/7aTdiayCS0U6CPra9w2+MN1aoIXMUXPFxt6w/TIlwLavWzSdShX1DsbMH3RzC2yc=
