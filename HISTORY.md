@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.0.0...v1.1.0) (2018-12-14)
+
+
+### Features
+
+* **pkg:** Added Makefile ([2ece17c](https://github.com/hexonet/blesta-ispapi-registrar/commit/2ece17c))
+
 # 1.0.0 (2018-12-12)
 
 
