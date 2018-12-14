@@ -71,13 +71,27 @@
           "package-lock.json",
           "composer.json",
           "composer.lock",
-          "ispapi.php"
+          "ispapi.php",
+          "blesta-ispapi-registrar-latest.zip",
+          "release.json"
         ],
         "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
       }
     ],
     "publish": [
-      "@semantic-release/github"
+      {
+        "path": "@semantic-release/github",
+        "assets": [
+          {
+            "label": "Blesta Module (zip)",
+            "path": "pkg/blesta-ispapi-registrar.zip"
+          },
+          {
+            "label": "Blesta Module (tar.gz)",
+            "path": "pkg/blesta-ispapi-registrar.tar.gz"
+          }
+        ]
+      }
     ]
   },
   "scripts": {
