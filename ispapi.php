@@ -1,6 +1,4 @@
 <?php
-namespace ISPAPI;
-
 /**
  * Ispapi Module
  *

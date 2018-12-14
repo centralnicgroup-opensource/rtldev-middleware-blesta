@@ -1,6 +1,4 @@
 <?php
-namespace ISPAPI;
-
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'ispapi_response.php';
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'commands' . DIRECTORY_SEPARATOR . 'ispapi_all.php';
 
