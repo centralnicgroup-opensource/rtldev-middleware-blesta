@@ -1,6 +1,4 @@
 <?php
-namespace ISPAPI;
-
 /**
  * Ispapi API request funnel
  *

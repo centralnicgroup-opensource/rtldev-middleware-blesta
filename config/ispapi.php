@@ -1,6 +1,5 @@
 <?php
 // All available TLDs
-// TODO - Is there a way (any command) to get list of TLDs that hexonet offers ? if no, which tlds we want to offer here
 Configure::set('Ispapi.tlds', [
     // Second-Level
     '.br.com',

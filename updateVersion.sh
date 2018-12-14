@@ -10,4 +10,6 @@ branch="$2";
 
 if [ "$branch" = "master" ]; then
     sed -i "s/private static \$version = \"[0-9]\+\.[0-9]\+\.[0-9]\+\"/private static \$version = \"${newversion}\"/g" ispapi.php
+    sed -i "s/\"version\": \"[0-9]\+\.[0-9]\+\.[0-9]\+\"/\"version\": \"${newversion}\"/g" release.json
+    sed -i "s/\"date\": \"[0-9]\+-[0-9]\+-[0-9]\+\"/\"date\": \"${date}\"/g" release.json
 fi;
