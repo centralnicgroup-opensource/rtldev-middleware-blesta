@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.1.0...v1.1.1) (2018-12-14)
+
+
+### Bug Fixes
+
+* **pkg:** modified package.json to include zip files in the release ([ca55c51](https://github.com/hexonet/blesta-ispapi-registrar/commit/ca55c51))
+
 # [1.1.0](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.0.0...v1.1.0) (2018-12-14)
 
 
