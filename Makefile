@@ -5,8 +5,6 @@ clean:
 	rm -rf $(FOLDER)
 
 buildsources:
-	@echo versionS:$(ISPAPI_BLESTA_MODULE_VERSION)
-	@echo folder:$(FOLDER)
 	mkdir -p $(FOLDER)/install/components/modules/ispapi
 	cp *.php $(FOLDER)/install/components/modules/ispapi
 	cp -a apis $(FOLDER)/install/components/modules/ispapi/apis
@@ -17,7 +15,6 @@ buildsources:
 	cp README.pdf $(FOLDER)
 	cp LICENSE $(FOLDER)
 	cp CONTRIBUTING.md $(FOLDER)
-	@echo versionE:$(ISPAPI_BLESTA_MODULE_VERSION)
 
 buildlatestzip:
 	cp pkg/blesta-ispapi-registrar.zip ./blesta-ispapi-registrar-latest.zip # for downloadable "latest" zip by url
@@ -37,8 +34,6 @@ tar:
 	@$(MAKE) clean
 
 allarchives:
-	@echo folder:$(FOLDER)
-	@echo versionaaaa:$(ISPAPI_BLESTA_MODULE_VERSION)
 	rm -rf pkg/blesta-ispapi-registrar.zip
 	rm -rf pkg/blesta-ispapi-registrar.tar
 	@$(MAKE) buildsources
