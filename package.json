@@ -64,6 +64,10 @@
         "cmd": "./updateVersion.sh ${nextRelease.version} ${options.branch}"
       },
       {
+        "path": "@semantic-release/exec",
+        "cmd": "make allarchives"
+      },
+      {
         "path": "@semantic-release/git",
         "assets": [
           "HISTORY.md",
