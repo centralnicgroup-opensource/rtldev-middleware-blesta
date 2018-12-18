@@ -11,14 +11,19 @@ This Repository covers the Blesta Registrar Module of HEXONET. It provides the f
 * Domain registration
 * Domain transfer (with AuthInfo code support)
 * Domain management
+  * Domain Locking 
+  * Update Contact Information
+  * Change Nameservers
+  * EPP code
 * Domain renewal
 * Support for Whois Privacy / ID Protection
-* Supported testing environment
+* Support for Operational Test and Evaluation environment (OT&E)
+* Support for additional TLD-specific fields for registration
 
 
 ## Resources ##
 
-* [Usage Guide](https://github.com/hexonet/blesta-ispapi-registrar/blob/master/README.md#usage-guide)
+* [Usage Guide](https://github.com/hexonet/blesta-ispapi-registrar/wiki/Usage-Guide)
 * [Release Notes](https://github.com/hexonet/blesta-ispapi-registrar/releases)
 * [Development Guide](https://github.com/hexonet/blesta-ispapi-registrar/wiki/Development-Guide)
 
@@ -27,7 +32,11 @@ This Repository covers the Blesta Registrar Module of HEXONET. It provides the f
 
 Download the ZIP archive including the latest release version [here](https://github.com/hexonet/blesta-ispapi-registrar/raw/master/blesta-ispapi-registrar-latest.zip).
 
-Login to the Blesta Admin Area and navigate to `Settings > Modules` to activate.
+Read the following to get more information ...
+  * [Installation](https://github.com/hexonet/blesta-ispapi-registrar/wiki/Usage-Guide#installation)
+  * [Configuration](https://github.com/hexonet/blesta-ispapi-registrar/wiki/Usage-Guide#configuration)
+  * [How to sell domains using Blesta and HEXONET](https://github.com/hexonet/blesta-ispapi-registrar/wiki/Usage-Guide#how-to-sell-domains-using-blesta-and-hexonet)
+
 
 ## Minimum Requirements ##
 
