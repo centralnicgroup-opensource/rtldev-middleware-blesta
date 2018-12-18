@@ -7,6 +7,7 @@
 # version format: X.Y.Z
 newversion="$1";
 branch="$2";
+date="$(date +'%Y-%m-%d')";
 
 if [ "$branch" = "master" ]; then
     sed -i "s/private static \$version = \"[0-9]\+\.[0-9]\+\.[0-9]\+\"/private static \$version = \"${newversion}\"/g" ispapi.php
