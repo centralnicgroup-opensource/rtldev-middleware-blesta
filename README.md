@@ -23,7 +23,7 @@ This Repository covers the Blesta Registrar Module of HEXONET. It provides the f
 
 ## Resources ##
 
-* [Usage Guide](https://github.com/hexonet/blesta-ispapi-registrar/blob/master/README.md#usage-guide)
+* [Usage Guide](https://github.com/hexonet/blesta-ispapi-registrar/wiki/Usage-Guide)
 * [Release Notes](https://github.com/hexonet/blesta-ispapi-registrar/releases)
 * [Development Guide](https://github.com/hexonet/blesta-ispapi-registrar/wiki/Development-Guide)
 
@@ -32,7 +32,7 @@ This Repository covers the Blesta Registrar Module of HEXONET. It provides the f
 
 Download the ZIP archive including the latest release version [here](https://github.com/hexonet/blesta-ispapi-registrar/raw/master/blesta-ispapi-registrar-latest.zip).
 
-The following provide you more information with examples on setting up and using the ISPAPI registrar module on Blesta:
+Read the following to get more information ...
   * [Installation](https://github.com/hexonet/blesta-ispapi-registrar/wiki/Usage-Guide#installation)
   * [Configuration](https://github.com/hexonet/blesta-ispapi-registrar/wiki/Usage-Guide#configuration)
   * [How to sell domains using Blesta and HEXONET](https://github.com/hexonet/blesta-ispapi-registrar/wiki/Usage-Guide#how-to-sell-domains-using-blesta-and-hexonet)
