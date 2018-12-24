@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.1.1...v1.1.2) (2018-12-24)
+
+
+### Bug Fixes
+
+* **pkg:** Makefile update, removed README.pdf, .odt file and pkg folder ([8c8d293](https://github.com/hexonet/blesta-ispapi-registrar/commit/8c8d293))
+
 ## [1.1.1](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.1.0...v1.1.1) (2018-12-14)
 
 
