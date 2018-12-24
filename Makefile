@@ -11,8 +11,10 @@ buildsources:
 	cp -a config $(FOLDER)/install/components/modules/ispapi/config
 	cp -a language $(FOLDER)/install/components/modules/ispapi/language
 	cp -a views $(FOLDER)/install/components/modules/ispapi/views
+	cp -a composer.json $(FOLDER)/install/components/modules/ispapi/composer.json
+	cp -a composer.lock $(FOLDER)/install/components/modules/ispapi/composer.lock
 	cp HISTORY.md $(FOLDER)
-	cp README.pdf $(FOLDER)
+	cp README.md $(FOLDER)
 	cp LICENSE $(FOLDER)
 	cp CONTRIBUTING.md $(FOLDER)
 
