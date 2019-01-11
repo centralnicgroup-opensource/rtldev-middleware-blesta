@@ -1020,7 +1020,7 @@ class Ispapi extends Module
 
             // Handle transfer request
             if (isset($vars->transfer) || isset($vars->transfer_key)) {
-                $fields = Configure::get('Ispapi.transfer_fields');
+                $fields = array_merge(Configure::get('Ispapi.transfer_fields'), Configure::get('Ispapi.nameserver_fields'));
 
                 // Already have the domain name don't make editable
                 $fields['domain']['type'] = 'hidden';
