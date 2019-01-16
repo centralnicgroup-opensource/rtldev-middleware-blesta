@@ -1710,7 +1710,47 @@ class Ispapi extends Module
             "PASSWORD" => $key
         );
 
-        return $all->ispapiCall($command)->response()['CODE'] == 200 ? 'OK': null;
+        $response = $all->ispapiCall($command);
+
+        if ($response->response()['CODE'] == 200) {
+            // Workarround to call that only 1 time.
+            static $included = false;
+
+            if (!$included) {
+                $included = true;
+
+                $hostname = $_SERVER["HTTP_HOST"];
+                $date = date('Y-m-d H:i:s') . " (UTC)";
+                $version = phpversion();
+                $envkey = "middleware/blesta/$hostname";
+                $module_version = self::$version;
+    
+                $values = array();
+    
+                $values['blesta'] = " ";
+                $values['updated_date'] = $date;
+                $values['ispapi_version'] = $module_version;
+                $values['php_version'] = $version;
+        
+                $command = array(
+                    "COMMAND" => "SetEnvironment",
+                );
+                $i=0;
+                foreach ($values as $key => $value) {
+                    $command["ENVIRONMENTKEY$i"] = $envkey;
+                    $command["ENVIRONMENTNAME$i"] = $key;
+                    $command["ENVIRONMENTVALUE$i"] = $value;
+                    $i++;
+                }
+    
+                $set_environment_response = $all->ispapiCall($command);
+            }
+            
+            return 'OK';
+        } else {
+            return null;
+        }
+        #return $all->ispapiCall($command)->response()['CODE'] == 200 ? 'OK': null;
     }
 
     /**
