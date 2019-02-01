@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.1.2...v1.1.3) (2019-02-01)
+
+
+### Bug Fixes
+
+* **pkg:** added user environment logging ([861a7ae](https://github.com/hexonet/blesta-ispapi-registrar/commit/861a7ae))
+
 ## [1.1.2](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.1.1...v1.1.2) (2018-12-24)
 
 
