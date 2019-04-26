@@ -1727,7 +1727,7 @@ class Ispapi extends Module
     
                 $values = array();
     
-                $values['blesta'] = " ";
+                $values['blesta'] = BLESTA_VERSION;
                 $values['updated_date'] = $date;
                 $values['ispapi_version'] = $module_version;
                 $values['php_version'] = $version;
