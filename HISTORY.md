@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.1.3...v1.1.4) (2019-04-26)
+
+
+### Bug Fixes
+
+* **pkg:** added Blesta version in the user enviroment ([93141cc](https://github.com/hexonet/blesta-ispapi-registrar/commit/93141cc))
+
 ## [1.1.3](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.1.2...v1.1.3) (2019-02-01)
 
 
