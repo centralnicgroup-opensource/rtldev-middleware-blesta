@@ -15,7 +15,7 @@
         <?php
         $num_rows = count($this->Html->ifSet($module->rows));
         if ($num_rows > 0) {
-        ?>
+            ?>
         <table class="table">
             <tr class="heading_row">
                 <td><span><?php $this->_('Ispapi.manage.module_rows_heading.user');?></span></td>
@@ -25,7 +25,7 @@
             </tr>
             <?php
             for ($i=0; $i<$num_rows; $i++) {
-            ?>
+                ?>
             <tr<?php echo ($i%2 == 1) ? ' class="odd_row"' : '';?>>
                 <td><?php $this->Html->_($module->rows[$i]->meta->user);?></td>
                 <td><?php $this->Html->_($module->rows[$i]->meta->key);?></td>
@@ -43,19 +43,19 @@
                     ?>
                 </td>
             </tr>
-            <?php
+                <?php
             }
             ?>
         </table>
-        <?php
+            <?php
         } else {
-        ?>
+            ?>
         <div class="empty_section">
             <div class="empty_box">
                 <?php $this->_('Ispapi.manage.module_rows_no_results');?>
             </div>
         </div>
-        <?php
+            <?php
         }
         ?>
 
