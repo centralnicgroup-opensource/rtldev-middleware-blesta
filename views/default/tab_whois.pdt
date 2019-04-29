@@ -6,7 +6,7 @@
     <?php
     $i=0;
     foreach ($sections as $key) {
-    ?>
+        ?>
     <div class="title_row<?php echo ($i == 0 ? ' first' : '');?>">
         <h3><?php $this->_('Ispapi.tab_whois.section_' . $key);?></h3>
     </div>
@@ -17,7 +17,7 @@
                 if (substr($field->params['for'], 0, strlen($key)) != $key) {
                     continue;
                 }
-            ?>
+                ?>
             <li>
                 <?php
                 // Draw the primary label/field
@@ -26,7 +26,6 @@
                 // Draw each form field associated with this label
                 $tooltips = [];
                 foreach ($field->fields as $input) {
-
                     // Collect all tooltips to be displayed at the end
                     if ($input->type == 'tooltip') {
                         $tooltips[] = $input;
@@ -46,28 +45,29 @@
                         } else {
                             $input->label->params['attributes']['class'] = 'inline';
                         }
-
                         call_user_func_array([$this->Form, 'label'], $input->label->params);
                     }
                 }
 
                 foreach ($tooltips as $tooltip) {
-                ?>
+                    ?>
                 <span class="tooltip">
                     <?php $this->_('AppController.tooltip.text');?>
-                    <div><?php $this->Html->_($tooltip->params['message']);?></div>
+                        <div>
+                            <?php $this->Html->_($tooltip->params['message']);?>
+                        </div>
                 </span>
-                <?php
+                    <?php
                 }
                 ?>
             </li>
-            <?php
+                <?php
             }
             ?>
         </ul>
     </div>
-    <?php
-        $i++;
+            <?php
+            $i++;
     }
     ?>
     <div class="button_row">

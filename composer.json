@@ -33,7 +33,7 @@
     "blesta/composer-installer": "~1.0"
   },
   "scripts": {
-    "codeCheck": "phpcs --ignore=\"*/vendor/*\" --standard=./phpcs.xml.dist --extensions=php,pdt -q -n --colors apis config language ispapi.php",
-    "codeFix": "phpcbf --ignore=\"*/vendor/*\" --standard=./phpcs.xml.dist --extensions=php,pdt -q apis config language ispapi.php"
+    "codeCheck": "phpcs --ignore=\"*/vendor/*\" --standard=./phpcs.xml.dist --extensions=php,pdt -q -n --colors apis config language views ispapi.php",
+    "codeFix": "phpcbf --ignore=\"*/vendor/*\" --standard=./phpcs.xml.dist --extensions=php,pdt -q apis config language views ispapi.php"
   }
 }
