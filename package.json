@@ -71,7 +71,6 @@
         "assets": [
           "HISTORY.md",
           "package.json",
-          "package-lock.json",
           "composer.json",
           "composer.lock",
           "ispapi.php",
