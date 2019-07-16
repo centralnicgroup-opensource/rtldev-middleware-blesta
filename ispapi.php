@@ -1381,8 +1381,8 @@ class Ispapi extends Module
             if ($response['CODE'] == 200) {
                 $contacts_array = array(
                     "Registrant" =>$response['PROPERTY']['OWNERCONTACT'][0],
-                    "Tech" =>$response['PROPERTY']['ADMINCONTACT'][0],
-                    "Admin" =>$response['PROPERTY']['TECHCONTACT'][0],
+                    "Admin" =>$response['PROPERTY']['ADMINCONTACT'][0],
+                    "Tech" =>$response['PROPERTY']['TECHCONTACT'][0],
                     "Billing" =>$response['PROPERTY']['BILLINGCONTACT'][0],
                 );
                 foreach ($contacts_array as $key => $contact) {
@@ -1529,7 +1529,6 @@ class Ispapi extends Module
         array $post = null,
         array $files = null
     ) {
-
         $this->view = new View($view, 'default');
         // Load the helpers required for this view
         Loader::loadHelpers($this, ['Form', 'Html']);
@@ -1567,24 +1566,11 @@ class Ispapi extends Module
         if (!empty($response_querydomainoptions['PROPERTY']['X-PROXY'][0])) {
             $vars->{'whois_privacy_supported'} = 'yes';
         }
-        
+
         if (!empty($post)) {
             // Post values to var variable
             $vars->registrar_lock = $post['registrar_lock'];
             $vars->whois_privacy = $post['whois_privacy'];
-
-            // Save transferlock settings of a domain
-            if (isset($post['registrar_lock']) && !isset($post['request_epp'])) {
-                $command = array(
-                    "COMMAND" => "ModifyDomain",
-                    "DOMAIN" => $fields->domain,
-                    "TRANSFERLOCK" => $post['registrar_lock'] == 'true' ? '1' : '0'
-                );
-                $modify_registrarlock_response = $all->ispapiCall($command);
-    
-                // If there are any errors
-                $this->processResponse($api, $modify_registrarlock_response);
-            }
 
             // To get epp/auth code
             if (isset($post['request_epp']) && !isset($post['save'])) {
@@ -1598,17 +1584,21 @@ class Ispapi extends Module
                 }
             }
 
-            // Save whois_privacy settings of a domain
-            if (isset($post['whois_privacy'])) {
+            // Save transferlock settings of a domain
+            if ((isset($post['registrar_lock']) || isset($post['whois_privacy'])) && isset($post['save'])) {
                 $command = array(
                     "COMMAND" => "ModifyDomain",
                     "DOMAIN" => $fields->domain,
-                    "X-ACCEPT-WHOISTRUSTEE-TAC" => $post['whois_privacy'] == 'true' ? '1' : '0'
+                    "TRANSFERLOCK" => $post['registrar_lock'] == 'true' ? '1' : '0',
                 );
-                $modify_whois_privacy_response = $all->ispapiCall($command);
+                
+                if ($vars->whois_privacy_supported) {
+                    $command['X-ACCEPT-WHOISTRUSTEE-TAC'] = $post['whois_privacy'] == 'true' ? '1' : '0';
+                }
 
-                // If there are any errors
-                $this->processResponse($api, $modify_whois_privacy_response);
+                $modify_registrarlock_response = $all->ispapiCall($command);
+
+                $this->processResponse($api, $modify_registrarlock_response);
             }
         } else {
             // Get transferlock and whois privacy settings information
@@ -1799,7 +1789,7 @@ class Ispapi extends Module
         $last_request['args']['pw'] = 'xxxx';
 
         $this->log($last_request['url'], serialize($last_request['args']), 'input', true);
-        $this->log($last_request['url'], $response->raw(), 'output');
+        $this->log($last_request['url'], $response->raw(), 'output', $response->response()['CODE'] == 200 ? true : false);
     }
 
     /**

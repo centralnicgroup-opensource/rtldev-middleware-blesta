@@ -23,17 +23,24 @@
                     </label>
                 </div>
             </div>
-            
-            <div class="form-group">
-                <div class="checkbox">
-                    <label>
-                    <?php
-                        $this->Form->fieldCheckbox("whois_privacy", "true", $this->Html->ifSet($vars->whois_privacy) == "true", array('id' => "whois_privacy"));
-                        $this->Form->label($this->_("Ispapi.domain.WhoisPrivacy", true), "whois_privacy", array('class' => "inline"));
-                    ?>
-                    </label>
+
+            <?php
+            if ($vars->whois_privacy_supported) {
+                ?>
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label>
+                        <?php
+                            $this->Form->fieldCheckbox("whois_privacy", "true", $this->Html->ifSet($vars->whois_privacy) == "true", array('id' => "whois_privacy"));
+                            $this->Form->label($this->_("Ispapi.domain.WhoisPrivacy", true), "whois_privacy", array('class' => "inline"));
+                        ?>
+                        </label>
+                    </div>
                 </div>
-            </div>
+
+                <?php
+            }
+            ?>
 
             <div class="form-group">
                 <div>
