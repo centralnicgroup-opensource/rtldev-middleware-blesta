@@ -15,13 +15,7 @@
                 $this->Form->label($this->_('Ispapi.tab_settings.field_registrar_lock_no', true), 'registrar_lock_no', ['class' => 'inline']);
                 ?>
             </li>
-            <li>
-                <?php
-                $this->Form->fieldSubmit('request_epp', $this->_('Ispapi.tab_settings.field_request_epp', true));
-                $this->Form->fieldText('', $this->Html->ifSet($vars->auth), ['id' => 'auth']);
-                ?>
-            </li>
-
+            
             <li>
                 <?php
                 if ($vars->whois_privacy_supported) {
@@ -31,11 +25,17 @@
                 ?>
             </li>
 
+            <li>
+                <?php
+                    $this->Form->fieldSubmit('request_epp', $this->_('Ispapi.tab_settings.field_request_epp', true));
+                    $this->Form->fieldText('', $this->Html->ifSet($vars->auth), ['id' => 'auth']);
+                ?>
+            </li>
         </ul>
     </div>
     <div class="button_row">
         <?php
-        $this->Form->fieldSubmit('save', $this->_('Ispapi.tab_settings.field_submit', true), ['class' => 'btn btn-primary pull-right']);
+            $this->Form->fieldSubmit('save', $this->_('Ispapi.tab_settings.field_submit', true), ['class' => 'btn btn-primary pull-right']);
         ?>
     </div>
     <?php
