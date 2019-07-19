@@ -1,3 +1,10 @@
+## [1.1.5](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.1.4...v1.1.5) (2019-07-19)
+
+
+### Bug Fixes
+
+* **pkg:** bug fixes in 'Settings' tab, contact data and module log information ([04585f2](https://github.com/hexonet/blesta-ispapi-registrar/commit/04585f2))
+
 ## [1.1.4](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.1.3...v1.1.4) (2019-04-26)
 
 

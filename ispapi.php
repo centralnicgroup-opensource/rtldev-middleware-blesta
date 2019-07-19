@@ -13,7 +13,7 @@ class Ispapi extends Module
     /**
      * @var string The version of this module
      */
-    private static $version = "1.1.4";
+    private static $version = "1.1.5";
 
     /**
      * @var string The authors of this module
