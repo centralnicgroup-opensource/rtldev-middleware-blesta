@@ -316,6 +316,12 @@ class Ispapi extends Module
 
                     $response = $all->ispapiCall($command);
 
+                    // User transfer support
+                    if (preg_match('/USERTRANSFER/', $response->response()["DESCRIPTION"])) {
+                        $command["ACTION"] = "USERTRANSFER";
+                        $response = $all->ispapiCall($command);
+                    }
+
                     // Handling api errors
                     $this->processResponse($api, $response);
 
