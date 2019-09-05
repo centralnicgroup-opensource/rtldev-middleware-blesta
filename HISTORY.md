@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.1.5...v1.2.0) (2019-09-05)
+
+
+### Features
+
+* **user-transfer:** support for user transfers ([1ef7171](https://github.com/hexonet/blesta-ispapi-registrar/commit/1ef7171))
+
 ## [1.1.5](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.1.4...v1.1.5) (2019-07-19)
 
 
