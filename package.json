@@ -72,7 +72,6 @@
           "HISTORY.md",
           "package.json",
           "composer.json",
-          "composer.lock",
           "ispapi.php",
           "blesta-ispapi-registrar-latest.zip",
           "release.json"
