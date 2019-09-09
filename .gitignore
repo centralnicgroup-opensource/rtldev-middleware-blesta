@@ -1,3 +1,5 @@
 vendor
 node_modules
 pkg
+composer.lock
+package-lock.json
