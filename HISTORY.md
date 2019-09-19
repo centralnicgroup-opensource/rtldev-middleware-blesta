@@ -1,3 +1,11 @@
+## [1.2.1](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.2.0...v1.2.1) (2019-09-19)
+
+
+### Bug Fixes
+
+* **release proccess:** fix composer binary path ([774aca0](https://github.com/hexonet/blesta-ispapi-registrar/commit/774aca0))
+* **release process:** migrate configuration ([9489f31](https://github.com/hexonet/blesta-ispapi-registrar/commit/9489f31))
+
 # [1.2.0](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.1.5...v1.2.0) (2019-09-05)
 
 
