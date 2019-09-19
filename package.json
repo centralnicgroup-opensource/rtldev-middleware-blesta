@@ -18,6 +18,10 @@
     {
       "name": "Tulasi Seelamkurthi",
       "email": "tseelamkurthi@hexonet.net"
+    },
+    {
+      "name": "Kai Schwarz",
+      "email": "kschwarz@hexonet.net"
     }
   ],
   "keywords": [
@@ -33,69 +37,8 @@
   ],
   "devDependencies": {
     "@semantic-release/changelog": "^3.0.4",
-    "@semantic-release/commit-analyzer": "^6.2.0",
     "@semantic-release/exec": "^3.3.6",
     "@semantic-release/git": "^7.0.16",
-    "@semantic-release/github": "^5.4.3",
-    "conventional-changelog": "^3.1.10",
     "semantic-release": "^15.13.18"
-  },
-  "release": {
-    "debug": false,
-    "analyzeCommits": {
-      "preset": "angular"
-    },
-    "generateNotes": {
-      "preset": "angular"
-    },
-    "verifyConditions": [
-      "@semantic-release/changelog",
-      "@semantic-release/git",
-      "@semantic-release/github"
-    ],
-    "prepare": [
-      {
-        "path": "@semantic-release/changelog",
-        "changelogFile": "HISTORY.md"
-      },
-      {
-        "path": "@semantic-release/exec",
-        "cmd": "./updateVersion.sh ${nextRelease.version} ${options.branch}"
-      },
-      {
-        "path": "@semantic-release/exec",
-        "cmd": "make allarchives"
-      },
-      {
-        "path": "@semantic-release/git",
-        "assets": [
-          "HISTORY.md",
-          "package.json",
-          "composer.json",
-          "ispapi.php",
-          "blesta-ispapi-registrar-latest.zip",
-          "release.json"
-        ],
-        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
-      }
-    ],
-    "publish": [
-      {
-        "path": "@semantic-release/github",
-        "assets": [
-          {
-            "label": "Blesta Module (zip)",
-            "path": "pkg/blesta-ispapi-registrar.zip"
-          },
-          {
-            "label": "Blesta Module (tar.gz)",
-            "path": "pkg/blesta-ispapi-registrar.tar.gz"
-          }
-        ]
-      }
-    ]
-  },
-  "scripts": {
-    "semantic-release": "semantic-release"
   }
 }
