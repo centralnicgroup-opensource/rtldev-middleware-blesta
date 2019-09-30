@@ -307,12 +307,39 @@ class Ispapi extends Module
                         "NAMESERVER1" => $vars["ns2"],
                         "NAMESERVER2" => $vars["ns3"],
                         "NAMESERVER3" => $vars["ns4"],
-                        #"OWNERCONTACT0" => $contact_data['Registrant'],
-                        #"ADMINCONTACT0" => $contact_data['Admin'],
-                        #"TECHCONTACT0" => $contact_data['Tech'],
-                        #"BILLINGCONTACT0" => $contact_data['Billing'],
+                        "OWNERCONTACT0" => $contact_data['Registrant'],
+                        "ADMINCONTACT0" => $contact_data['Admin'],
+                        "TECHCONTACT0" => $contact_data['Tech'],
+                        "BILLINGCONTACT0" => $contact_data['Billing'],
                         "AUTH" => $vars['transfer_key']
                     );
+                    
+                    //don't send owner admin tech billing contact for .NU .DK .CA, .US, .PT, .NO, .SE, .ES domains
+                    if (preg_match('/[.](nu|dk|ca|us|pt|no|se|es)$/i', $vars['domain'])) {
+                        unset($command["OWNERCONTACT0"]);
+                        unset($command["ADMINCONTACT0"]);
+                        unset($command["TECHCONTACT0"]);
+                        unset($command["BILLINGCONTACT0"]);
+                    }
+
+                    //don't send owner billing contact for .FR domains
+                    if (preg_match('/[.]fr$/i', $vars['domain'])) {
+                        unset($command["OWNERCONTACT0"]);
+                        unset($command["BILLINGCONTACT0"]);
+                    }
+
+                    //send PERIOD=0 for .NO and .NU domains
+                    if (preg_match('/[.](no|nu|es)$/i', $vars['domain'])) {
+                        $command["PERIOD"] = 0;
+                    }
+                    
+                    //do not send contact information for gTLD (Including nTLDs)
+                    if (preg_match('/\.[a-z]{3,}$/i', $vars['domain'])) {
+                        unset($command["OWNERCONTACT0"]);
+                        unset($command["ADMINCONTACT0"]);
+                        unset($command["TECHCONTACT0"]);
+                        unset($command["BILLINGCONTACT0"]);
+                    }
 
                     $response = $all->ispapiCall($command);
 
