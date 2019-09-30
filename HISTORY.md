@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.2.1...v1.2.2) (2019-09-30)
+
+
+### Bug Fixes
+
+* **DomainTransfers:** send required contact data for domain transfers ([9e52790](https://github.com/hexonet/blesta-ispapi-registrar/commit/9e52790))
+
 ## [1.2.1](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.2.0...v1.2.1) (2019-09-19)
 
 
