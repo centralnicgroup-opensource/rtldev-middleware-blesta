@@ -3,12 +3,12 @@ dist: xenial
 notifications:
   email:
     recipients:
-    - middleware@hexonet.net
+      - middleware@hexonet.net
     on_success: never
     on_failure: always
 php:
-  - '5.6'
-  - '7.3'
+  - "5.6"
+  - "7.3"
 # Trigger a push build on master and dependabot branches + PRs build on every branches
 # Avoid double build on PRs (See https://github.com/travis-ci/travis-ci/issues/1147)
 branches:
@@ -20,8 +20,14 @@ addons:
     update: true
 before_install:
   - export PATH="$HOME/.config/composer/vendor/bin:$PATH"
+  - export TRAVIS_NODE_VERSION="lts/*"
 install:
   - sudo apt install graphviz
+  - rm -rf ~/.nvm
+  - git clone https://github.com/creationix/nvm.git ~/.nvm
+  - (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`)
+  - source ~/.nvm/nvm.sh
+  - nvm install $TRAVIS_NODE_VERSION
   - travis_retry composer install
   - travis_retry composer global require squizlabs/php_codesniffer
 script:
