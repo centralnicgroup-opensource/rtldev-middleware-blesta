@@ -298,6 +298,39 @@ class Ispapi extends Module
                 }
                
                 if (isset($vars['transfer_key']) && !empty($vars['transfer_key'])) {
+                    //domain transfer pre-check
+                    $command_cdt = [
+                        "COMMAND" => "CheckDomainTransfer",
+                        "DOMAIN" => $vars['domain']
+                    ];
+                    $command_cdt["AUTH"] = $vars['transfer_key'];
+
+                    $r = $all->ispapiCall($command_cdt);
+                    
+                    if ($r->response()["CODE"] != 218) {
+                        // Handling api errors
+                        $this->processResponse($api, $r);
+                        if ($this->Input->errors()) {
+                            return;
+                        }
+                    }
+
+                    if (isset($r->response()["PROPERTY"]["AUTHISVALID"]) && $r->response()["PROPERTY"]["AUTHISVALID"][0] == "NO") {
+                        // return custom error message
+                        $errors = "Invaild Authorization Code";
+                    }
+                    
+                    if (isset($r->response()["PROPERTY"]["TRANSFERLOCK"]) && $r->response()["PROPERTY"]["TRANSFERLOCK"][0] == "1") {
+                        // return custom error message
+                        $errors = "Transferlock is active. Therefore the Domain cannot be transferred.";
+                    }
+
+                    if (!empty($errors)) {
+                        $errors = (object)$errors;
+                        $this->Input->setErrors(['errors' => $errors]);
+                        return;
+                    }
+                    
                     // Handle transfer
                     $command = array(
                         "COMMAND" => "TransferDomain",
@@ -313,9 +346,15 @@ class Ispapi extends Module
                         "BILLINGCONTACT0" => $contact_data['Billing'],
                         "AUTH" => $vars['transfer_key']
                     );
+
+                    if (isset($r->response()["PROPERTY"]["USERTRANSFERREQUIRED"]) && $r->response()["PROPERTY"]["USERTRANSFERREQUIRED"][0] == "1") {
+                        //auto-detect user-transfer
+                        $command["ACTION"] = "USERTRANSFER";
+                    }
                     
                     //don't send owner admin tech billing contact for .NU .DK .CA, .US, .PT, .NO, .SE, .ES domains
-                    if (preg_match('/[.](nu|dk|ca|us|pt|no|se|es)$/i', $vars['domain'])) {
+                    //2) do not send contact information for gTLD (Including nTLDs)
+                    if (preg_match('/\.([a-z]{3,}(nu|dk|ca|us|pt|no|se|es)$/i', $vars['domain'])) {
                         unset($command["OWNERCONTACT0"]);
                         unset($command["ADMINCONTACT0"]);
                         unset($command["TECHCONTACT0"]);
@@ -328,11 +367,23 @@ class Ispapi extends Module
                         unset($command["BILLINGCONTACT0"]);
                     }
 
-                    //send PERIOD=0 for .NO and .NU domains
-                    if (preg_match('/[.](no|nu|es)$/i', $vars['domain'])) {
-                        $command["PERIOD"] = 0;
+                    //auto-detect default transfer period
+                    //for example, es, no, nu tlds require period value as zero (free transfers).
+                    //in Blesta the default value is based on the package settings for those TLDs created by user
+                    $qr_command = array(
+                        "COMMAND" => "QueryDomainOptions",
+                        "DOMAIN0" => $vars['domain']
+                    );
+
+                    $qr = $all->ispapiCall($qr_command);
+
+                    if ($qr->response()["CODE"] == 200) {
+                        $period_arry = explode(",", $qr->response()['PROPERTY']['ZONETRANSFERPERIODS'][0]);
+                        if (preg_match("/^0(Y|M)?$/i", $period_arry[0])) {// set period 0 - specific case.
+                            $command["PERIOD"] = $period_arry[0];
+                        }
                     }
-                    
+
                     //do not send contact information for gTLD (Including nTLDs)
                     if (preg_match('/\.[a-z]{3,}$/i', $vars['domain'])) {
                         unset($command["OWNERCONTACT0"]);
@@ -342,13 +393,7 @@ class Ispapi extends Module
                     }
 
                     $response = $all->ispapiCall($command);
-
-                    // User transfer support
-                    if (preg_match('/USERTRANSFER/', $response->response()["DESCRIPTION"])) {
-                        $command["ACTION"] = "USERTRANSFER";
-                        $response = $all->ispapiCall($command);
-                    }
-
+                    
                     // Handling api errors
                     $this->processResponse($api, $response);
 
@@ -1801,7 +1846,6 @@ class Ispapi extends Module
     private function processResponse(IspapiApi $api, IspapiResponse $response)
     {
         $this->logRequest($api, $response);
-
         // Set errors, if any
         if ($response->response()['CODE'] != 200) {
             $errors = $response->response()['DESCRIPTION'] ? $response->response()['DESCRIPTION'] : [];
