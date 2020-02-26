@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.2.2...v1.3.0) (2020-02-26)
+
+
+### Features
+
+* **transfer:** auto-detection for 0Y period, Transfer domain checks ([434d1e3](https://github.com/hexonet/blesta-ispapi-registrar/commit/434d1e380685c7fb3f42ae0a43e645ac0edff0f4))
+
 ## [1.2.2](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.2.1...v1.2.2) (2019-09-30)
 
 
