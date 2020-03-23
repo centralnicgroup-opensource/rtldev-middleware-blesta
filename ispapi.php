@@ -1190,23 +1190,38 @@ class Ispapi extends Module
             $this->processResponse($api, $response);
 
             $response = $response->response();
+
             if ($response["CODE"] == 200) {
-                $status = $response["PROPERTY"]["STATUS"][0];
+                // Expiry date at our system [HM-696]
+                $r = $response["PROPERTY"];
+                
+                $expirationdate = $r["EXPIRATIONDATE"][0];
+                $expirationts = strtotime($expirationdate);
+                $finalizationdate = $r["FINALIZATIONDATE"][0];
+                $paiduntildate = $r["PAIDUNTILDATE"][0];
+                //$accountingdate = $r["ACCOUNTINGDATE"][0];
+                $failuredate = $r["FAILUREDATE"][0];
+
                 // Status of the domain at our system
-                if (preg_match('/ACTIVE/i', $status)) {
+                if (preg_match("/ACTIVE/i", $r["STATUS"][0])) {
                     $values["status"] = 'Active';
-                } elseif (preg_match('/DELETE/i', $status)) {
+                }
+
+                if (preg_match("/DELETE/i", $r["STATUS"][0])) {
+                    $values["expirydate"] = preg_replace("/ .*$/", "", $expirationdate);
                     $values['status'] = 'Expired';
                 }
-                // Expiry date at our system
-                if ($response["PROPERTY"]["FAILUREDATE"][0] > $response["PROPERTY"]["PAIDUNTILDATE"][0]) {
-                    $paiduntildate = preg_replace('/ .*/', '', $response["PROPERTY"]["PAIDUNTILDATE"][0]);
-                    $values['expirydate'] = $paiduntildate;
+
+                if ($failuredate > $paiduntildate) {
+                    $values["expirydate"] = preg_replace("/ .*$/", "", $paiduntildate);
                 } else {
-                    $accountingdate = preg_replace('/ .*/', '', $response["PROPERTY"]["ACCOUNTINGDATE"][0]);
-                    $values['expirydate'] = $accountingdate;
+                    $finalizationts = strtotime($finalizationdate);
+                    $paiduntilts = strtotime($paiduntildate);
+                    $expirationts = $finalizationts + ($paiduntilts - $expirationts);
+                    $values["expirydate"] = date("Y-m-d", $expirationts);
                 }
             }
+
 
             $domain_status->attach($fields->fieldText((isset($values['status']) ? $values['status'] : ""), array('id'=>$values['status']), array('readonly'=>'readonly')));
             $expirydate->attach($fields->fieldText((isset($values['expirydate']) ? $values['expirydate'] : ""), array('id'=>$values['expirydate']), array('readonly'=>'readonly')));
