@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.3.0...v1.3.1) (2020-03-23)
+
+
+### Bug Fixes
+
+* **expiry-date:** expiry date auto-detection ([40599bc](https://github.com/hexonet/blesta-ispapi-registrar/commit/40599bc6cc01d31b5c3d0129e0f220359065704f))
+
 # [1.3.0](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.2.2...v1.3.0) (2020-02-26)
 
 
