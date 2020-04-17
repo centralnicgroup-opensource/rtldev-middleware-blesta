@@ -418,3 +418,5 @@ $lang['Ispapi.domain.CIRAWhoisDisplay.private'] = 'Keep Private';
 $lang['Ispapi.domain.CIRALanguage'] = 'Preferred language for communication';
 $lang['Ispapi.domain.CIRALanguage.en'] = 'English';
 $lang['Ispapi.domain.CIRALanguage.fr'] = 'French';
+$lang['Ispapi.domain.CIRADisclose'] = 'WHOIS Opt-out';
+$lang['Ispapi.domain.CIRAWhois.yes'] = 'Tick to hide your contact information in CIRA WHOIS (only available to individuals)';

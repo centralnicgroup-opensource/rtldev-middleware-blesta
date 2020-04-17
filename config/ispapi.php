@@ -559,6 +559,13 @@ Configure::set('Ispapi.domain_fields.ca', [
             'en' => Language::_('Ispapi.domain.CIRALanguage.en', true),
             'fr' => Language::_('Ispapi.domain.CIRALanguage.fr', true),
         ]
+    ],
+    'X-CA-DISCLOSE' => [
+        'label' => Language::_('Ispapi.domain.CIRADisclose', true),
+        'type' => 'checkbox',
+        'options' => [
+            '1' => Language::_('Ispapi.domain.CIRAWhois.yes', true)
+        ]
     ]
 ]);
 
