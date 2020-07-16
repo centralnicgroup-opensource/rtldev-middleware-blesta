@@ -5,8 +5,8 @@
 # semantic-release. SEE package.json
 
 # version format: X.Y.Z
-newversion="$1";
-date="$(date +'%Y-%m-%d')";
+newversion="$1"
+date="$(date +'%Y-%m-%d')"
 
 printf -v sed_script 's/private static \$version = "[0-9]\+\.[0-9]\+\.[0-9]\+"/private static \$version = "%s"/g' "${newversion}"
 sed -i -e "${sed_script}" ispapi.php
