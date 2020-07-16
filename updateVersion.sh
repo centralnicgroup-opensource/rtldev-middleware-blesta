@@ -6,11 +6,13 @@
 
 # version format: X.Y.Z
 newversion="$1";
-branch="$2";
 date="$(date +'%Y-%m-%d')";
 
-if [ "$branch" = "master" ]; then
-    sed -i "s/private static \$version = \"[0-9]\+\.[0-9]\+\.[0-9]\+\"/private static \$version = \"${newversion}\"/g" ispapi.php
-    sed -i "s/\"version\": \"[0-9]\+\.[0-9]\+\.[0-9]\+\"/\"version\": \"${newversion}\"/g" release.json
-    sed -i "s/\"date\": \"[0-9]\+-[0-9]\+-[0-9]\+\"/\"date\": \"${date}\"/g" release.json
-fi;
+printf -v sed_script 's/private static \$version = "[0-9]\+\.[0-9]\+\.[0-9]\+"/private static \$version = "%s"/g' "${newversion}"
+sed -i -e "${sed_script}" ispapi.php
+
+printf -v sed_script 's/"version": "[0-9]\+\.[0-9]\+\.[0-9]\+"/"version": "%s"/g' "${newversion}"
+sed -i -e "${sed_script}" release.json
+
+printf -v sed_script 's/"date": "[0-9]\+-[0-9]\+-[0-9]\+"/"date": "%s"/g' "${date}"
+sed -i -e "${sed_script}" release.json
