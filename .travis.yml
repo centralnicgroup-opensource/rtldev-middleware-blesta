@@ -8,25 +8,15 @@ notifications:
     on_failure: always
 php:
   - "7.3"
-# Trigger a push build on master and dependabot branches + PRs build on every branches
-# Avoid double build on PRs (See https://github.com/travis-ci/travis-ci/issues/1147)
-branches:
-  only:
-    - master
-    - /^dependabot.*$/
+  - "7.4"
 addons:
   apt:
     update: true
+    packages:
+      -graphviz
 before_install:
   - export PATH="$HOME/.config/composer/vendor/bin:$PATH"
-  - export TRAVIS_NODE_VERSION="lts/*"
 install:
-  - sudo apt install graphviz
-  - rm -rf ~/.nvm
-  - git clone https://github.com/creationix/nvm.git ~/.nvm
-  - (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`)
-  - source ~/.nvm/nvm.sh
-  - nvm install $TRAVIS_NODE_VERSION
   - travis_retry composer install
   - travis_retry composer global require squizlabs/php_codesniffer
 script:
@@ -35,7 +25,15 @@ jobs:
   include:
     - stage: release
       node_js: lts/*
-      script:
+      before_install:
+        - export TRAVIS_NODE_VERSION="lts/*"
+      install:
+        - rm -rf ~/.nvm
+        - git clone https://github.com/creationix/nvm.git ~/.nvm
+        - (cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`)
+        - source ~/.nvm/nvm.sh
+        - nvm install $TRAVIS_NODE_VERSION
         - npm prune
         - travis_retry npm i
+      script:
         - npx semantic-release
