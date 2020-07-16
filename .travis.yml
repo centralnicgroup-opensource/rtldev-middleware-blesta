@@ -13,7 +13,7 @@ addons:
   apt:
     update: true
     packages:
-      -graphviz
+      - graphviz
 before_install:
   - export PATH="$HOME/.config/composer/vendor/bin:$PATH"
 install:
