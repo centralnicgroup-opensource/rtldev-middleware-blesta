@@ -18,8 +18,9 @@ before_install:
   - export PATH="$HOME/.config/composer/vendor/bin:$PATH"
 install:
   - travis_retry composer install
-  - travis_retry composer global require squizlabs/php_codesniffer
+  - travis_retry composer global require dealerdirect/phpcodesniffer-composer-installer roave/security-advisories:dev-master squizlabs/php_codesniffer phpcompatibility/php-compatibility
 script:
+  - composer run-script phpCompatibility
   - composer run-script codeCheck
 jobs:
   include:
