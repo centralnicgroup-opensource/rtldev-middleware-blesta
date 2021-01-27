@@ -1,0 +1,23 @@
+{
+    "phpcsparams": "--extensions=php,pdt --ignore=node_modules,vendor,templates_c -q .",
+    "phpcsfixcmd": "phpcbf --standard=./phpcs.xml.dist",
+    "phpcschkcmd": "phpcs -n --colors --standard=./phpcs.xml.dist",
+    "phpcomptcmd": "phpcs -n --colors --standard=PHPCompatibility --runtime-set testVersion \"$(php -r 'echo PHP_MAJOR_VERSION . \".\" . PHP_MINOR_VERSION;')\"",
+    "phpstancmd": "./vendor/bin/phpstan analyse",
+    "archiveFileName": "blesta-ispapi-registrar",
+    "archiveBuildPath": "build",
+    "filesForArchive": [
+        "README.md",
+        "CONTRIBUTING.md",
+        "HISTORY.md",
+        "LICENSE",
+        "components"
+    ],
+    "filesForCleanup": [
+        "templates_c",
+        "components/modules/ispapi/composer.lock",
+        ".phpunit.result.cache",
+        "package-lock.json",
+        "tmp"
+    ]
+}

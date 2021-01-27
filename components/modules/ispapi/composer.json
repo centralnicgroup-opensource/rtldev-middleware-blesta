@@ -31,10 +31,5 @@
   "require": {
     "php": ">=5.6.0",
     "blesta/composer-installer": "~1.0"
-  },
-  "scripts": {
-    "phpCompatibility": "./scripts/phpcompatibility.sh",
-    "codeCheck": "phpcs --ignore=\"*/vendor/*\" --standard=./phpcs.xml.dist --extensions=php,pdt -q -n --colors apis config language views ispapi.php",
-    "codeFix": "phpcbf --ignore=\"*/vendor/*\" --standard=./phpcs.xml.dist --extensions=php,pdt -q apis config language views ispapi.php"
   }
 }
