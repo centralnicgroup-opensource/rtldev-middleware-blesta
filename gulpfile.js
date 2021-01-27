@@ -9,7 +9,7 @@ const cfg = require('./gulpfile.json')
 /**
  * Perform PHP Linting
  */
-async function doLint () {
+async function doLint() {
   // these may fail, it's fine
   try {
     await exec(`${cfg.phpcsfixcmd} ${cfg.phpcsparams}`)
@@ -31,7 +31,7 @@ async function doLint () {
  * cleanup old build folder / archive
  * @return stream
  */
-function doDistClean () {
+function doDistClean() {
   return src([cfg.archiveBuildPath, `${cfg.archiveFileName}-latest.zip`], { read: false, base: '.', allowEmpty: true })
     .pipe(clean({ force: true }))
 }
@@ -40,7 +40,7 @@ function doDistClean () {
  * Copy all files/folders to build folder
  * @return stream
  */
-function doCopyFiles () {
+function doCopyFiles() {
   return src(cfg.filesForArchive, { base: '.' })
     .pipe(dest(cfg.archiveBuildPath))
 }
@@ -49,7 +49,7 @@ function doCopyFiles () {
  * Clean up files
  * @return stream
  */
-function doFullClean () {
+function doFullClean() {
   return src(cfg.filesForCleanup, { read: false, base: '.', allowEmpty: true })
     .pipe(clean({ force: true }))
 }
@@ -58,7 +58,7 @@ function doFullClean () {
  * build latest zip archive
  * @return stream
  */
-function doGitZip () {
+function doGitZip() {
   return src(`./${cfg.archiveBuildPath}/**`)
     .pipe(zip(`${cfg.archiveFileName}-latest.zip`))
     .pipe(dest('.'))
@@ -68,7 +68,7 @@ function doGitZip () {
  * build zip archive
  * @return stream
  */
-function doZip () {
+function doZip() {
   return src(`./${cfg.archiveBuildPath}/**`)
     .pipe(zip(`${cfg.archiveFileName}.zip`))
     .pipe(dest('./pkg'))
@@ -78,7 +78,7 @@ function doZip () {
  * build tar archive
  * @return stream
  */
-function doTar () {
+function doTar() {
   return src(`./${cfg.archiveBuildPath}/**`)
     .pipe(tar(`${cfg.archiveFileName}.tar`))
     .pipe(gzip())

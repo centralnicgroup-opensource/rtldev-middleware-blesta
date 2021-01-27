@@ -11,7 +11,8 @@
         "CONTRIBUTING.md",
         "HISTORY.md",
         "LICENSE",
-        "components"
+        "components/**",
+        "!components/**/vendor/**"
     ],
     "filesForCleanup": [
         "templates_c",
