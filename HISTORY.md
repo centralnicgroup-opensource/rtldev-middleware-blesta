@@ -1,3 +1,10 @@
+## [1.3.3](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.3.2...v1.3.3) (2021-02-01)
+
+
+### Bug Fixes
+
+* **.my / .ae / .qa:** added requested TLDs (.my, .ae, .qa) - more to come ([27b8c03](https://github.com/hexonet/blesta-ispapi-registrar/commit/27b8c034e7a7924cbb5a0411f53cf0524b01329d)), closes [#86](https://github.com/hexonet/blesta-ispapi-registrar/issues/86)
+
 ## [1.3.2](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.3.1...v1.3.2) (2021-01-27)
 
 
