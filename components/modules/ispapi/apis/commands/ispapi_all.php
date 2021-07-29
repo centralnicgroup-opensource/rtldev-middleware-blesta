@@ -2,8 +2,8 @@
 /**
  * Ispapi API request funnel
  *
- * @copyright Copyright (c) 2013, Phillips Data, Inc.
- * @license http://opensource.org/licenses/mit-license.php MIT License
+ * @copyright Copyright (c) 2018-2021, HEXONET
+ * @license https://raw.githubusercontent.com/hexonet/blesta-ispapi-registrar/master/LICENSE MIT
  * @package ispapi.commands
  */
 class IspapiAll
@@ -29,7 +29,7 @@ class IspapiAll
      * @param array $vars An array of input params
      * @return IspapiResponse
      */
-    public function ispapiCall($command)
+    public function call($command)
     {
         return $this->api->submit($command);
     }

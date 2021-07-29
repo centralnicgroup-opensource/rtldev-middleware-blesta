@@ -5,10 +5,10 @@ require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'commands' . DIRECTORY_SE
 /**
  * Ispapi API processor
  *
- * Documentation on the Ispapi API: https://wiki.hexonet.net/wiki/Domain_API //TODO -is this link ok?
+ * Documentation on the Ispapi API: https://github.com/hexonet/hexonet-api-documentation
  *
- * @copyright Copyright (c) 2013, Phillips Data, Inc.
- * @license http://opensource.org/licenses/mit-license.php MIT License
+ * @copyright Copyright (c) 2018-2021, HEXONET
+ * @license https://raw.githubusercontent.com/hexonet/blesta-ispapi-registrar/master/LICENSE MIT
  * @package ispapi
  */
 class IspapiApi

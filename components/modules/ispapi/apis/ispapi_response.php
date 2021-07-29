@@ -2,8 +2,8 @@
 /**
  * Ispapi API response handler
  *
- * @copyright Copyright (c) 2013, Phillips Data, Inc.
- * @license http://opensource.org/licenses/mit-license.php MIT License
+ * @copyright Copyright (c) 2018-2021, HEXONET.
+ * @license https://raw.githubusercontent.com/hexonet/blesta-ispapi-registrar/master/LICENSE MIT
  * @package ispapi
  */
 class IspapiResponse

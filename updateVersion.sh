@@ -8,8 +8,8 @@
 newversion="$1"
 date="$(date +'%Y-%m-%d')"
 
-printf -v sed_script 's/private static \$version = "[0-9]\+\.[0-9]\+\.[0-9]\+"/private static \$version = "%s"/g' "${newversion}"
-sed -i -e "${sed_script}" components/modules/ispapi/ispapi.php
+printf -v sed_script 's/"version": "[0-9]\+\.[0-9]\+\.[0-9]\+"/"version": "%s"/g' "${newversion}"
+sed -i -e "${sed_script}" components/modules/ispapi/config.json
 
 printf -v sed_script 's/"version": "[0-9]\+\.[0-9]\+\.[0-9]\+"/"version": "%s"/g' "${newversion}"
 sed -i -e "${sed_script}" release.json

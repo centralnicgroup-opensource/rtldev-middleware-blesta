@@ -1,6 +1,12 @@
 <?php
+/**
+ * @copyright Copyright (c) 2018-2021, HEXONET
+ * @license https://raw.githubusercontent.com/hexonet/blesta-ispapi-registrar/master/LICENSE MIT
+ */
+
 // Basics
 $lang['Ispapi.name'] = 'Ispapi';
+$lang['Ispapi.description'] = 'Resell domains through HEXONET.';
 $lang['Ispapi.module_row'] = 'Account';
 $lang['Ispapi.module_row_plural'] = 'Accounts';
 
