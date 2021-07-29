@@ -1,0 +1,37 @@
+{
+    "version": "1.3.3",
+    "type": "registrar",
+    "name": "Ispapi.name",
+    "description": "Ispapi.description",
+    "authors": [
+        {
+            "name": "Kai Schwarz, HEXONET",
+            "url": "https://www.hexonet.net"
+        }
+    ],
+    "package": {
+        "name_key": "domain"
+    },
+    "service": {
+        "name_key": "domain"
+    },
+    "module": {
+        "row": "Ispapi.module_row",
+        "rows": "Ispapi.module_row_plural",
+        "row_key": "user"
+    },
+    "email_tags": {
+        "module": [],
+        "package": [],
+        "service": [
+            "domain",
+            "transfer",
+            "private",
+            "ns1",
+            "ns2",
+            "ns3",
+            "ns4",
+            "ns5"
+        ]
+    }
+}

@@ -10,16 +10,17 @@
     "ispapi",
     "domain",
     "isp",
-    "registration"
+    "registration",
+    "transfer"
   ],
   "homepage": "https://github.com/hexonet/blesta-ispapi-registrar",
   "readme": "README.md",
   "license": "MIT",
   "authors": [
     {
-      "name": "Tulasi Seelamkurthi",
-      "homepage": "https://github.com/tulsi91",
-      "role": "Developer"
+      "name": "Kai Schwarz",
+      "homepage": "https://github.com/papakai",
+      "role": "Lead Developer"
     }
   ],
   "support": {
