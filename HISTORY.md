@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/hexonet/blesta-ispapi-registrar/compare/v2.0.1...v2.0.2) (2021-08-05)
+
+
+### Bug Fixes
+
+* **ci:** include updated config.json in version commit ([8bef494](https://github.com/hexonet/blesta-ispapi-registrar/commit/8bef494765fb448ace47fb38c18b46be40fd48e0))
+
 ## [2.0.1](https://github.com/hexonet/blesta-ispapi-registrar/compare/v2.0.0...v2.0.1) (2021-08-05)
 
 
