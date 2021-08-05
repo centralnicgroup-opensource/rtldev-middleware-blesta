@@ -1808,15 +1808,14 @@ class Ispapi extends RegistrarModule
 
         $tldclassmap = Configure::get('Ispapi.tldclassmap');
         $tlds = [];
-        $relations = [];
         foreach ($r["PROPERTY"]["RELATIONTYPE"] as $idx => $t) {
             if (preg_match("/^PRICE_CLASS_(MANAGED)?DOMAIN_([^_]+)_(SETUP|CREATE)$/", $t, $m)) {
-                $relations[$m[2]] = $r["PROPERTY"]["RELATIONVALUE"][$idx];
-            }
-        }
-        foreach ($tldclassmap as $tldclass => $tld) {
-            if (isset($relations[$tldclass])) {
-                $tlds[] = $tld;
+                $tldclass = $m[2];
+                if (isset($tldclassmap[$tldclass])) {
+                    $tlds[] = $tldclassmap[$tldclass];
+                } else {
+                    $tlds[] = "." . strtolower($tldclass);
+                }
             }
         }
 
