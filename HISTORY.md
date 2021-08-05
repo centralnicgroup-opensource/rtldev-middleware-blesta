@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/hexonet/blesta-ispapi-registrar/compare/v2.0.0...v2.0.1) (2021-08-05)
+
+
+### Bug Fixes
+
+* **gettlds:** fixed building list of supported TLDs ([b1b286d](https://github.com/hexonet/blesta-ispapi-registrar/commit/b1b286df9b64049e778a23316c5c52bb6b7bc16c))
+
 # [2.0.0](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.3.3...v2.0.0) (2021-08-05)
 
 
