@@ -21,7 +21,7 @@
                     "HISTORY.md",
                     "package.json",
                     "composer.json",
-                    "config.json",
+                    "components/modules/ispapi/config.json",
                     "components/modules/ispapi/ispapi.php",
                     "release.json",
                     "blesta-ispapi-registrar-latest.zip"
