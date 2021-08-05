@@ -1,3 +1,15 @@
+# [2.0.0](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.3.3...v2.0.0) (2021-08-05)
+
+
+### Features
+
+* **blesta 5.2:** initial revamp ([e2147b6](https://github.com/hexonet/blesta-ispapi-registrar/commit/e2147b61a7de9eff73a4121c394f95a6cd7b37a6))
+
+
+### BREAKING CHANGES
+
+* **blesta 5.2:** Reviewed to be compatible with Blesta 5.2.
+
 ## [1.3.3](https://github.com/hexonet/blesta-ispapi-registrar/compare/v1.3.2...v1.3.3) (2021-02-01)
 
 
