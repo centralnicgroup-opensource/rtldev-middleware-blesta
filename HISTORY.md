@@ -1,3 +1,10 @@
+## [2.0.3](https://github.com/hexonet/blesta-ispapi-registrar/compare/v2.0.2...v2.0.3) (2021-08-06)
+
+
+### Bug Fixes
+
+* **gettlds:** order the list of TLDs more nicely ([0553d12](https://github.com/hexonet/blesta-ispapi-registrar/commit/0553d12779e66f239084ae790731e9d76d79ac34))
+
 ## [2.0.2](https://github.com/hexonet/blesta-ispapi-registrar/compare/v2.0.1...v2.0.2) (2021-08-05)
 
 
