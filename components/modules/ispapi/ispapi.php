@@ -1800,8 +1800,6 @@ class Ispapi extends RegistrarModule
         ]);
         // Handling api errors
         $r = $this->processResponse($api, $response);
-
-        // Code 210 is for avaialble domains
         if ($r['CODE'] != '200') {
             return [];
         }
@@ -1818,6 +1816,17 @@ class Ispapi extends RegistrarModule
                 }
             }
         }
+
+        // cleanup and sort list of tlds
+        $tlds = array_values(array_unique($tlds));
+        usort($tlds, function ($tld1, $tld2) {
+            $a = implode(".", array_reverse(explode(".", $tld1)));//com, uk.co
+            $b = implode(".", array_reverse(explode(".", $tld2)));//ca, de.com
+            if ($a === $b) {
+                return 0;
+            }
+            return ($a > $b) ? 1 : -1;
+        });
 
         // Save the TLDs results to the cache TODO
         if (count($tlds) > 0) {
