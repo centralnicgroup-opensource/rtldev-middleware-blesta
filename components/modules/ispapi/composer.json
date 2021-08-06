@@ -1,6 +1,6 @@
 {
   "name": "blesta/ispapi",
-  "description": "The ISPAPI Registrar Module for BLESTA",
+  "description": "HEXONET Module",
   "keywords": [
     "blesta",
     "web host automation platform",
@@ -15,7 +15,7 @@
   ],
   "homepage": "https://github.com/hexonet/blesta-ispapi-registrar",
   "readme": "README.md",
-  "license": "MIT",
+  "license": "proprietary",
   "authors": [
     {
       "name": "Kai Schwarz",
