@@ -13,7 +13,7 @@ class Ispapi extends RegistrarModule
     /**
      * @var string Default module view path
      */
-    private static $defaultModuleView = 'components' . DS . 'modules' . DS . 'ispapi' . DS;
+    private static $defaultModuleView = "components" . DS . "modules" . DS . "ispapi" . DS;
 
     /**
      * Initializes the module
@@ -21,13 +21,80 @@ class Ispapi extends RegistrarModule
     public function __construct()
     {
         // Load the language required by this module
-        Language::loadLang('ispapi', null, __DIR__ . DS . 'language' . DS);
+        Language::loadLang("ispapi", null, __DIR__ . DS . "language" . DS);
         // Load config.json (important to have language loaded first)
         $this->loadConfig(__DIR__ . DS . "config.json");
         // Load components required by this module
-        Loader::loadComponents($this, ['Input', 'Record']);
+        Loader::loadComponents($this, ["Input", "Record"]);
         // Load configuration
-        Configure::load('ispapi', __DIR__ . DS . 'config' . DS);
+        Configure::load("ispapi", __DIR__ . DS . "config" . DS);
+
+        // ---------------------------------------------------------------
+        // HEXONET's PHP-SDK
+        // ---------------------------------------------------------------
+        $path = implode(DS, [__DIR__, "apis", "sdk", "src", ""]);
+        Loader::load($path . "SocketConfig.php");
+        Loader::load($path . "APIClient.php");
+        Loader::load($path . "Column.php");
+        Loader::load($path . "Logger.php");
+        Loader::load($path . "Record.php");
+        Loader::load($path . "ResponseTranslator.php");
+        Loader::load($path . "Response.php");
+        Loader::load($path . "ResponseParser.php");
+        Loader::load($path . "ResponseTemplateManager.php");
+        $path = implode(DS, [__DIR__, "apis", ""]);
+        Loader::load($path . "BlestaLogger.php");
+        // ---------------------------------------------------------------
+    }
+
+    /**
+     * Make an API request using the provided command and return response in Hash Format
+     * @param array $command API command to request
+     * @param array $row Module Row
+     * @param string $successCase regex to match the response code as success case
+     * @return array
+     */
+    private function _call(array $command, stdClass $row, string $successCase = "/^200$/")
+    {
+        $cl = new \HEXONET\APIClient();
+        if ($row->meta->sandbox == "true") {
+            $cl->useOTESystem();
+        }
+
+        $cl->setCredentials($row->meta->user, $row->meta->key)
+            ->setReferer($_SERVER["HTTP_HOST"])
+            ->setUserAgent("Blesta", BLESTA_VERSION, [
+                "ispapi/" . $this->getVersion()
+            ])
+            ->enableDebugMode() // activate logging
+            ->setCustomLogger(new BlestaLogger(
+                $this,
+                $cl->getURL()
+            ));
+        if (!empty($row->ProxyServer)) {
+            $cl->setProxy($row->ProxyServer);
+        }
+
+        $r = $cl->request($command)->getHash();
+        if (!preg_match($successCase, $r["CODE"])) {
+            $this->Input->setErrors([
+                "errors" => [ $r["CODE"] . " " . $r["DESCRIPTION"] ]
+            ]);
+        }
+        return $r;
+    }
+
+    /**
+     * Attempts to log the given info to the module log.
+     * (Make native Log function public allowing us to forward it to our BlestaLogger)
+     * @param string $url The URL contacted for this request
+     * @param string $data A string of module data sent along with the request (optional)
+     * @param string $direction The direction of the log entry (input or output, default input)
+     * @param bool $success True if the request was successful, false otherwise
+     */
+    public function log($url, $data = null, $direction = "input", $success = false)
+    {
+        parent::log($url, $data, $direction, $success);
     }
 
     /**
@@ -72,16 +139,16 @@ class Ispapi extends RegistrarModule
         array $vars = null,
         $parent_package = null,
         $parent_service = null,
-        $status = 'pending'
+        $status = "pending"
     ) {
         // 'Service' meaning here registered or tranferred domain name
-        $whois_sections = Configure::get('Ispapi.whois_sections');
+        $whois_sections = Configure::get("Ispapi.whois_sections");
 
         $tld = null;
         $input_fields = [];
 
-        if (isset($vars['domain'])) {
-            $tld = $this->getTld($vars['domain']);
+        if (isset($vars["domain"])) {
+            $tld = $this->getTld($vars["domain"]);
         }
         
         $input_fields = array_merge(
@@ -90,82 +157,81 @@ class Ispapi extends RegistrarModule
             (array) Configure::get("Ispapi.nameserver_fields"),
             (array) Configure::get("Ispapi.transfer_fields"),
             [
-                'NumYears' => true,
-                'transfer' => isset($vars['transfer']) ? $vars['transfer'] : 1
+                "NumYears" => true,
+                "transfer" => isset($vars["transfer"]) ? $vars["transfer"] : 1
             ]
         );
         
-        $api = $this->getApi($this->getModuleRow($package->module_row));
-        $all = new IspapiAll($api);
+        $row = $this->getModuleRow($package->module_row);
 
-        if (isset($vars['use_module']) && $vars['use_module'] == 'true') {
-            if ($package->meta->type == 'domain') {
-                $vars['NumYears'] = 1;
-                $vars['SLD'] = substr($vars['domain'], 0, -strlen($tld));
-                $vars['TLD'] = ltrim($tld, '.');
+        if (isset($vars["use_module"]) && $vars["use_module"] == "true") {
+            if ($package->meta->type === "domain") {
+                $vars["NumYears"] = 1;
+                $vars["SLD"] = substr($vars["domain"], 0, -strlen($tld));
+                $vars["TLD"] = ltrim($tld, ".");
 
                 foreach ($package->pricing as $pricing) {
-                    if ($pricing->id == $vars['pricing_id']) {
-                        $vars['NumYears'] = $pricing->term;
-                        $vars['Period'] = $pricing->period;
+                    if ($pricing->id === $vars["pricing_id"]) {
+                        $vars["NumYears"] = $pricing->term;
+                        $vars["Period"] = $pricing->period;
                         break;
                     }
                 }
 
                 // Fields for contact information
-                $whois_fields = Configure::get('Ispapi.whois_fields');
+                $whois_fields = Configure::get("Ispapi.whois_fields");
 
                 // Contact information of a customer
                 if (!isset($this->Clients)) {
-                    Loader::loadModels($this, ['Clients']);
+                    Loader::loadModels($this, ["Clients"]);
                 }
                 if (!isset($this->Contacts)) {
-                    Loader::loadModels($this, ['Contacts']);
+                    Loader::loadModels($this, ["Contacts"]);
                 }
 
-                $client = $this->Clients->get($vars['client_id']);
+                $client = $this->Clients->get($vars["client_id"]);
 
                 if ($client) {
-                    $numbers = $this->Contacts->getNumbers($client->contact_id, 'phone');
+                    $numbers = $this->Contacts->getNumbers($client->contact_id, "phone");
                 }
 
                 // Customer contact information according to whois_fields = Registrant, Admin, Tech and Billing
                 foreach ($whois_fields as $key => $value) {
-                    if (strpos($key, 'FirstName') !== false) {
+                    if (strpos($key, "FirstName") !== false) {
                         $vars[$key] = $client->first_name;
-                    } elseif (strpos($key, 'LastName') !== false) {
+                    } elseif (strpos($key, "LastName") !== false) {
                         $vars[$key] = $client->last_name;
-                    } elseif (strpos($key, 'Organization') !== false) {
+                    } elseif (strpos($key, "Organization") !== false) {
                         $vars[$key] = $client->company;
-                    } elseif (strpos($key, 'Address1') !== false) {
+                    } elseif (strpos($key, "Address1") !== false) {
                         $vars[$key] = $client->address1;
-                    } elseif (strpos($key, 'Address2') !== false) {
+                    } elseif (strpos($key, "Address2") !== false) {
                         $vars[$key] = $client->address2;
-                    } elseif (strpos($key, 'City') !== false) {
+                    } elseif (strpos($key, "City") !== false) {
                         $vars[$key] = $client->city;
-                    } elseif (strpos($key, 'StateProvince') !== false) {
+                    } elseif (strpos($key, "StateProvince") !== false) {
                         $vars[$key] = $client->state;
-                    } elseif (strpos($key, 'PostalCode') !== false) {
+                    } elseif (strpos($key, "PostalCode") !== false) {
                         $vars[$key] = $client->zip;
-                    } elseif (strpos($key, 'Country') !== false) {
+                    } elseif (strpos($key, "Country") !== false) {
                         $vars[$key] = $client->country;
-                    } elseif (strpos($key, 'Phone') !== false) {
+                    } elseif (strpos($key, "Phone") !== false) {
                         $vars[$key] = $this->formatPhone(
                             isset($numbers[0]) ? $numbers[0]->number : null,
                             $client->country
                         );
-                    } elseif (strpos($key, 'EmailAddress') !== false) {
+                    } elseif (strpos($key, "EmailAddress") !== false) {
                         $vars[$key] = $client->email;
                     }
                 }
 
                 // Nameservers
-                $vars['UseDNS'] = 'default';
+                $vars["UseDNS"] = "default";
                 for ($i=1; $i<=5; $i++) {
-                    if (!isset($vars['ns' . $i]) || $vars['ns' . $i] == '') {
-                        unset($vars['ns' . $i]);
+                    if (!isset($vars["ns" . $i]) || empty($vars["ns" . $i])) {
+                        unset($vars["ns" . $i]);
                     } else {
-                        unset($vars['UseDNS']);
+                        unset($vars["UseDNS"]);
                     }
                 }
                 $fields = array_intersect_key($vars, $input_fields);
@@ -189,15 +255,15 @@ class Ispapi extends RegistrarModule
                     }
                 }
                
-                if (isset($vars['transfer_key']) && !empty($vars['transfer_key'])) {
+                if (isset($vars["transfer_key"]) && !empty($vars["transfer_key"])) {
                     //domain transfer pre-check
-                    $response = $all->call([
+                    $r = $this->_call([
                         "COMMAND" => "CheckDomainTransfer",
-                        "DOMAIN" => $vars['domain'],
-                        "AUTH" => $vars['transfer_key']
-                    ]);
+                        "DOMAIN" => $vars["domain"],
+                        "AUTH" => $vars["transfer_key"]
+                    ], $row, "/^(200|218)$/");
+
                     // Handling api errors
-                    $r = $this->processResponse($api, $response, "/^(200|218)$/");
                     if ($this->Input->errors()) {
                         return;
                     }
@@ -213,7 +279,7 @@ class Ispapi extends RegistrarModule
                     }
                     if (!empty($errors)) {
                         $this->Input->setErrors([
-                            'errors' => $errors
+                            "errors" => $errors
                         ]);
                         return;
                     }
@@ -221,27 +287,29 @@ class Ispapi extends RegistrarModule
                     // Handle transfer
                     $command = [
                         "COMMAND" => "TransferDomain",
-                        "DOMAIN" => $vars['domain'],
-                        "PERIOD" => $vars['NumYears'],
+                        "DOMAIN" => $vars["domain"],
+                        "PERIOD" => $vars["NumYears"],
                         "NAMESERVER0" => $vars["ns1"],
                         "NAMESERVER1" => $vars["ns2"],
                         "NAMESERVER2" => $vars["ns3"],
                         "NAMESERVER3" => $vars["ns4"],
-                        "OWNERCONTACT0" => $contact_data['Registrant'],
-                        "ADMINCONTACT0" => $contact_data['Admin'],
-                        "TECHCONTACT0" => $contact_data['Tech'],
-                        "BILLINGCONTACT0" => $contact_data['Billing'],
-                        "AUTH" => $vars['transfer_key']
+                        "OWNERCONTACT0" => $contact_data["Registrant"],
+                        "ADMINCONTACT0" => $contact_data["Admin"],
+                        "TECHCONTACT0" => $contact_data["Tech"],
+                        "BILLINGCONTACT0" => $contact_data["Billing"],
+                        "AUTH" => $vars["transfer_key"]
                     ];
 
-                    if (isset($r["PROPERTY"]["USERTRANSFERREQUIRED"]) && $r["PROPERTY"]["USERTRANSFERREQUIRED"][0] == "1") {
+                    if (isset($r["PROPERTY"]["USERTRANSFERREQUIRED"])
+                        && $r["PROPERTY"]["USERTRANSFERREQUIRED"][0] === "1"
+                    ) {
                         //auto-detect user-transfer
                         $command["ACTION"] = "USERTRANSFER";
                     }
                     
                     //don't send owner admin tech billing contact for .NU .DK .CA, .US, .PT, .NO, .SE, .ES domains
                     //2) do not send contact information for gTLD (Including nTLDs)
-                    if (preg_match('/\.([a-z]{3,}(nu|dk|ca|us|pt|no|se|es)$/i', $vars['domain'])) {
+                    if (preg_match("/\.([a-z]{3,}(nu|dk|ca|us|pt|no|se|es)$/i", $vars["domain"])) {
                         unset($command["OWNERCONTACT0"]);
                         unset($command["ADMINCONTACT0"]);
                         unset($command["TECHCONTACT0"]);
@@ -249,7 +317,7 @@ class Ispapi extends RegistrarModule
                     }
 
                     //don't send owner billing contact for .FR domains
-                    if (preg_match('/\.fr$/i', $vars['domain'])) {
+                    if (preg_match("/\.fr$/i", $vars["domain"])) {
                         unset($command["OWNERCONTACT0"]);
                         unset($command["BILLINGCONTACT0"]);
                     }
@@ -257,40 +325,39 @@ class Ispapi extends RegistrarModule
                     //auto-detect default transfer period
                     //for example, es, no, nu tlds require period value as zero (free transfers).
                     //in Blesta the default value is based on the package settings for those TLDs created by user
-                    $qr = $all->call([
+                    $r = $this->_call([
                         "COMMAND" => "QueryDomainOptions",
-                        "DOMAIN0" => $vars['domain']
-                    ]);
-                    $qr = $qr->response();
+                        "DOMAIN0" => $vars["domain"]
+                    ], $row);
+
                     //TODO
-                    if ($qr["CODE"] == 200) {
-                        $period_array = explode(",", $qr['PROPERTY']['ZONETRANSFERPERIODS'][0]);
+                    if ($qr["CODE"] === "200") {
+                        $period_array = explode(",", $qr["PROPERTY"]["ZONETRANSFERPERIODS"][0]);
                         if (preg_match("/^0(Y|M)?$/i", $period_array[0])) {// set period 0 - specific case.
                             $command["PERIOD"] = $period_array[0];
                         }
                     }
 
                     //do not send contact information for gTLD (Including nTLDs)
-                    if (preg_match('/\.[a-z]{3,}$/i', $vars['domain'])) {
+                    if (preg_match("/\.[a-z]{3,}$/i", $vars["domain"])) {
                         unset($command["OWNERCONTACT0"]);
                         unset($command["ADMINCONTACT0"]);
                         unset($command["TECHCONTACT0"]);
                         unset($command["BILLINGCONTACT0"]);
                     }
 
-                    $response = $all->call($command);
+                    $this->_call($command, $row);
                     
                     // Handling api errors
-                    $this->processResponse($api, $response);
                     if ($this->Input->errors()) {
                         return;
                     }
 
                     return [
                         [
-                            'key' => 'domain',
-                            'value' => $fields['domain'],
-                            'encrypted' => 0
+                            "key" => "domain",
+                            "value" => $fields["domain"],
+                            "encrypted" => 0
                         ]
                     ];
                 }
@@ -298,34 +365,35 @@ class Ispapi extends RegistrarModule
                 // Handle registration
                 $command = [
                     "COMMAND" => "AddDomain",
-                    "DOMAIN" => $vars['domain'],
-                    "PERIOD" => $vars['NumYears'],
+                    "DOMAIN" => $vars["domain"],
+                    "PERIOD" => $vars["NumYears"],
                     "NAMESERVER0" => $vars["ns1"],
                     "NAMESERVER1" => $vars["ns2"],
                     "NAMESERVER2" => $vars["ns3"],
                     "NAMESERVER3" => $vars["ns4"],
-                    "OWNERCONTACT0" => $contact_data['Registrant'],
-                    "ADMINCONTACT0" => $contact_data['Admin'],
-                    "TECHCONTACT0" => $contact_data['Tech'],
-                    "BILLINGCONTACT0" => $contact_data['Billing']
+                    "OWNERCONTACT0" => $contact_data["Registrant"],
+                    "ADMINCONTACT0" => $contact_data["Admin"],
+                    "TECHCONTACT0" => $contact_data["Tech"],
+                    "BILLINGCONTACT0" => $contact_data["Billing"]
                 ];
 
                 // Not all TLDs additional fields are like X-<tld>-<something>
-                #$tld_pattern = preg_replace('/\./', ' ', strtoupper($tld));
+                #$tld_pattern = preg_replace("/\./", " ", strtoupper($tld));
                 #foreach($vars as $key => $value) {
-                #    if (preg_match('/X-'.trim($tld_pattern).'/',$key)){
+                #    if (preg_match("/X-".trim($tld_pattern)."/",$key)){
                 #        $command[$key] = $value;
                 #    }
                 #}
-                // Considered only 'X-<something>' pattern for all fields
+                // Considered only "X-<something>" pattern for all fields
                 foreach ($vars as $key => $value) {
-                    if (preg_match('/X-(.*)/', $key)) {
+                    if (preg_match("/^X-(.*)/", $key)) {
                         $command[$key] = $value;
                     }
                 }
-                $response = $all->call($command);
+
+                $this->_call($command, $row);
+
                 // Handle api errors
-                $this->processResponse($api, $response);
                 if ($this->Input->errors()) {
                     return;
                 }
@@ -333,9 +401,9 @@ class Ispapi extends RegistrarModule
                 // Return domain details when registered successfully
                 return [
                     [
-                        'key' => 'domain',
-                        'value' => $vars['domain'],
-                        'encrypted' => 0
+                        "key" => "domain",
+                        "value" => $vars["domain"],
+                        "encrypted" => 0
                     ]
                 ];
             }
@@ -345,9 +413,9 @@ class Ispapi extends RegistrarModule
         $fields = array_intersect_key($vars, $input_fields);
         foreach ($fields as $key => $value) {
             $meta[] = [
-                'key' => $key,
-                'value' => $value,
-                'encrypted' => 0
+                "key" => $key,
+                "value" => $value,
+                "encrypted" => 0
             ];
         }
 
@@ -376,10 +444,10 @@ class Ispapi extends RegistrarModule
     {
         // Perform manual renewals
         $renew = isset($vars["renew"]) ? (int)$vars["renew"] : 0;
-        if ($renew > 0 && $vars["use_module"] == 'true') {
+        if ($renew > 0 && $vars["use_module"] == "true") {
             // Call to renewService() to perform manual renewals
             $this->renewService($package, $service, $parent_package, $parent_service, $renew);
-            unset($vars['renew']);
+            unset($vars["renew"]);
         }
         return null; // All this handled by admin/client tabs instead
     }
@@ -430,17 +498,15 @@ class Ispapi extends RegistrarModule
     public function suspendService($package, $service, $parent_package = null, $parent_service = null)
     {
         // Set renewal mode to AUTOEXPIRE
-        $api = $this->getApi($this->getModuleRow($package->module_row));
-        $all = new IspapiAll($api);
         if ($package->meta->type === "domain") {
+            $row = $this->getModuleRow($package->module_row);
             $fields = $this->serviceFieldsToObject($service->fields);
             
-            $response = $all->call([
+            $this->_call([
                 "COMMAND" => "SetDomainRenewalMode",
                 "DOMAIN" => $fields->domain,
                 "RENEWALMODE" => "AUTOEXPIRE"
-            ]);
-            $this->processResponse($api, $response);
+            ], $row);
 
             if ($this->Input->errors()) {
                 return;
@@ -471,37 +537,33 @@ class Ispapi extends RegistrarModule
     public function renewService($package, $service, $parent_package = null, $parent_service = null, $years = null)
     {
         // Credentials to API
-        $api = $this->getApi($this->getModuleRow($package->module_row));
-        $all = new IspapiAll($api);
+        $row = $this->getModuleRow($package->module_row);
 
         // Renew domain
-        if ($package->meta->type === 'domain') {
+        if ($package->meta->type === "domain") {
             $fields = $this->serviceFieldsToObject($service->fields);
 
-            $tld = trim($this->getTld($fields->domain), '.');
-            $sld = trim(substr($fields->domain, 0, -strlen($tld)), '.');
+            $tld = trim($this->getTld($fields->domain), ".");
+            $sld = trim(substr($fields->domain, 0, -strlen($tld)), ".");
 
-            $vars['domain'] = $fields->{"domain"};
+            $vars["domain"] = $fields->{"domain"};
                
             if ($years) {
                 $vars["NumYears"] = $years;
             }
 
             // Renew the domain
-            $response = $all->call([
+            $r = $this->_call([
                 "COMMAND" => "RenewDomain",
-                "DOMAIN" => $vars['domain'],
-                "PERIOD" => $vars['NumYears']
-            ]);
-            $r = $response->response();
+                "DOMAIN" => $vars["domain"],
+                "PERIOD" => $vars["NumYears"]
+            ], $row);
 
             // Some of the TLDs require following command for renewals (eg: .de)
-            if ($r["CODE"] == 510) {
+            if ($r["CODE"] === "510") {
                 $command["COMMAND"] = "PayDomainRenewal";
-                $response = $all->call($command);
+                $this->_call($command, $row);
             }
-
-            $this->processResponse($api, $response);
 
             if ($this->Input->errors()) {
                 return;
@@ -528,13 +590,13 @@ class Ispapi extends RegistrarModule
     public function addPackage(array $vars = null)
     {
         $meta = [];
-        if (isset($vars['meta']) && is_array($vars['meta'])) {
+        if (isset($vars["meta"]) && is_array($vars["meta"])) {
             // Return all package meta fields
-            foreach ($vars['meta'] as $key => $value) {
+            foreach ($vars["meta"] as $key => $value) {
                 $meta[] = [
-                    'key' => $key,
-                    'value' => $value,
-                    'encrypted' => 0
+                    "key" => $key,
+                    "value" => $value,
+                    "encrypted" => 0
                 ];
             }
         }
@@ -560,13 +622,13 @@ class Ispapi extends RegistrarModule
     public function editPackage($package, array $vars = null)
     {
         $meta = [];
-        if (isset($vars['meta']) && is_array($vars['meta'])) {
+        if (isset($vars["meta"]) && is_array($vars["meta"])) {
             // Return all package meta fields
-            foreach ($vars['meta'] as $key => $value) {
+            foreach ($vars["meta"] as $key => $value) {
                 $meta[] = [
-                    'key' => $key,
-                    'value' => $value,
-                    'encrypted' => 0
+                    "key" => $key,
+                    "value" => $value,
+                    "encrypted" => 0
                 ];
             }
         }
@@ -590,14 +652,14 @@ class Ispapi extends RegistrarModule
         // * etc.
 
         // Load the view into this object, so helpers can be automatically added to the view
-        $this->view = new View('manage', 'default');
+        $this->view = new View("manage", "default");
         $this->view->base_uri = $this->base_uri;
         $this->view->setDefaultView(self::$defaultModuleView);
 
         // Load the helpers required for this view
-        Loader::loadHelpers($this, ['Form', 'Html', 'Widget']);
+        Loader::loadHelpers($this, ["Form", "Html", "Widget"]);
 
-        $this->view->set('module', $module);
+        $this->view->set("module", $module);
 
         return $this->view->fetch();
     }
@@ -618,21 +680,21 @@ class Ispapi extends RegistrarModule
         // * etc.
 
         // Load the view into this object, so helpers can be automatically added to the view
-        $this->view = new View('add_row', 'default');
+        $this->view = new View("add_row", "default");
         $this->view->base_uri = $this->base_uri;
         $this->view->setDefaultView(self::$defaultModuleView);
 
         // Load the helpers required for this view
-        Loader::loadHelpers($this, ['Form', 'Html', 'Widget']);
+        Loader::loadHelpers($this, ["Form", "Html", "Widget"]);
 
         // Set unspecified checkboxes
         if (!empty($vars)) {
-            if (empty($vars['sandbox'])) {
-                $vars['sandbox'] = 'false';
+            if (empty($vars["sandbox"])) {
+                $vars["sandbox"] = "false";
             }
         }
 
-        $this->view->set('vars', (object)$vars);
+        $this->view->set("vars", (object)$vars);
 
         return $this->view->fetch();
     }
@@ -648,21 +710,21 @@ class Ispapi extends RegistrarModule
     public function manageEditRow($module_row, array &$vars)
     {
         // Load the view into this object, so helpers can be automatically added to the view
-        $this->view = new View('edit_row', 'default');
+        $this->view = new View("edit_row", "default");
         $this->view->base_uri = $this->base_uri;
         $this->view->setDefaultView(self::$defaultModuleView);
 
         // Load the helpers required for this view
-        Loader::loadHelpers($this, ['Form', 'Html', 'Widget']);
+        Loader::loadHelpers($this, ["Form", "Html", "Widget"]);
 
         if (empty($vars)) {
             $vars = $module_row->meta;
-        } elseif (empty($vars['sandbox'])) {
+        } elseif (empty($vars["sandbox"])) {
             // Set unspecified checkboxes
-            $vars['sandbox'] = 'false';
+            $vars["sandbox"] = "false";
         }
 
-        $this->view->set('vars', (object)$vars);
+        $this->view->set("vars", (object)$vars);
         return $this->view->fetch();
     }
 
@@ -679,12 +741,12 @@ class Ispapi extends RegistrarModule
     public function addModuleRow(array &$vars)
     {
         // TODO maybe syncing services
-        $meta_fields = ['user', 'key', 'sandbox'];//TODO maybe extending this
-        $encrypted_fields = ['key'];
+        $meta_fields = ["user", "key", "sandbox"];//TODO maybe extending this
+        $encrypted_fields = ["key"];
 
         // Set unspecified checkboxes
-        if (empty($vars['sandbox'])) {
-            $vars['sandbox'] = 'false';
+        if (empty($vars["sandbox"])) {
+            $vars["sandbox"] = "false";
         }
 
         $this->Input->setRules($this->getRowRules($vars));
@@ -696,9 +758,9 @@ class Ispapi extends RegistrarModule
             foreach ($vars as $key => $value) {
                 if (in_array($key, $meta_fields)) {
                     $meta[] = [
-                        'key' => $key,
-                        'value' => $value,
-                        'encrypted' => in_array($key, $encrypted_fields) ? 1 : 0
+                        "key" => $key,
+                        "value" => $value,
+                        "encrypted" => in_array($key, $encrypted_fields) ? 1 : 0
                     ];
                 }
             }
@@ -733,7 +795,7 @@ class Ispapi extends RegistrarModule
     public function getServiceName($service)
     {
         foreach ($service->fields as $field) {
-            if ($field->key == 'domain') {
+            if ($field->key === "domain") {
                 return $field->value;
             }
         }
@@ -752,7 +814,7 @@ class Ispapi extends RegistrarModule
      */
     public function getPackageServiceName($packages, array $vars = null)
     {
-        return (isset($vars['domain'])) ? $vars['domain'] : null;
+        return (isset($vars["domain"])) ? $vars["domain"] : null;
     }
 
     /**
@@ -828,33 +890,32 @@ class Ispapi extends RegistrarModule
      */
     public function getPackageFields($vars = null)
     {
-        Loader::loadHelpers($this, ['Html']);
+        Loader::loadHelpers($this, ["Html"]);
 
         // TODO loading packages available for server/server grp
         $fields = new ModuleFields();
 
         $types = [
-            'domain' => Language::_('Ispapi.package_fields.type_domain', true),
+            "domain" => Language::_("Ispapi.package_fields.type_domain", true),
         ];
 
         // Set type of package
-        $type = $fields->label(Language::_('Ispapi.package_fields.type', true), 'ispapi_type');
+        $type = $fields->label(Language::_("Ispapi.package_fields.type", true), "ispapi_type");
 
         $type->attach(
             $fields->fieldSelect(
-                'meta[type]',
+                "meta[type]",
                 $types,
-                $vars->meta['type'] ?? null,
-                ['id' => 'ispapi_type']
+                $vars->meta["type"] ?? null,
+                ["id" => "ispapi_type"]
             )
         );
         $fields->setField($type);
 
         // Set all TLDs
-        $tld_options = $fields->label(Language::_('Ispapi.package_fields.tld_options', true));
+        $tld_options = $fields->label(Language::_("Ispapi.package_fields.tld_options", true));
 
         $tlds = $this->getTlds();
-        sort($tlds);//TODO 3rd level tlds to be aligned with the 2nd lvl ones
 
         // Set all TLDs Dropdown
         // TODO may improve by setting labels
@@ -865,8 +926,8 @@ class Ispapi extends RegistrarModule
             $fields->fieldSelect(//TODO fieldCheckbox ?
                 "meta[tlds][]",
                 $tlds_array,
-                $vars->meta['tlds'] ?? null,
-                [ 'id'=>"tlds" ]
+                $vars->meta["tlds"] ?? null,
+                [ "id"=>"tlds" ]
             )
         );
 
@@ -874,12 +935,12 @@ class Ispapi extends RegistrarModule
 
         // Set nameservers
         for ($i=1; $i<=5; $i++) {
-            $type = $fields->label(Language::_('Ispapi.package_fields.ns' . $i, true), 'ispapi_ns' . $i);
+            $type = $fields->label(Language::_("Ispapi.package_fields.ns" . $i, true), "ispapi_ns" . $i);
             $type->attach(
                 $fields->fieldText(
-                    'meta[ns][]',
-                    $vars->meta['ns'][$i-1] ?? null,
-                    ['id' => 'ispapi_ns' . $i]
+                    "meta[ns][]",
+                    $vars->meta["ns"][$i-1] ?? null,
+                    ["id" => "ispapi_ns" . $i]
                 )
             );
             $fields->setField($type);
@@ -896,7 +957,7 @@ class Ispapi extends RegistrarModule
 					});
 
 					function toggleTldOptions(type) {
-						if (type == 'ssl')
+						if (type === 'ssl')
 							$('.ispapi_tlds').hide();
 						else
 							$('.ispapi_tlds').show();
@@ -934,28 +995,28 @@ class Ispapi extends RegistrarModule
         }
 
         $fields = [
-            'domainoptions' => [
-                'label' => Language::_("Ispapi.domain.DomainAction", true),
-                'type' => "radio",
-                'value' => "1",
-                'options' => [
-                    '1' => "Register",
-                    '2' => "Transfer",
+            "domainoptions" => [
+                "label" => Language::_("Ispapi.domain.DomainAction", true),
+                "type" => "radio",
+                "value" => "1",
+                "options" => [
+                    "1" => "Register",
+                    "2" => "Transfer",
                 ]
             ],
-            'domain' => [
-                'label' => Language::_("Ispapi.domain.domain", true),
-                'type' => "text"
+            "domain" => [
+                "label" => Language::_("Ispapi.domain.domain", true),
+                "type" => "text"
             ],
-            'transfer_key' => [
-                'label' => Language::_("Ispapi.transfer.EPPCode", true),
-                'type' => "text"
+            "transfer_key" => [
+                "label" => Language::_("Ispapi.transfer.EPPCode", true),
+                "type" => "text"
             ]
         ];
         //TODO: we might work on NS Fields
 
         // Handle transfer request
-        if ((isset($vars->transfer) && $vars->transfer === 'true')
+        if ((isset($vars->transfer) && $vars->transfer === "true")
             || !empty($vars->transfer_key)
         ) {
             return $this->arrayToModuleFields(array_merge(
@@ -1033,14 +1094,14 @@ class Ispapi extends RegistrarModule
             $vars->domain = $vars->domain;
         }
 
-        if ($package->meta->type !== 'domain') {
+        if ($package->meta->type !== "domain") {
             return new ModuleFields();
         }
         // Set default name servers
         if (!isset($vars->ns) && isset($package->meta->ns)) {
             $i=1;
             foreach ($package->meta->ns as $ns) {
-                $vars->{'ns' . $i++} = $ns;
+                $vars->{"ns" . $i++} = $ns;
             }
         }
 
@@ -1049,8 +1110,8 @@ class Ispapi extends RegistrarModule
             || isset($vars->transfer_key)
         ) {
             $fields = array_merge(
-                Configure::get('Ispapi.transfer_fields'),
-                Configure::get('Ispapi.nameserver_fields')
+                Configure::get("Ispapi.transfer_fields"),
+                Configure::get("Ispapi.nameserver_fields")
             );
 
             // TODO: check .ca for whois privacy service
@@ -1058,15 +1119,15 @@ class Ispapi extends RegistrarModule
             // $fields["private"]
 
             // Already have the domain name don't make editable
-            $fields['domain']['type'] = 'hidden';
-            $fields['domain']['label'] = null;
+            $fields["domain"]["type"] = "hidden";
+            $fields["domain"]["label"] = null;
 
             return $this->arrayToModuleFields($fields, null, $vars);
         }
         // Handle domain registration
         $fields = array_merge(
-            Configure::get('Ispapi.nameserver_fields'),
-            Configure::get('Ispapi.domain_fields')
+            Configure::get("Ispapi.nameserver_fields"),
+            Configure::get("Ispapi.domain_fields")
         );
 
         // TODO: check .ca for whois privacy service
@@ -1074,15 +1135,15 @@ class Ispapi extends RegistrarModule
         // $fields["private"]
 
         // Already have the domain name don't make editable
-        $fields['domain']['type'] = 'hidden';
-        $fields['domain']['label'] = null;
+        $fields["domain"]["type"] = "hidden";
+        $fields["domain"]["label"] = null;
 
         $module_fields = $this->arrayToModuleFields($fields, null, $vars);
 
         if (isset($vars->domain)) {
             $tld = $this->getTld($vars->domain);
 
-            $extension_fields = Configure::get('Ispapi.domain_fields' . $tld);
+            $extension_fields = Configure::get("Ispapi.domain_fields" . $tld);
             if ($extension_fields) {
                 $module_fields = $this->arrayToModuleFields($extension_fields, $module_fields, $vars);
             }
@@ -1108,23 +1169,21 @@ class Ispapi extends RegistrarModule
         // Create domain label
         $domain = $fields->label(Language::_("Ispapi.manage.manual_renewal", true), "renew");
 
-        $api = $this->getApi($this->getModuleRow($package->module_row));
-        $all = new IspapiAll($api);
+        $row = $this->getModuleRow($package->module_row);
 
         // Supported renewal periods of TLD
-        $response = $all->call([
+        $r = $this->_call([
             "COMMAND" => "QueryDomainOptions",
             "DOMAIN0" => $vars->domain,
             "PROPERTIES" => "LAUNCHPHASES"
-        ]);
-        $r = $this->processResponse($api, $response);
+        ], $row);
 
         // renewal periods
-        $renewalperiods = explode(",", $r['PROPERTY']['ZONERENEWALPERIODS'][0]);
+        $renewalperiods = explode(",", $r["PROPERTY"]["ZONERENEWALPERIODS"][0]);
         array_unshift($renewalperiods, 0);
 
         // Create domain field and attach to domain label
-        $domain->attach($fields->fieldSelect("renew", $renewalperiods, [ 'id'=>"renew" ]));
+        $domain->attach($fields->fieldSelect("renew", $renewalperiods, [ "id"=>"renew" ]));
         $fields->setField($domain);
 
         // Display domain information
@@ -1134,15 +1193,13 @@ class Ispapi extends RegistrarModule
         // Expiry date
         $expirydate = $fields->label(Language::_("Ispapi.domain.expirydate", true), "expirydate");
 
-        if ($package->meta->type == 'domain') {
-            $response = $all->call([
+        if ($package->meta->type === "domain") {
+            $r = $this->_call([
                 "COMMAND" => "StatusDomain",
                 "DOMAIN" => $vars->domain
-            ]);
-            // To handle api error messages
-            $r = $this->processResponse($api, $response);
+            ], $row);
 
-            if ($r["CODE"] == 200) {
+            if ($r["CODE"] === "200") {
                 // Expiry date at our system [HM-696]
                 $r = $r["PROPERTY"];
                 
@@ -1154,12 +1211,12 @@ class Ispapi extends RegistrarModule
 
                 // Status of the domain at our system
                 if (preg_match("/ACTIVE/i", $r["STATUS"][0])) {
-                    $values["status"] = 'Active';
+                    $values["status"] = "Active";
                 }
 
                 if (preg_match("/DELETE/i", $r["STATUS"][0])) {
                     $values["expirydate"] = preg_replace("/ .*$/", "", $expirationdate);
-                    $values['status'] = 'Expired';
+                    $values["status"] = "Expired";
                 }
 
                 if ($failuredate > $paiduntildate) {
@@ -1174,16 +1231,16 @@ class Ispapi extends RegistrarModule
 
             $domain_status->attach(
                 $fields->fieldText(
-                    (isset($values['status']) ? $values['status'] : ""),
-                    [ 'id'=>$values['status'] ],
-                    [ 'readonly'=>'readonly' ]
+                    (isset($values["status"]) ? $values["status"] : ""),
+                    [ "id"=>$values["status"] ],
+                    [ "readonly"=>"readonly" ]
                 )
             );
             $expirydate->attach(
                 $fields->fieldText(
-                    (isset($values['expirydate']) ? $values['expirydate'] : ""),
-                    ['id'=>$values['expirydate']],
-                    ['readonly'=>'readonly']
+                    (isset($values["expirydate"]) ? $values["expirydate"] : ""),
+                    ["id"=>$values["expirydate"]],
+                    ["readonly"=>"readonly"]
                 )
             );
         }
@@ -1206,7 +1263,7 @@ class Ispapi extends RegistrarModule
      */
     public function getAdminServiceInfo($service, $package)
     {
-        return '';
+        return "";
     }
 
     /**
@@ -1219,7 +1276,7 @@ class Ispapi extends RegistrarModule
      */
     public function getClientServiceInfo($service, $package)
     {
-        return '';
+        return "";
     }
 
     /**
@@ -1228,15 +1285,15 @@ class Ispapi extends RegistrarModule
      *
      * @param stdClass $package A stdClass object representing the selected package
      * @return array An array of tabs in the format of method => title.
-     *  Example: [ 'methodName' => "Title", 'methodName2' => "Title2" ]
+     *  Example: [ "methodName" => "Title", "methodName2" => "Title2" ]
      */
     public function getAdminTabs($package)
     {
-        if ($package->meta->type == 'domain') {
+        if ($package->meta->type === "domain") {
             return [
-                'tabWhois' => Language::_('Ispapi.tab_whois.title', true),
-                'tabNameservers' => Language::_('Ispapi.tab_nameservers.title', true),
-                'tabSettings' => Language::_('Ispapi.tab_settings.title', true),
+                "tabWhois" => Language::_("Ispapi.tab_whois.title", true),
+                "tabNameservers" => Language::_("Ispapi.tab_nameservers.title", true),
+                "tabSettings" => Language::_("Ispapi.tab_settings.title", true),
                 // TODO we might work on adding DNSSec, Hosts, DNS RR, Admin Actions
             ];
         }
@@ -1248,15 +1305,15 @@ class Ispapi extends RegistrarModule
      *
      * @param stdClass $package A stdClass object representing the selected package
      * @return array An array of tabs in the format of method => title.
-     *  Example: [ 'methodName' => "Title", 'methodName2' => "Title2" ]
+     *  Example: [ "methodName" => "Title", "methodName2" => "Title2" ]
      */
     public function getClientTabs($package)
     {
-        if ($package->meta->type == 'domain') {
+        if ($package->meta->type === "domain") {
             return [
-                'tabClientWhois' => Language::_('Ispapi.tab_whois.title', true),
-                'tabClientNameservers' => Language::_('Ispapi.tab_nameservers.title', true),
-                'tabClientSettings' => Language::_('Ispapi.tab_settings.title', true)
+                "tabClientWhois" => Language::_("Ispapi.tab_whois.title", true),
+                "tabClientNameservers" => Language::_("Ispapi.tab_nameservers.title", true),
+                "tabClientSettings" => Language::_("Ispapi.tab_settings.title", true)
                 // TODO we might work on adding DNSSec, Hosts, DNS RR, Admin Actions
             ];
         }
@@ -1274,7 +1331,7 @@ class Ispapi extends RegistrarModule
      */
     public function tabWhois($package, $service, array $get = null, array $post = null, array $files = null)
     {
-        return $this->manageWhois('tab_whois', $package, $service, $get, $post, $files);
+        return $this->manageWhois("tab_whois", $package, $service, $get, $post, $files);
     }
 
     /**
@@ -1289,7 +1346,7 @@ class Ispapi extends RegistrarModule
      */
     public function tabClientWhois($package, $service, array $get = null, array $post = null, array $files = null)
     {
-        return $this->manageWhois('tab_client_whois', $package, $service, $get, $post, $files);
+        return $this->manageWhois("tab_client_whois", $package, $service, $get, $post, $files);
     }
 
     /**
@@ -1304,7 +1361,7 @@ class Ispapi extends RegistrarModule
      */
     public function tabNameservers($package, $service, array $get = null, array $post = null, array $files = null)
     {
-        return $this->manageNameservers('tab_nameservers', $package, $service, $get, $post, $files);
+        return $this->manageNameservers("tab_nameservers", $package, $service, $get, $post, $files);
     }
 
     /**
@@ -1319,7 +1376,7 @@ class Ispapi extends RegistrarModule
      */
     public function tabClientNameservers($package, $service, array $get = null, array $post = null, array $files = null)
     {
-        return $this->manageNameservers('tab_client_nameservers', $package, $service, $get, $post, $files);
+        return $this->manageNameservers("tab_client_nameservers", $package, $service, $get, $post, $files);
     }
 
     /**
@@ -1334,7 +1391,7 @@ class Ispapi extends RegistrarModule
      */
     public function tabSettings($package, $service, array $get = null, array $post = null, array $files = null)
     {
-        return $this->manageSettings('tab_settings', $package, $service, $get, $post, $files);
+        return $this->manageSettings("tab_settings", $package, $service, $get, $post, $files);
     }
 
     /**
@@ -1349,7 +1406,7 @@ class Ispapi extends RegistrarModule
      */
     public function tabClientSettings($package, $service, array $get = null, array $post = null, array $files = null)
     {
-        return $this->manageSettings('tab_client_settings', $package, $service, $get, $post, $files);
+        return $this->manageSettings("tab_client_settings", $package, $service, $get, $post, $files);
     }
 
     /**
@@ -1365,23 +1422,22 @@ class Ispapi extends RegistrarModule
      */
     private function manageWhois($view, $package, $service, array $get = null, array $post = null, array $files = null)
     {
-        $this->view = new View($view, 'default');
+        $this->view = new View($view, "default");
         // Load the helpers required for this view
-        Loader::loadHelpers($this, ['Form', 'Html']);
+        Loader::loadHelpers($this, ["Form", "Html"]);
 
-        $api = $this->getApi($this->getModuleRow($package->module_row));
-        $all = new IspapiAll($api);
+        $row = $this->getModuleRow($package->module_row);
 
         $vars = new stdClass();
 
-        $whois_fields = Configure::get('Ispapi.whois_fields');
+        $whois_fields = Configure::get("Ispapi.whois_fields");
 
         $fields = $this->serviceFieldsToObject($service->fields);
 
-        $whois_sections = Configure::get('Ispapi.whois_sections');
+        $whois_sections = Configure::get("Ispapi.whois_sections");
 
-        $tld = trim($this->getTld($fields->domain), '.');
-        $sld = trim(substr($fields->domain, 0, -strlen($tld)), '.');
+        $tld = trim($this->getTld($fields->domain), ".");
+        $sld = trim(substr($fields->domain, 0, -strlen($tld)), ".");
 
         if (!empty($post)) {
             // Modify/update contact/whois information
@@ -1398,80 +1454,77 @@ class Ispapi extends RegistrarModule
 
             foreach ($map as $ctype => $ptype) {
                 $command[$ctype] = [
-                    "FIRSTNAME" => html_entity_decode($post[$ptype."FirstName"], ENT_QUOTES | ENT_XML1, 'UTF-8'),
-                    "LASTNAME" => html_entity_decode($post[$ptype."LastName"], ENT_QUOTES | ENT_XML1, 'UTF-8'),
-                    "ORGANIZATION" => html_entity_decode($post[$ptype."Organization"], ENT_QUOTES | ENT_XML1, 'UTF-8'),
-                    "STREET" => html_entity_decode($post[$ptype."Address1"], ENT_QUOTES | ENT_XML1, 'UTF-8'),
-                    "CITY" => html_entity_decode($post[$ptype."City"], ENT_QUOTES | ENT_XML1, 'UTF-8'),
-                    "STATE" => html_entity_decode($post[$ptype."StateProvince"], ENT_QUOTES | ENT_XML1, 'UTF-8'),
-                    "ZIP" => html_entity_decode($post[$ptype."PostalCode"], ENT_QUOTES | ENT_XML1, 'UTF-8'),
-                    "COUNTRY" => html_entity_decode($post[$ptype."Country"], ENT_QUOTES | ENT_XML1, 'UTF-8'),
-                    "PHONE" => html_entity_decode($post[$ptype."Phone"], ENT_QUOTES | ENT_XML1, 'UTF-8'),
-                    "EMAIL" => html_entity_decode($post[$ptype."EmailAddress"], ENT_QUOTES | ENT_XML1, 'UTF-8'),
+                    "FIRSTNAME" => html_entity_decode($post[$ptype."FirstName"], ENT_QUOTES | ENT_XML1, "UTF-8"),
+                    "LASTNAME" => html_entity_decode($post[$ptype."LastName"], ENT_QUOTES | ENT_XML1, "UTF-8"),
+                    "ORGANIZATION" => html_entity_decode($post[$ptype."Organization"], ENT_QUOTES | ENT_XML1, "UTF-8"),
+                    "STREET" => html_entity_decode($post[$ptype."Address1"], ENT_QUOTES | ENT_XML1, "UTF-8"),
+                    "CITY" => html_entity_decode($post[$ptype."City"], ENT_QUOTES | ENT_XML1, "UTF-8"),
+                    "STATE" => html_entity_decode($post[$ptype."StateProvince"], ENT_QUOTES | ENT_XML1, "UTF-8"),
+                    "ZIP" => html_entity_decode($post[$ptype."PostalCode"], ENT_QUOTES | ENT_XML1, "UTF-8"),
+                    "COUNTRY" => html_entity_decode($post[$ptype."Country"], ENT_QUOTES | ENT_XML1, "UTF-8"),
+                    "PHONE" => html_entity_decode($post[$ptype."Phone"], ENT_QUOTES | ENT_XML1, "UTF-8"),
+                    "EMAIL" => html_entity_decode($post[$ptype."EmailAddress"], ENT_QUOTES | ENT_XML1, "UTF-8"),
                 ];
                 if (strlen($post[$ptype."Address2"])) {
-                    $command[$ctype]["STREET"] .= " , ".html_entity_decode($post[$ptype."Address2"], ENT_QUOTES | ENT_XML1, 'UTF-8');
+                    $command[$ctype]["STREET"] .= " , ".html_entity_decode($post[$ptype."Address2"], ENT_QUOTES | ENT_XML1, "UTF-8");
                 }
             }
 
-            $response = $all->call($command);
-            $this->processResponse($api, $response);
+            $this->_call($command, $row);
 
             $vars = (object)$post;
         } else {
             // To get the contact details of a domain, first perform a StatusDomain command and then use the data from StatusDomain to perform the StatusContact command.
-            $response = $all->call([
+            $r = $this->_call([
                 "COMMAND" => "StatusDomain",
                 "DOMAIN" => $fields->domain,
-            ]);
-            // To handle api error messages
-            $r = $this->processResponse($api, $response);
+            ], $row);
 
-            if ($r['CODE'] == 200) {
+            if ($r["CODE"] === "200") {
                 $contacts_array = [
-                    "Registrant" =>$r['PROPERTY']['OWNERCONTACT'][0],
-                    "Admin" =>$r['PROPERTY']['ADMINCONTACT'][0],
-                    "Tech" =>$r['PROPERTY']['TECHCONTACT'][0],
-                    "Billing" =>$r['PROPERTY']['BILLINGCONTACT'][0],
+                    "Registrant" => $r["PROPERTY"]["OWNERCONTACT"][0],
+                    "Admin" => $r["PROPERTY"]["ADMINCONTACT"][0],
+                    "Tech" => $r["PROPERTY"]["TECHCONTACT"][0],
+                    "Billing" => $r["PROPERTY"]["BILLINGCONTACT"][0],
                 ];
                 foreach ($contacts_array as $key => $contact) {
-                    $response = $all->call([
+                    $r = $this->_call([
                         "COMMAND" => "StatusContact",
                         "CONTACT" => $contact,
-                    ]);
-                    // To handle api error messages
-                    $r = $this->processResponse($api, $response);
+                    ], $row);
 
-                    $data[$key] = $r['PROPERTY'];
+                    if ($r["CODE"] === "200") {
+                        $data[$key] = $r["PROPERTY"];
+                    }
                 }
                 // Display owner, tech and billing contact details
                 foreach ($whois_sections as $section) {
                     if (isset($data[$section])) {
                         foreach ($data[$section] as $name) {
-                            $vars->{$section.'FirstName'} = ($data[$section]['FIRSTNAME'] ? $data[$section]['FIRSTNAME'][0] : '');
-                            $vars->{$section.'LastName'} = ($data[$section]['LASTNAME'] ? $data[$section]['LASTNAME'][0] : '');
-                            $vars->{$section.'Organization'} = ($data[$section]['ORGANIZATION'] ? $data[$section]['ORGANIZATION'][0] : '');
-                            if ((count($data[$section]['STREET']) < 2) && preg_match('/^(.*) , (.*)/', $data[$section]['STREET'][0], $m)) {
-                                $vars->{$section.'Address1'} = $m[1];
-                                $vars->{$section.'Address2'} = $m[2];
+                            $vars->{$section."FirstName"} = ($data[$section]["FIRSTNAME"] ? $data[$section]["FIRSTNAME"][0] : "");
+                            $vars->{$section."LastName"} = ($data[$section]["LASTNAME"] ? $data[$section]["LASTNAME"][0] : "");
+                            $vars->{$section."Organization"} = ($data[$section]["ORGANIZATION"] ? $data[$section]["ORGANIZATION"][0] : "");
+                            if ((count($data[$section]["STREET"]) < 2) && preg_match("/^(.*) , (.*)/", $data[$section]["STREET"][0], $m)) {
+                                $vars->{$section."Address1"} = $m[1];
+                                $vars->{$section."Address2"} = $m[2];
                             } else {
-                                $vars->{$section.'Address1'} = ($data[$section]['STREET'] ? $data[$section]['STREET'][0] : '');
+                                $vars->{$section."Address1"} = ($data[$section]["STREET"] ? $data[$section]["STREET"][0] : "");
                             }
-                            $vars->{$section.'City'} = ($data[$section]['CITY'] ? $data[$section]['CITY'][0] : '');
-                            $vars->{$section.'StateProvince'} = ($data[$section]['STATE'] ? $data[$section]['STATE'][0] : '');
-                            $vars->{$section.'PostalCode'} = ($data[$section]['ZIP'] ? $data[$section]['ZIP'][0] : '');
-                            $vars->{$section.'Country'} = ($data[$section]['COUNTRY'] ? $data[$section]['COUNTRY'][0] : '');
-                            $vars->{$section.'Phone'} = ($data[$section]['PHONE'] ? $data[$section]['PHONE'][0] : '');
-                            $vars->{$section.'EmailAddress'} = ($data[$section]['EMAIL'] ? $data[$section]['EMAIL'][0] : '');
+                            $vars->{$section."City"} = ($data[$section]["CITY"] ? $data[$section]["CITY"][0] : "");
+                            $vars->{$section."StateProvince"} = ($data[$section]["STATE"] ? $data[$section]["STATE"][0] : "");
+                            $vars->{$section."PostalCode"} = ($data[$section]["ZIP"] ? $data[$section]["ZIP"][0] : "");
+                            $vars->{$section."Country"} = ($data[$section]["COUNTRY"] ? $data[$section]["COUNTRY"][0] : "");
+                            $vars->{$section."Phone"} = ($data[$section]["PHONE"] ? $data[$section]["PHONE"][0] : "");
+                            $vars->{$section."EmailAddress"} = ($data[$section]["EMAIL"] ? $data[$section]["EMAIL"][0] : "");
                         }
                     }
                 }
             }
         }
 
-        $this->view->set('vars', $vars);
-        $this->view->set('fields', $this->arrayToModuleFields($whois_fields, null, $vars)->getFields());
-        $this->view->set('sections', ['Registrant', 'Admin', 'Tech', 'Billing']);
+        $this->view->set("vars", $vars);
+        $this->view->set("fields", $this->arrayToModuleFields($whois_fields, null, $vars)->getFields());
+        $this->view->set("sections", ["Registrant", "Admin", "Tech", "Billing"]);
         $this->view->setDefaultView(self::$defaultModuleView);
         return $this->view->fetch();
     }
@@ -1495,15 +1548,14 @@ class Ispapi extends RegistrarModule
         array $post = null,
         array $files = null
     ) {
-        $this->view = new View($view, 'default');
+        $this->view = new View($view, "default");
 
         // Load the helpers required for this view
-        Loader::loadHelpers($this, ['Form', 'Html']);
+        Loader::loadHelpers($this, ["Form", "Html"]);
 
         $vars = new stdClass();
 
-        $api = $this->getApi($this->getModuleRow($package->module_row));
-        $all = new IspapiAll($api);
+        $row = $this->getModuleRow($package->module_row);
 
         $fields = $this->serviceFieldsToObject($service->fields);
 
@@ -1511,16 +1563,16 @@ class Ispapi extends RegistrarModule
             // Modify and save nameservers
             $vars = $post;
             // Default to using default nameservers
-            $vars['usedns'] = 'Default';
-            foreach ($vars['ns'] as $i => $ns) {
-                if ($ns != '') {
-                    $vars['ns' . ($i+1)] = $ns;
-                    unset($vars['usedns']);
+            $vars["usedns"] = "Default";
+            foreach ($vars["ns"] as $i => $ns) {
+                if (!empty($ns)) {
+                    $vars["ns" . ($i+1)] = $ns;
+                    unset($vars["usedns"]);
                 }
             }
-            unset($vars['ns']);
+            unset($vars["ns"]);
 
-            $response = $all->call([
+            $this->_call([
                 "COMMAND" => "ModifyDomain",
                 "DOMAIN" => $fields->domain,
                 "NAMESERVER" => [
@@ -1531,25 +1583,24 @@ class Ispapi extends RegistrarModule
                     $vars["ns5"]
                 ],
                 "INTERNALDNS" => 1
-            ]);
-
-            // Display if there are any error
-            $this->processResponse($api, $response);
+            ], $row);
 
             $vars = (object)$post;
         } else {
             // Get nameservers
-            $r = $all->call([
+            $r = $this->_call([
                 "COMMAND" => "StatusDomain",
                 "DOMAIN" => $fields->domain,
-            ])->response();
+            ], $row);
 
-            if ($r['CODE'] == 200 && isset($r['PROPERTY']['NAMESERVER'])) {
-                $vars->ns = $r['PROPERTY']['NAMESERVER'];
+            if ($r["CODE"] === "200"
+                && isset($r["PROPERTY"]["NAMESERVER"])
+            ) {
+                $vars->ns = $r["PROPERTY"]["NAMESERVER"];
             }
         }
 
-        $this->view->set('vars', $vars);
+        $this->view->set("vars", $vars);
         $this->view->setDefaultView(self::$defaultModuleView);
         return $this->view->fetch();
     }
@@ -1573,84 +1624,82 @@ class Ispapi extends RegistrarModule
         array $post = null,
         array $files = null
     ) {
-        $this->view = new View($view, 'default');
+        $this->view = new View($view, "default");
         // Load the helpers required for this view
-        Loader::loadHelpers($this, ['Form', 'Html']);
+        Loader::loadHelpers($this, ["Form", "Html"]);
 
         $vars = new stdClass();
 
-        $api = $this->getApi($this->getModuleRow($package->module_row));
-        $all = new IspapiAll($api);
+        $row = $this->getModuleRow($package->module_row);
 
         $fields = $this->serviceFieldsToObject($service->fields);
 
-        $tld = trim($this->getTld($fields->domain), '.');
-        $sld = trim(substr($fields->domain, 0, -strlen($tld)), '.');
+        $tld = trim($this->getTld($fields->domain), ".");
+        $sld = trim(substr($fields->domain, 0, -strlen($tld)), ".");
 
         // Whois privacy settings of a TLD
-        $response = $all->call([
+        $r = $this->_call([
             "COMMAND" => "QueryDomainOptions",
             "DOMAIN0" => $fields->domain,
             "PROPERTIES" => "LAUNCHPHASES"
-        ]);
-        $r = $this->processResponse($api, $response);
+        ], $row);
+        
 
         // Display whois_privacy setting for the domain if it is supported
-        if (!empty($r['PROPERTY']['X-PROXY'][0])) {
-            $vars->{'whois_privacy_supported'} = 'yes';
+        if (!empty($r["PROPERTY"]["X-PROXY"][0])) {
+            $vars->{"whois_privacy_supported"} = "yes";
         }
 
         // Status domain
-        $response = $all->call([
+        $r = $this->_call([
             "COMMAND" => "StatusDomain",
             "DOMAIN" => $fields->domain
-        ]);
-        $r = $this->processResponse($api, $response);
+        ], $row);
 
         if (empty($post)) {
             // Get transferlock and whois privacy settings information
-            if ($r['CODE'] == 200) {
-                $vars->registrar_lock = $r['PROPERTY']['TRANSFERLOCK'][0] == '1' ? 'true' : 'false';
+            if ($r["CODE"] === "200") {
+                $vars->registrar_lock = ($r["PROPERTY"]["TRANSFERLOCK"][0] === "1") ? "true" : "false";
                 // Whois privacy
-                $vars->whois_privacy = $r['PROPERTY']['X-ACCEPT-WHOISTRUSTEE-TAC'][0] == '1' ? 'true' : 'false';
+                $vars->whois_privacy = ($r["PROPERTY"]["X-ACCEPT-WHOISTRUSTEE-TAC"][0] === "1") ? "true" : "false";
             }
-            $this->view->set('vars', $vars);
+            $this->view->set("vars", $vars);
             $this->view->setDefaultView(self::$defaultModuleView);
             return $this->view->fetch();
         }
 
         
         // Post values to var variable
-        $vars->registrar_lock = $post['registrar_lock'];
-        $vars->whois_privacy = $post['whois_privacy'];
+        $vars->registrar_lock = $post["registrar_lock"];
+        $vars->whois_privacy = $post["whois_privacy"];
 
         // To get epp/auth code
-        if (isset($post['request_epp']) && !isset($post['save'])) {
+        if (isset($post["request_epp"]) && !isset($post["save"])) {
             // TODO
             // NOTE - .de and .eu domains should be handled differently to get auth info.
             if (strlen($r["PROPERTY"]["AUTH"][0])) {
-                $vars->{'auth'} = $r["PROPERTY"]["AUTH"][0];
+                $vars->{"auth"} = $r["PROPERTY"]["AUTH"][0];
             } else {
                 $this->Input->setErrors([
-                    'errors' => ["No AuthInfo code assigned to this domain!"]
+                    "errors" => ["No AuthInfo code assigned to this domain!"]
                 ]);
             }
         }
 
         // Save transferlock settings of a domain
-        if ((isset($post['registrar_lock']) || isset($post['whois_privacy'])) && isset($post['save'])) {
+        if ((isset($post["registrar_lock"]) || isset($post["whois_privacy"])) && isset($post["save"])) {
             $command = [
                 "COMMAND" => "ModifyDomain",
                 "DOMAIN" => $fields->domain,
-                "TRANSFERLOCK" => $post['registrar_lock'] == 'true' ? '1' : '0',
+                "TRANSFERLOCK" => $post["registrar_lock"] == "true" ? "1" : "0",
             ];
             if ($vars->whois_privacy_supported) {
-                $command['X-ACCEPT-WHOISTRUSTEE-TAC'] = $post['whois_privacy'] == 'true' ? '1' : '0';
+                $command["X-ACCEPT-WHOISTRUSTEE-TAC"] = $post["whois_privacy"] == "true" ? "1" : "0";
             }
-            $this->processResponse($api, $all->call($command));
+            $this->_call($command, $row);
         }
  
-        $this->view->set('vars', $vars);
+        $this->view->set("vars", $vars);
         $this->view->setDefaultView(self::$defaultModuleView);
         return $this->view->fetch();
     }
@@ -1664,19 +1713,16 @@ class Ispapi extends RegistrarModule
      */
     public function checkAvailability($domain, $module_row_id = null)
     {
-        $api = $this->getApi($this->getModuleRow());
-        $all = new IspapiAll($api);
+        $row = $this->getModuleRow();
        
-        $response = $all->call([
-            "COMMAND" => "CheckDomain",
+        $r = $this->_call([
+            "COMMAND" => "CheckDomain",//TODO deprecated command
             "DOMAIN" => $domain,
-        ]);
-        // Handling api errors
-        $r = $this->processResponse($api, $response);
+        ], $row);
 
         //TODO use $this->Input->setErrors to deal with premium domains
         // Code 210 is for avaialble domains
-        return ($r['CODE'] == '210');
+        return ($r["CODE"] === "210");
     }
 
     /**
@@ -1704,23 +1750,20 @@ class Ispapi extends RegistrarModule
      * @return string The domain expiration date in UTC time in the given format
      * @see Services::get()
      */
-    public function getExpirationDate($service, $format = 'Y-m-d H:i:s')
+    public function getExpirationDate($service, $format = "Y-m-d H:i:s")
     {
-        Loader::loadHelpers($this, ['Date']);
+        Loader::loadHelpers($this, ["Date"]);
 
         $domain = $this->getServiceDomain($service);
         
-        $api = $this->getApi($this->getModuleRow($service->module_row_id ?? null));
-        $all = new IspapiAll($api);
+        $row = $this->getModuleRow($service->module_row_id ?? null);
 
-        $response = $all->call([
+        $r = $this->_call([
             "COMMAND" => "StatusDomain",
             "DOMAIN" => $domain,
-        ]);
-        // Handling api errors
-        $r = $this->processResponse($api, $response);
+        ], $row);
 
-        if ($r['CODE'] != '200') {//TODO expired cases
+        if ($r["CODE"] !== "200") {//TODO expired cases
             return false;
         }
 
@@ -1750,7 +1793,7 @@ class Ispapi extends RegistrarModule
     {
         if (isset($service->fields)) {
             foreach ($service->fields as $service_field) {
-                if ($service_field->key == 'domain') {
+                if ($service_field->key === "domain") {
                     return $service_field->value;
                 }
             }
@@ -1784,27 +1827,24 @@ class Ispapi extends RegistrarModule
 
         // Fetch the TLDs results from the cache, if they exist
         $cache = Cache::fetchCache(
-            'tlds',
-            Configure::get('Blesta.company_id') . DS . 'modules' . DS . 'ispapi' . DS
+            "tlds",
+            Configure::get("Blesta.company_id") . DS . "modules" . DS . "ispapi" . DS
         );
         if ($cache) {
             return unserialize(base64_decode($cache));
         }
 
         // Fetch ispapi TLDs
-        $api = $this->getApi($row);
-        $all = new IspapiAll($api);
-       
-        $response = $all->call([
+        $r = $this->_call([
             "COMMAND" => "StatusUser"
-        ]);
+        ], $row);
+
         // Handling api errors
-        $r = $this->processResponse($api, $response);
-        if ($r['CODE'] != '200') {
+        if ($r["CODE"] !== "200") {
             return [];
         }
 
-        $tldclassmap = Configure::get('Ispapi.tldclassmap');
+        $tldclassmap = Configure::get("Ispapi.tldclassmap");
         $tlds = [];
         foreach ($r["PROPERTY"]["RELATIONTYPE"] as $idx => $t) {
             if (preg_match("/^PRICE_CLASS_(MANAGED)?DOMAIN_([^_]+)_(SETUP|CREATE)$/", $t, $m)) {
@@ -1830,17 +1870,17 @@ class Ispapi extends RegistrarModule
 
         // Save the TLDs results to the cache TODO
         if (count($tlds) > 0) {
-            if (Configure::get('Caching.on') && is_writable(CACHEDIR)) {
+            if (Configure::get("Caching.on") && is_writable(CACHEDIR)) {
                 try {
                     Cache::writeCache(
-                        'tlds',
+                        "tlds",
                         base64_encode(serialize($tlds)),
-                        strtotime(Configure::get('Blesta.cache_length')) - time(),
-                        Configure::get('Blesta.company_id') . DS . 'modules' . DS . 'ispapi' . DS
+                        strtotime(Configure::get("Blesta.cache_length")) - time(),
+                        Configure::get("Blesta.company_id") . DS . "modules" . DS . "ispapi" . DS
                     );
                 } catch (Exception $e) {
                     // Write to cache failed, so disable caching
-                    Configure::set('Caching.on', false);
+                    Configure::set("Caching.on", false);
                 }
             }
         }
@@ -1857,27 +1897,27 @@ class Ispapi extends RegistrarModule
     private function getRowRules(&$vars)
     {
         return [
-            'user' => [
-                'valid' => [
-                    'rule' => 'isEmpty',
-                    'negate' => true,
-                    'message' => Language::_('Ispapi.!error.user.valid', true)
+            "user" => [
+                "valid" => [
+                    "rule" => "isEmpty",
+                    "negate" => true,
+                    "message" => Language::_("Ispapi.!error.user.valid", true)
                 ]
             ],
-            'key' => [
-                'valid' => [
-                    'last' => true,
-                    'rule' => 'isEmpty',
-                    'negate' => true,
-                    'message' => Language::_('Ispapi.!error.key.valid', true)
+            "key" => [
+                "valid" => [
+                    "last" => true,
+                    "rule" => "isEmpty",
+                    "negate" => true,
+                    "message" => Language::_("Ispapi.!error.key.valid", true)
                 ],
-                'valid_connection' => [
-                    'rule' => [
-                        [$this, 'validateConnection'],
-                        $vars['user'],
-                        isset($vars['sandbox']) ? $vars['sandbox'] : 'false'
+                "valid_connection" => [
+                    "rule" => [
+                        [$this, "validateConnection"],
+                        $vars["user"],
+                        isset($vars["sandbox"]) ? $vars["sandbox"] : "false"
                     ],
-                    'message' => Language::_('Ispapi.!error.key.valid_connection', true)
+                    "message" => Language::_("Ispapi.!error.key.valid_connection", true)
                 ]
             ]
         ];
@@ -1900,15 +1940,14 @@ class Ispapi extends RegistrarModule
                 "sandbox" => $sandbox
             ]
         ]));
-        $api = $this->getApi($row);
-        $all = new IspapiAll($api);
-        $response = $all->call([
+        
+        $r = $this->_call([
             "COMMAND" => "CheckAuthentication",
             "SUBUSER" => $user,
             "PASSWORD" => $key
-        ]);
-        $r = $response->response();
-        if ($r['CODE'] != 200) {
+        ], $row);
+
+        if ($r["CODE"] !== "200") {
             return null;
         }
         // Workarround to call that only 1 time.
@@ -1918,14 +1957,14 @@ class Ispapi extends RegistrarModule
             $included = true;
 
             $values = [
-                'blesta' => BLESTA_VERSION,
-                'updated_date' => gmdate("Y-m-d H:i:s"),
-                'ispapi_version' => $this->getVersion(),
-                'php_version' => implode(".", [PHP_MAJOR_VERSION, PHP_MINOR_VERSION, PHP_RELEASE_VERSION]),
+                "blesta" => BLESTA_VERSION,
+                "updated_date" => gmdate("Y-m-d H:i:s"),
+                "ispapi_version" => $this->getVersion(),
+                "php_version" => implode(".", [PHP_MAJOR_VERSION, PHP_MINOR_VERSION, PHP_RELEASE_VERSION]),
                 "os" => php_uname("s")
                 // TODO pf
             ];
-    
+
             $command = [
                 "COMMAND" => "SetEnvironment",
             ];
@@ -1937,71 +1976,10 @@ class Ispapi extends RegistrarModule
                 $command["ENVIRONMENTVALUE$i"] = $value;
                 $i++;
             }
-            $all->call($command);
+            $this->_call($command, $row);
         }
         
-        return 'OK';
-    }
-
-    /**
-     * Initializes the IspapiApi and returns an instance of that object
-     *
-     * @param string $row Module row
-     * @return IspapiApi The IspapiApi instance
-     */
-    private function getApi($row)
-    {
-        Loader::load(dirname(__FILE__) . DS . 'apis' . DS . 'ispapi_api.php');
-
-        return new IspapiApi(
-            $row->meta->user,
-            $row->meta->key,
-            ($row->meta->sandbox == 'true')
-        );
-    }
-
-    /**
-     * Process API response, setting an errors, and logging the request
-     *
-     * @param IspapiApi $api The ispapi API object
-     * @param IspapiResponse $response The ispapi API response object
-     */
-    private function processResponse(IspapiApi $api, IspapiResponse $response, $okCodesRegex = "/^200$/")
-    {
-        $this->logRequest($api, $response);
-        // Set errors, if any
-        $r = $response->response();
-        if (!preg_match($okCodesRegex, $r["CODE"])) {
-            $this->Input->setErrors([
-                'errors' => empty($r['DESCRIPTION']) ? [] : [$r['DESCRIPTION']]
-            ]);
-        }
-        return $r;
-    }
-
-    /**
-     * Logs the API request
-     *
-     * @param IspapiApi $api The ispapi API object
-     * @param IspapiResponse $response The ispapi API response object
-     */
-    private function logRequest(IspapiApi $api, IspapiResponse $response)
-    {
-        $last_request = $api->lastRequest();
-        $last_request['args']['pw'] = '****';
-
-        $this->log(
-            $last_request['url'],
-            serialize($last_request['args']),
-            'input',
-            true
-        );
-        $this->log(
-            $last_request['url'],
-            $response->raw(),
-            'output',
-            $response->response()['CODE'] == 200 ? true : false
-        );
+        return "OK";
     }
 
     /**
@@ -2016,12 +1994,12 @@ class Ispapi extends RegistrarModule
         $domain = strtolower($domain);
 
         foreach ($tlds as $tld) {
-            if (substr($domain, -strlen($tld)) == $tld) {
+            if (substr($domain, -strlen($tld)) === $tld) {
                 return $tld;
             }
         }
 
-        return strstr($domain, '.');
+        return strstr($domain, ".");
     }
 
     /**
@@ -2034,10 +2012,10 @@ class Ispapi extends RegistrarModule
     private function formatPhone($number, $country)
     {
         if (!isset($this->Contacts)) {
-            Loader::loadModels($this, ['Contacts']);
+            Loader::loadModels($this, ["Contacts"]);
         }
 
-        return $this->Contacts->intlNumber($number, $country, '.');
+        return $this->Contacts->intlNumber($number, $country, ".");
     }
 
     //TODO install, upgrade, uninstall, cron

@@ -1,0 +1,3 @@
+[submodule "components/modules/ispapi/apis/sdk"]
+	path = components/modules/ispapi/apis/sdk
+	url = https://github.com/hexonet/php-sdk.git
