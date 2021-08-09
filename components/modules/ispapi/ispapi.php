@@ -1848,6 +1848,7 @@ class Ispapi extends RegistrarModule
         $tlds = [];
         foreach ($r["PROPERTY"]["RELATIONTYPE"] as $idx => $t) {
             if (preg_match("/^PRICE_CLASS_(MANAGED)?DOMAIN_([^_]+)_(SETUP|CREATE)$/", $t, $m)) {
+                // block relation just leads to not getting the relation returned
                 $tldclass = $m[2];
                 if (isset($tldclassmap[$tldclass])) {
                     $tlds[] = $tldclassmap[$tldclass];

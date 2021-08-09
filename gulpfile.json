@@ -1,5 +1,5 @@
 {
-    "phpcsparams": "--extensions=php,pdt --ignore=node_modules,vendor,templates_c -q .",
+    "phpcsparams": "--extensions=php,pdt --ignore=node_modules,vendor,templates_c,components/modules/ispapi/vendor,components/modules/ispapi/apis/sdk -q .",
     "phpcsfixcmd": "phpcbf --standard=./phpcs.xml.dist",
     "phpcschkcmd": "phpcs -n --colors --standard=./phpcs.xml.dist",
     "phpcomptcmd": "phpcs -n --colors --standard=PHPCompatibility --runtime-set testVersion \"$(php -r 'echo PHP_MAJOR_VERSION . \".\" . PHP_MINOR_VERSION;')\"",
