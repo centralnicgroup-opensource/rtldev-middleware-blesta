@@ -1,3 +1,15 @@
+# [3.0.0](https://github.com/hexonet/blesta-ispapi-registrar/compare/v2.0.3...v3.0.0) (2021-08-10)
+
+
+### Features
+
+* **php-sdk:** migration to our API Connector ([c96918a](https://github.com/hexonet/blesta-ispapi-registrar/commit/c96918ae9d4bb1275ea7a2b828cea3b97d6efbfe))
+
+
+### BREAKING CHANGES
+
+* **php-sdk:** API Class Instantiation, Communication and Logging has been revamped from scratch.
+
 ## [2.0.3](https://github.com/hexonet/blesta-ispapi-registrar/compare/v2.0.2...v2.0.3) (2021-08-06)
 
 
