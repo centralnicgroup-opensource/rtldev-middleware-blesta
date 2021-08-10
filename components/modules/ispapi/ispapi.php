@@ -118,7 +118,8 @@ class Ispapi extends RegistrarModule
      * Yes, we support DNS Management
      * @return bool
      */
-    public function supportsDnsManagement() {
+    public function supportsDnsManagement()
+    {
         return false;
     }
 
@@ -126,7 +127,8 @@ class Ispapi extends RegistrarModule
      * Yes, we support Email Forwarding
      * @return bool
      */
-    public function supportsEmailForwarding() {
+    public function supportsEmailForwarding()
+    {
         return false;
     }
 
@@ -134,7 +136,8 @@ class Ispapi extends RegistrarModule
      * Yes, we support Id Protection / Whois Privacy
      * @return bool
      */
-    public function supportsIdProtection() {
+    public function supportsIdProtection()
+    {
         return false;
     }
 
@@ -142,7 +145,8 @@ class Ispapi extends RegistrarModule
      * Yes, we support EPP / Authorization Codes
      * @return bool
      */
-    public function supportsEppCode() {
+    public function supportsEppCode()
+    {
         return false;
     }
 
@@ -1744,8 +1748,7 @@ class Ispapi extends RegistrarModule
 
             // check response
             if ($response["CODE"] === "200") {
-                if (
-                    preg_match("/\.(fi|nz)$/i", $fields->domain)
+                if (preg_match("/\.(fi|nz)$/i", $fields->domain)
                     && ($response["PROPERTY"]["TRANSFERLOCK"][0] === "1")
                 ) {
                     $this->Input->setErrors([
@@ -1755,8 +1758,7 @@ class Ispapi extends RegistrarModule
                     $this->Input->setErrors([
                         "errors" => ["EPP Code has been send to registrant by email."]
                     ]);
-                }
-                elseif (!strlen($response["PROPERTY"]["AUTH"][0])) {
+                } elseif (!strlen($response["PROPERTY"]["AUTH"][0])) {
                     $this->Input->setErrors([
                         "errors" => ["No AuthInfo code assigned to this domain name. Contact Support."]
                     ]);
@@ -1820,18 +1822,14 @@ class Ispapi extends RegistrarModule
     
         if ($dc === "549") {
             $error = "549 Unsupported TLD or availability lookup failed.";
-        }
-        elseif ($dc === "211") {
+        } elseif ($dc === "211") {
             if (preg_match("/block/", $r["PROPERTY"]["REASON"][0])) {// CASE: DOMAIN BLOCK
                 $error = "211 Reserved Domain (Domain Block).";
-            }
-            elseif (preg_match("/^Collision Domain name available \{/i", substr($fulldc, 3))) {// CASE: NXD DOMAIN
+            } elseif (preg_match("/^Collision Domain name available \{/i", substr($fulldc, 3))) {// CASE: NXD DOMAIN
                 $error = "211 Reserved Domain (Collision Domain).";
-            }
-            elseif (!empty($r["PROPERTY"]["PREMIUMCHANNEL"][0])) {// CASE: PREMIUM
+            } elseif (!empty($r["PROPERTY"]["PREMIUMCHANNEL"][0])) {// CASE: PREMIUM
                 $error = "211 Premium Domain. Contact Support";
-            }
-            elseif (!empty($r["PROPERTY"]["CLASS"][0])) { // CASE: RESERVED or PREMIUM? BACKORDER
+            } elseif (!empty($r["PROPERTY"]["CLASS"][0])) { // CASE: RESERVED or PREMIUM? BACKORDER
                 if (stripos($r["PROPERTY"]["REASON"][0], "reserved")) {//RESERVED
                     $error = "211 Reserved Domain.";
                 }
