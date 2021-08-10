@@ -48,6 +48,23 @@ class Ispapi extends RegistrarModule
     }
 
     /**
+     * Cast our UTC API timestamps to UTC timestamp string and unix timestamp
+     * @param string|int $date API timestamp (YYYY-MM-DD HH:ii:ss) or unix timestamp produced by strtotime
+     * @return array
+     */
+    private function _castDate(string $date, string $format): array
+    {
+        $ts = is_int($date) ?
+            $date :
+            strtotime(str_replace(" ", "T", $date) . "Z");//RFC 3339 / ISO 8601
+        return [
+            "ts" => $ts,
+            "short" => gmdate("Y-m-d", $ts),
+            "long" => gmdate($format, $ts)
+        ];
+    }
+
+    /**
      * Make an API request using the provided command and return response in Hash Format
      * @param array $command API command to request
      * @param array $row Module Row
@@ -95,6 +112,38 @@ class Ispapi extends RegistrarModule
     public function log($url, $data = null, $direction = "input", $success = false)
     {
         parent::log($url, $data, $direction, $success);
+    }
+
+    /**
+     * Yes, we support DNS Management
+     * @return bool
+     */
+    public function supportsDnsManagement() {
+        return false;
+    }
+
+    /**
+     * Yes, we support Email Forwarding
+     * @return bool
+     */
+    public function supportsEmailForwarding() {
+        return false;
+    }
+
+    /**
+     * Yes, we support Id Protection / Whois Privacy
+     * @return bool
+     */
+    public function supportsIdProtection() {
+        return false;
+    }
+
+    /**
+     * Yes, we support EPP / Authorization Codes
+     * @return bool
+     */
+    public function supportsEppCode() {
+        return false;
     }
 
     /**
@@ -1667,7 +1716,6 @@ class Ispapi extends RegistrarModule
             $this->view->setDefaultView(self::$defaultModuleView);
             return $this->view->fetch();
         }
-
         
         // Post values to var variable
         $vars->registrar_lock = $post["registrar_lock"];
@@ -1675,13 +1723,49 @@ class Ispapi extends RegistrarModule
 
         // To get epp/auth code
         if (isset($post["request_epp"]) && !isset($post["save"])) {
-            // TODO
-            // NOTE - .de and .eu domains should be handled differently to get auth info.
-            if (strlen($r["PROPERTY"]["AUTH"][0])) {
-                $vars->{"auth"} = $r["PROPERTY"]["AUTH"][0];
+            // Expiring Authorization Codes
+            // https://confluence.centralnic.com/display/RSR/Expiring+Authcodes
+            // pending cases:
+            // - RSRBE-3774
+            // - RSRBE-3753
+            $response = $r;//StatusDomain
+            if (preg_match("/\.de$/i", $fields->domain)) {
+                $response = $this->_call([
+                    "COMMAND" => "DENIC_CreateAuthInfo1",
+                    "DOMAIN" => $fields->domain
+                ], $row);
+            } elseif (preg_match("/\.(eu|be)$/i", $fields->domain)) {
+                $response = $this->_call([
+                    "COMMAND" => "RequestDomainAuthInfo",
+                    "DOMAIN" => $fields->domain
+                ], $row);
+                // TODO -> PENDING = 1|0
+            }
+
+            // check response
+            if ($response["CODE"] === "200") {
+                if (
+                    preg_match("/\.(fi|nz)$/i", $fields->domain)
+                    && ($response["PROPERTY"]["TRANSFERLOCK"][0] === "1")
+                ) {
+                    $this->Input->setErrors([
+                        "errors" => ["Failed loading the epp code. Please unlock this domain name first. A new epp code will then be generated and provided here."]
+                    ]);
+                } elseif (!isset($response["PROPERTY"]["AUTH"][0])) {
+                    $this->Input->setErrors([
+                        "errors" => ["EPP Code has been send to registrant by email."]
+                    ]);
+                }
+                elseif (!strlen($response["PROPERTY"]["AUTH"][0])) {
+                    $this->Input->setErrors([
+                        "errors" => ["No AuthInfo code assigned to this domain name. Contact Support."]
+                    ]);
+                } else {
+                    $vars->{"auth"} = $response["PROPERTY"]["AUTH"][0];
+                }
             } else {
                 $this->Input->setErrors([
-                    "errors" => ["No AuthInfo code assigned to this domain!"]
+                    "errors" => ["Failed loading the epp code (" . $response["DESCRIPTION"] . ")."]
                 ]);
             }
         }
@@ -1716,30 +1800,49 @@ class Ispapi extends RegistrarModule
         $row = $this->getModuleRow();
        
         $r = $this->_call([
-            "COMMAND" => "CheckDomain",//TODO deprecated command
-            "DOMAIN" => $domain,
+            "COMMAND" => "CheckDomains",
+            "DOMAIN0" => $domain,
+            "PREMIUMCHANNELS" => "*"
         ], $row);
+    
+        $error = false;
+        if ($r["CODE"] !== "200" || empty($r["PROPERTY"]["DOMAINCHECK"][0])) {
+            $dc = "421";
+            $error = "421 Temporary Issue.";
+        } else {
+            $dc = substr($r["PROPERTY"]["DOMAINCHECK"][0], 0, 3);
+            $fulldc = $r["PROPERTY"]["DOMAINCHECK"][0];
+        }
 
-        //TODO use $this->Input->setErrors to deal with premium domains
-        // Code 210 is for avaialble domains
-        return ($r["CODE"] === "210");
-    }
-
-    /**
-     * Cast our UTC API timestamps to UTC timestamp string and unix timestamp
-     * @param string|int $date API timestamp (YYYY-MM-DD HH:ii:ss) or unix timestamp produced by strtotime
-     * @return array
-     */
-    private function _castDate($date, $format)
-    {
-        $ts = is_int($date) ?
-            $date :
-            strtotime(str_replace(" ", "T", $date) . "Z");//RFC 3339 / ISO 8601
-        return [
-            "ts" => $ts,
-            "short" => gmdate("Y-m-d", $ts),
-            "long" => gmdate($format, $ts)
-        ];
+        if ($dc === "210") {
+            return true;//AVAILABLE
+        }
+    
+        if ($dc === "549") {
+            $error = "549 Unsupported TLD or availability lookup failed.";
+        }
+        elseif ($dc === "211") {
+            if (preg_match("/block/", $r["PROPERTY"]["REASON"][0])) {// CASE: DOMAIN BLOCK
+                $error = "211 Reserved Domain (Domain Block).";
+            }
+            elseif (preg_match("/^Collision Domain name available \{/i", substr($fulldc, 3))) {// CASE: NXD DOMAIN
+                $error = "211 Reserved Domain (Collision Domain).";
+            }
+            elseif (!empty($r["PROPERTY"]["PREMIUMCHANNEL"][0])) {// CASE: PREMIUM
+                $error = "211 Premium Domain. Contact Support";
+            }
+            elseif (!empty($r["PROPERTY"]["CLASS"][0])) { // CASE: RESERVED or PREMIUM? BACKORDER
+                if (stripos($r["PROPERTY"]["REASON"][0], "reserved")) {//RESERVED
+                    $error = "211 Reserved Domain.";
+                }
+            }
+        }
+        if ($error) {
+            $this->Input->setErrors([
+                "errors" => [ $error ]
+            ]);
+        }
+        return false;
     }
 
     /**
@@ -1802,15 +1905,6 @@ class Ispapi extends RegistrarModule
         return $this->getServiceName($service);
     }
 
-    private function _getTLDByClass($tldclass)
-    {
-        $tld = self::$tldclassmap[$tldclass];
-        if (empty($tld)) {
-            return "." . strtolower($tldclass);
-        }
-        return $tld;
-    }
-
     /**
      * Get a list of the TLDs supported by the registrar module
      *
@@ -1869,7 +1963,7 @@ class Ispapi extends RegistrarModule
             return ($a > $b) ? 1 : -1;
         });
 
-        // Save the TLDs results to the cache TODO
+        // Save the TLDs results to the cache
         if (count($tlds) > 0) {
             if (Configure::get("Caching.on") && is_writable(CACHEDIR)) {
                 try {
