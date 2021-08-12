@@ -1,3 +1,10 @@
+## [3.0.1](https://github.com/hexonet/blesta-ispapi-registrar/compare/v3.0.0...v3.0.1) (2021-08-12)
+
+
+### Bug Fixes
+
+* **build:** fixed archive file list globbing to fully including our SDKs source files ([b6600ee](https://github.com/hexonet/blesta-ispapi-registrar/commit/b6600ee39854b70329acf03b142b0201d912e986))
+
 # [3.0.0](https://github.com/hexonet/blesta-ispapi-registrar/compare/v2.0.3...v3.0.0) (2021-08-10)
 
 
