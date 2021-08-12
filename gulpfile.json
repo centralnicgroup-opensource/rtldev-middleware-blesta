@@ -12,7 +12,9 @@
         "HISTORY.md",
         "LICENSE",
         "components/**",
-        "!components/**/vendor/**"
+        "!components/**/vendor/**",
+        "components/modules/ispapi/apis/sdk/src/**",
+        "!components/modules/ispapi/apis/sdk/!(src)/**"
     ],
     "filesForCleanup": [
         "templates_c",
