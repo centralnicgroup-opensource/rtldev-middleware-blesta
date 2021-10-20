@@ -1,3 +1,10 @@
+## [3.0.2](https://github.com/hexonet/blesta-ispapi-registrar/compare/v3.0.1...v3.0.2) (2021-10-20)
+
+
+### Bug Fixes
+
+* **getAdminAddFields:** fix endless-loop ([da39265](https://github.com/hexonet/blesta-ispapi-registrar/commit/da39265e7ee15ef648de308189a7f50cc7ba3437))
+
 ## [3.0.1](https://github.com/hexonet/blesta-ispapi-registrar/compare/v3.0.0...v3.0.1) (2021-08-12)
 
 
