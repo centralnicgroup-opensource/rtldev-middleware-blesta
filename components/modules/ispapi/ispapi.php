@@ -1114,7 +1114,9 @@ class Ispapi extends RegistrarModule
                             $('#transfer_key_id').closest('li').hide();
                     });
                     // Refresh the page when typed in domain name in in order to display additional fields
-                    $('input[name=\"domain\"]').change(function() {
+                    $('input[name=\"domain\"]').change(function(event) {
+                        // do not refresh if domain has not actually changed (some change events are triggered automatically)
+                        if (event.target.value.toLowerCase() === '" . ($vars->domain ?? '') . "'.toLowerCase()) return;
                         $('input[type=radio]').attr('checked',false);
                         var form = $(this).closest('form');
                         $(form).append('<input type=\"hidden\" name=\"refresh_fields\" value=\"true\">');
