@@ -1,3 +1,10 @@
+## [3.0.3](https://github.com/hexonet/blesta-ispapi-registrar/compare/v3.0.2...v3.0.3) (2021-11-09)
+
+
+### Bug Fixes
+
+* **checkavailability:** minor review (no nxd, domain blocks) ([f9e4198](https://github.com/hexonet/blesta-ispapi-registrar/commit/f9e41980fe9e05387f2923f03129d5d9da49a20e))
+
 ## [3.0.2](https://github.com/hexonet/blesta-ispapi-registrar/compare/v3.0.1...v3.0.2) (2021-10-20)
 
 
