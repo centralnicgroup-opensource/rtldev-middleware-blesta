@@ -1802,45 +1802,47 @@ class Ispapi extends RegistrarModule
     public function checkAvailability($domain, $module_row_id = null)
     {
         $row = $this->getModuleRow();
-       
         $r = $this->_call([
             "COMMAND" => "CheckDomains",
             "DOMAIN0" => $domain,
             "PREMIUMCHANNELS" => "*"
         ], $row);
     
-        $error = false;
-        if ($r["CODE"] !== "200" || empty($r["PROPERTY"]["DOMAINCHECK"][0])) {
-            $dc = "421";
-            $error = "421 Temporary Issue.";
-        } else {
-            $dc = substr($r["PROPERTY"]["DOMAINCHECK"][0], 0, 3);
-            $fulldc = $r["PROPERTY"]["DOMAINCHECK"][0];
+        if ($r["CODE"] !== "200") {
+            $this->Input->setErrors([
+                "errors" => [ $domain . ": " . $r["DESCRIPTION"] ]
+            ]);
+            return false;
+        }
+        if (empty($r["PROPERTY"]["DOMAINCHECK"][0])) {
+            return false;
         }
 
-        if ($dc === "210") {
-            return true;//AVAILABLE
+        $fulldc = $r["PROPERTY"]["DOMAINCHECK"][0];
+        $dc = substr($fulldc, 0, 3);
+        if ($dc === "210") {//AVAILABLE
+            return true;
         }
-    
+        
+        $error = false;
         if ($dc === "549") {
-            $error = "549 Unsupported TLD or availability lookup failed.";
+            $error = $domain . ": Unsupported TLD or availability lookup failed";
         } elseif ($dc === "211") {
             if (preg_match("/block/", $r["PROPERTY"]["REASON"][0])) {// CASE: DOMAIN BLOCK
-                $error = "211 Reserved Domain (Domain Block).";
+                //$error = $domain . ": Reserved Domain (Domain Block).";
             } elseif (preg_match("/^Collision Domain name available \{/i", substr($fulldc, 3))) {// CASE: NXD DOMAIN
-                $error = "211 Reserved Domain (Collision Domain).";
+                //$error = $domain . ": Reserved Domain (Collision Domain).";
             } elseif (!empty($r["PROPERTY"]["PREMIUMCHANNEL"][0])) {// CASE: PREMIUM
-                $error = "211 Premium Domain. Contact Support";
-            } elseif (!empty($r["PROPERTY"]["CLASS"][0])) { // CASE: RESERVED or PREMIUM? BACKORDER
-                if (stripos($r["PROPERTY"]["REASON"][0], "reserved")) {//RESERVED
-                    $error = "211 Reserved Domain.";
-                }
+                $this->Input->setErrors([
+                    "errors" => [ $domain . ": Premium Domain. Contact Support." ]
+                ]);
+            } elseif (!empty($r["PROPERTY"]["CLASS"][0])  // CASE: RESERVED or PREMIUM? BACKORDER
+                && stripos($r["PROPERTY"]["REASON"][0], "reserved") //RESERVED
+            ) {
+                $this->Input->setErrors([
+                    "errors" => [ $domain . ": Reserved Domain. Contact Support." ]
+                ]);
             }
-        }
-        if ($error) {
-            $this->Input->setErrors([
-                "errors" => [ $error ]
-            ]);
         }
         return false;
     }
