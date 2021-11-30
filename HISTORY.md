@@ -1,3 +1,10 @@
+## [3.0.4](https://github.com/hexonet/blesta-ispapi-registrar/compare/v3.0.3...v3.0.4) (2021-11-30)
+
+
+### Bug Fixes
+
+* **renewService:** fix PayDomainRenewal ([611456d](https://github.com/hexonet/blesta-ispapi-registrar/commit/611456deb7161fe558c723c1f6b772ffa2026046))
+
 ## [3.0.3](https://github.com/hexonet/blesta-ispapi-registrar/compare/v3.0.2...v3.0.3) (2021-11-09)
 
 
