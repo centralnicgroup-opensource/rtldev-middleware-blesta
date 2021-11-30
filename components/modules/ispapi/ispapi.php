@@ -614,8 +614,13 @@ class Ispapi extends RegistrarModule
 
             // Some of the TLDs require following command for renewals (eg: .de)
             if ($r["CODE"] === "510") {
-                $command["COMMAND"] = "PayDomainRenewal";
-                $this->_call($command, $row);
+                // clear errors from previous call
+                $this->Input->setErrors([]);
+                $this->_call([
+                    "COMMAND" => "PayDomainRenewal",
+                    "DOMAIN" => $vars["domain"],
+                    "PERIOD" => $vars["NumYears"]
+                ], $row);
             }
 
             if ($this->Input->errors()) {
