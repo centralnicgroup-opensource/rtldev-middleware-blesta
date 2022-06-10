@@ -1,18 +1,18 @@
 name: Release
-on: 
+on:
   # will run for every branch, except tags. See RSRMID-206.
   push:
     # Sequence of patterns matched against refs/heads
     branches:
       - "**"
     # Sequence of patterns matched against refs/tags
-    tags-ignore: 
+    tags-ignore:
       - "**"
   pull_request:
     branches:
       - "**"
-    tags-ignore: 
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+    tags-ignore:
+      - "v[0-9]+.[0-9]+.[0-9]+"
 
 jobs:
   test:
@@ -25,13 +25,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup NodeJS LTS
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
+        with:
+          node-version: lts/*
+          check-latest: true
       - name: Install dependencies
-        run: |
-          npm prune
-          npm i
+        run: npm ci
       - name: Install Dependencies::PHP${{ matrix.php-version }}
         run: |
           echo "$HOME/.composer/vendor/bin" >> $GITHUB_PATH
@@ -49,17 +50,18 @@ jobs:
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
           persist-credentials: false
           submodules: recursive
       - name: Setup NodeJS LTS
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
+        with:
+          node-version: lts/*
+          check-latest: true
       - name: Install dependencies
-        run: |
-          npm prune
-          npm i
+        run: npm ci
       - name: Release
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
