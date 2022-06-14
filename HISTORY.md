@@ -1,3 +1,10 @@
+## [3.0.5](https://github.com/hexonet/blesta-ispapi-registrar/compare/v3.0.4...v3.0.5) (2022-06-14)
+
+
+### Bug Fixes
+
+* **ci:** review build tool dependencies and test release process (no need to upgrade!) ([f62a438](https://github.com/hexonet/blesta-ispapi-registrar/commit/f62a438bf8c48a11eee50788dc45bb4d51331042))
+
 ## [3.0.4](https://github.com/hexonet/blesta-ispapi-registrar/compare/v3.0.3...v3.0.4) (2021-11-30)
 
 
