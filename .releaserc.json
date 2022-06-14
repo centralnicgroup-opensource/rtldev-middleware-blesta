@@ -19,8 +19,7 @@
             {
                 "assets": [
                     "HISTORY.md",
-                    "package.json",
-                    "composer.json",
+                    "@(package?(-lock)|composer).json",
                     "components/modules/ispapi/config.json",
                     "components/modules/ispapi/ispapi.php",
                     "release.json",
@@ -35,10 +34,6 @@
                     {
                         "label": "Blesta Module (zip)",
                         "path": "pkg/blesta-ispapi-registrar.zip"
-                    },
-                    {
-                        "label": "Blesta Module (tar.gz)",
-                        "path": "pkg/blesta-ispapi-registrar.tar.gz"
                     }
                 ]
             }

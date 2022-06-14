@@ -26,8 +26,8 @@
     "isp",
     "registration"
   ],
-  "overrides":{
-    "glob-parent":"^6.0.2"
+  "overrides": {
+    "glob-parent": "^6.0.2"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.1",
@@ -35,7 +35,7 @@
     "@semantic-release/git": "^10.0.1",
     "gulp": "^4.0.2",
     "gulp-clean": "^0.4.0",
-    "gulp-zip": "^4.2.0",
+    "gulp-zip": "^5.1.0",
     "semantic-release": "^19.0.3"
   }
 }
