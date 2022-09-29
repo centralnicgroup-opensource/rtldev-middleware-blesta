@@ -12,9 +12,9 @@
     "node": ">=16.15.1",
     "npm": ">=8.11.1"
   },
-  "homepage": "https://github.com/hexonet/blesta-ispapi-registrar",
-  "repository": "github:hexonet/blesta-ispapi-registrar",
-  "bugs": "https://github.com/hexonet/blesta-ispapi-registrar/issues",
+  "homepage": "https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar",
+  "repository": "github:centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar",
+  "bugs": "https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/issues",
   "keywords": [
     "blesta",
     "web host automation platform",

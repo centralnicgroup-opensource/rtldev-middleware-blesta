@@ -5,7 +5,7 @@
  * @package blesta
  * @subpackage blesta.components.modules.ispapi
  * @copyright Copyright (c) 2018-2021, HEXONET.
- * @license https://raw.githubusercontent.com/hexonet/blesta-ispapi-registrar/master/LICENSE MIT
+ * @license https://raw.githubusercontent.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/master/LICENSE MIT
  * @link https://www.hexonet.net/ HEXONET
  */
 class Ispapi extends RegistrarModule

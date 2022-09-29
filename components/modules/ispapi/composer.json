@@ -13,7 +13,7 @@
     "registration",
     "transfer"
   ],
-  "homepage": "https://github.com/hexonet/blesta-ispapi-registrar",
+  "homepage": "https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar",
   "readme": "README.md",
   "license": "proprietary",
   "authors": [
@@ -25,8 +25,8 @@
   ],
   "support": {
     "email": "support@hexonet.net",
-    "issues": "https://github.com/hexonet/blesta-ispapi-registrar/issues",
-    "source": "https://github.com/hexonet/blesta-ispapi-registrar"
+    "issues": "https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/issues",
+    "source": "https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar"
   },
   "type": "blesta-module",
   "require": {
