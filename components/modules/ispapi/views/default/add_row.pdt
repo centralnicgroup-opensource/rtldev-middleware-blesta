@@ -20,7 +20,7 @@
                     <li>
                         <?php
                         $this->Form->label($this->_('Ispapi.row_meta.key', true), 'key');
-                        $this->Form->fieldText('key', $this->Html->ifSet($vars->key), ['id' => 'key']);
+                        $this->Form->fieldPassword('key', $this->Html->ifSet($vars->key), ['id' => 'key']);
                         ?>
                     </li>
                     <li>

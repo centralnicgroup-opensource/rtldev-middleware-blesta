@@ -1,0 +1,28 @@
+{
+    "name": "centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar",
+    "description": "Blesta ISPAPI Registrar Module",
+    "type": "project",
+    "require": {
+        "php": "^7.3.0",
+        "centralnic-reseller/php-sdk": "^8.0.4"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Kai Schwarz",
+            "homepage": "https://github.com/KaiSchwarz-cnic"
+        },
+        {
+            "name": "Sebastian Vassiliou",
+            "homepage": "https://github.com/SebastianVassiliou-cnic"
+        },
+        {
+            "name": "Asif Nawaz",
+            "homepage": "https://github.com/AsifNawaz-cnic"
+        }
+    ],
+    "config": {
+        "optimize-autoloader": true,
+        "vendor-dir": "components/modules/ispapi/apis/vendor"
+    }
+}

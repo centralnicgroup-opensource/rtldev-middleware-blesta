@@ -3,3 +3,5 @@ node_modules
 pkg
 composer.lock
 build
+.devcontainer/blesta/data/
+vendor
