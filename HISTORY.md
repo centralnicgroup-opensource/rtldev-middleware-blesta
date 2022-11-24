@@ -1,3 +1,10 @@
+## [3.0.7](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.0.6...v3.0.7) (2022-11-24)
+
+
+### Bug Fixes
+
+* **sdk:** includes missing php-sdk vendor files in this patch ([ff052ea](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/commit/ff052ea4ecc3e735f8656d26beae7610b74e7a67))
+
 ## [3.0.6](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.0.5...v3.0.6) (2022-11-24)
 
 
