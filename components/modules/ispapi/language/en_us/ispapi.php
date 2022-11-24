@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @copyright Copyright (c) 2018-2021, HEXONET
  * @license https://raw.githubusercontent.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/master/LICENSE MIT
@@ -14,7 +15,7 @@ $lang['Ispapi.module_row_plural'] = 'Accounts';
 $lang['Ispapi.add_module_row'] = 'Add Account';
 $lang['Ispapi.manage.module_rows_title'] = 'Accounts';
 $lang['Ispapi.manage.module_rows_heading.user'] = 'User';
-$lang['Ispapi.manage.module_rows_heading.key'] = 'API Key';
+$lang['Ispapi.manage.module_rows_heading.key'] = 'Password';
 $lang['Ispapi.manage.module_rows_heading.sandbox'] = 'Sandbox';
 $lang['Ispapi.manage.module_rows_heading.options'] = 'Options';
 $lang['Ispapi.manage.module_rows.edit'] = 'Edit';

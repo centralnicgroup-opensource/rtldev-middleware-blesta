@@ -88,7 +88,7 @@ class Ispapi extends RegistrarModule
         }
 
         $r = $cl->request($command)->getHash();
-        if (!preg_match($successCase, $r["CODE"])) {
+        if (!preg_match("/^SetEnvironment$/", $command["COMMAND"]) && !preg_match($successCase, $r["CODE"])) {
             $this->Input->setErrors([
                 "errors" => [$r["CODE"] . " " . $r["DESCRIPTION"]]
             ]);
