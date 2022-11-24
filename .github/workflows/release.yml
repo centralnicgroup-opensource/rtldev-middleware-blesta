@@ -1,60 +1,27 @@
 name: Release
 on:
-  # will run for every branch, except tags. See RSRMID-206.
   push:
-    # Sequence of patterns matched against refs/heads
     branches:
-      - "**"
-    # Sequence of patterns matched against refs/tags
-    tags-ignore:
-      - "**"
-  pull_request:
-    branches:
-      - "**"
-    tags-ignore:
-      - "v[0-9]+.[0-9]+.[0-9]+"
+      - "master"
 
 jobs:
-  test:
-    name: Test @ PHP ${{ matrix.php-version }} - x86 - ubuntu-latest
-    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.actor != 'dependabot[bot]')
-    strategy:
-      matrix:
-        php-version:
-          - 7.4
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup NodeJS LTS
-        uses: actions/setup-node@v3
-        with:
-          node-version: lts/*
-          check-latest: true
-      - name: Install dependencies
-        run: npm ci
-      - name: Install Dependencies::PHP${{ matrix.php-version }}
-        run: |
-          echo "$HOME/.composer/vendor/bin" >> $GITHUB_PATH
-          composer global require dealerdirect/phpcodesniffer-composer-installer roave/security-advisories:dev-master squizlabs/php_codesniffer phpcompatibility/php-compatibility
-        # TODO migrate the below to gulp calls
-      - name: Check PHP Compatibility
-        run: phpcs --standard=PHPCompatibility -q -n --colors --runtime-set testVersion ${{ matrix.php-version }} --extensions=php --ignore=node_modules,vendor,templates_c . || exit 1;
-      - name: Check Code Standard
-        run: phpcs --standard=./phpcs.xml.dist -q -n --colors --extensions=php,pdt,inc,lib --ignore=node_modules,vendor,templates_c .
+  linting:
+    name: Linting
+    uses: ./.github/workflows/test.yml
+    with:
+      secrets: inherit
+
   release:
-    name: Release @ NodeJS LTS - x86 - ubuntu-latest
+    name: Release Job
     runs-on: ubuntu-latest
-    needs:
-      - test
-    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    needs: linting
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
           persist-credentials: false
-          submodules: recursive
       - name: Setup NodeJS LTS
         uses: actions/setup-node@v3
         with:
