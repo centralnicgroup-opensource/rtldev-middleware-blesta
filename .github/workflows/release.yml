@@ -8,8 +8,7 @@ jobs:
   linting:
     name: Linting
     uses: ./.github/workflows/test.yml
-    with:
-      secrets: inherit
+    secrets: inherit
 
   release:
     name: Release Job
