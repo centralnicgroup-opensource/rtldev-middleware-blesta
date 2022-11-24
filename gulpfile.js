@@ -5,27 +5,6 @@ const exec = require('util').promisify(require('child_process').exec)
 const cfg = require('./gulpfile.json')
 
 /**
- * Perform PHP Linting
- */
-async function doLint() {
-  // these may fail, it's fine
-  try {
-    await exec(`${cfg.phpcsfixcmd} ${cfg.phpcsparams}`)
-  } catch (e) {
-  }
-
-  // these shouldn't fail
-  try {
-    await exec(`${cfg.phpcschkcmd} ${cfg.phpcsparams}`)
-    await exec(`${cfg.phpcomptcmd} ${cfg.phpcsparams}`)
-    // await exec(`${cfg.phpstancmd}`);
-  } catch (e) {
-    await Promise.reject(e.message)
-  }
-  await Promise.resolve()
-}
-
-/**
  * cleanup old build folder / archive
  * @return stream
  */
@@ -72,18 +51,9 @@ function doZip() {
     .pipe(dest('./pkg'))
 }
 
-exports.lint = series(
-  doLint
-)
-
 exports.copy = series(
   doDistClean,
   doCopyFiles
-)
-
-exports.prepare = series(
-  exports.lint,
-  exports.copy
 )
 
 exports.archives = series(
@@ -91,11 +61,6 @@ exports.archives = series(
   doZip
 )
 
-exports.default = series(
-  exports.prepare,
-  exports.archives,
-  doFullClean
-)
 exports.release = series(
   exports.copy,
   exports.archives,
