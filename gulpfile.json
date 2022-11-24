@@ -1,18 +1,17 @@
 {
-    "archiveFileName": "blesta-ispapi-registrar",
-    "archiveBuildPath": "build",
-    "filesForArchive": [
-        "README.md",
-        "CONTRIBUTING.md",
-        "HISTORY.md",
-        "LICENSE",
-        "components/**"
-    ],
-    "filesForCleanup": [
-        "templates_c",
-        "components/modules/ispapi/composer.lock",
-        ".phpunit.result.cache",
-        "package-lock.json",
-        "tmp"
-    ]
+  "archiveFileName": "blesta-ispapi-registrar",
+  "archiveBuildPath": "build",
+  "filesForArchive": [
+    "README.md",
+    "CONTRIBUTING.md",
+    "HISTORY.md",
+    "LICENSE",
+    "components/**"
+  ],
+  "filesForCleanup": [
+    "templates_c",
+    "components/modules/ispapi/composer.lock",
+    ".phpunit.result.cache",
+    "tmp"
+  ]
 }

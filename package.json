@@ -27,14 +27,17 @@
     "registration"
   ],
   "overrides": {
-    "glob-parent": "^6.0.2"
+    "glob-parent": "^6.0.2",
+    "shelljs": "^0.8.5"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.1",
     "@semantic-release/exec": "^6.0.2",
     "@semantic-release/git": "^10.0.1",
+    "end-of-stream-promise": "^1.0.0",
     "gulp": "^4.0.2",
     "gulp-clean": "^0.4.0",
+    "gulp-composer": "^0.4.5",
     "gulp-zip": "^5.1.0",
     "semantic-release": "^19.0.5"
   }
