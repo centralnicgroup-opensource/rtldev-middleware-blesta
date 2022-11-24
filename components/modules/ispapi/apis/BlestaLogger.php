@@ -1,13 +1,10 @@
 <?php
 
-use \HEXONET\Logger;
-use \HEXONET\Response;
-
-class BlestaLogger extends Logger
+class BlestaLogger implements \CNIC\LoggerInterface
 {
-    private string $apiURL;
-    private Ispapi $mod;
-    
+    private $apiURL;
+    private $mod;
+
     public function __construct($mod, $apiURL)
     {
         $this->mod = $mod;
@@ -16,8 +13,11 @@ class BlestaLogger extends Logger
 
     /**
      * output/log given data
+     * @param string $post post request data in string format
+     * @param \CNIC\HEXONET\Response $r Response to log
+     * @param string|null $error error message
      */
-    public function log(string $post, Response $r, string $error = null): void
+    public function log(string $post, $r, string $error = null): void
     {
         $this->mod->log(
             $this->apiURL,
@@ -25,7 +25,7 @@ class BlestaLogger extends Logger
             'input',
             true
         );
-        
+
         $this->mod->log(
             $this->apiURL,
             ($error ? $error . "\n\n" : "") . $r->getPlain(),
