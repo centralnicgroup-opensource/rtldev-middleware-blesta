@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<ruleset name="super-linter">
+    <description>The default coding standard for usage with GitHub Super-Linter. It just includes PSR12.</description>
+    <!-- Use PSR-12 as a base -->
+    <rule ref="PSR12"/>
+    <arg value="s"/>
+    <arg value="q"/>
+    <arg value="n"/>
+    <arg name="colors"/>
+
+    <!-- Every file should end with a new line except views -->
+    <rule ref="Generic.Files.EndFileNewline">
+        <exclude-pattern>*.pdt</exclude-pattern>
+    </rule>
+
+    <!-- Exclude template and language files from the line-too-long PSR2 rule -->
+    <rule ref="Generic.Files.LineLength.TooLong">
+        <exclude-pattern>*.pdt</exclude-pattern>
+        <exclude-pattern>/language/*.php</exclude-pattern>
+    </rule>
+
+    <rule ref="PSR1.Classes.ClassDeclaration">
+        <exclude name="PSR1.Classes.ClassDeclaration"/>
+    </rule>
+
+    <rule ref="PSR2.Methods.MethodDeclaration.Underscore">
+        <exclude name="PSR2.Methods.MethodDeclaration.Underscore"/>
+    </rule>
+
+</ruleset>
