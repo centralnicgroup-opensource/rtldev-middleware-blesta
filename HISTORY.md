@@ -1,3 +1,10 @@
+## [3.0.6](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.0.5...v3.0.6) (2022-11-24)
+
+
+### Bug Fixes
+
+* **sdk:** upgrade sdk to version 8.0.4 (OTE connectivity fix) ([be382ea](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/commit/be382eaf0a039f235fd848f3e47e8b35fae6304f))
+
 ## [3.0.5](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.0.4...v3.0.5) (2022-06-14)
 
 ### Bug Fixes
