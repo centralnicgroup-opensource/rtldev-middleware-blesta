@@ -718,7 +718,7 @@ class Ispapi extends RegistrarModule
     }
 
     /**
-     * Returns the rendered view of the add module row page
+     * Returns the rendered view of the add module row page (add account)
      *
      * @param array $vars An array of post data submitted to or on the add
      *  module row page (used to repopulate fields after an error)
@@ -741,10 +741,8 @@ class Ispapi extends RegistrarModule
         Loader::loadHelpers($this, ["Form", "Html", "Widget"]);
 
         // Set unspecified checkboxes
-        if (!empty($vars)) {
-            if (empty($vars["sandbox"])) {
-                $vars["sandbox"] = "false";
-            }
+        if (!empty($vars) && empty($vars["sandbox"])) {
+            $vars["sandbox"] = "false";
         }
 
         $this->view->set("vars", (object) $vars);
@@ -761,8 +759,9 @@ class Ispapi extends RegistrarModule
      * @return string HTML content containing information to display when viewing the edit module row page
      */
     public function manageEditRow($module_row, array &$vars)
-    {
+    {   
         // Load the view into this object, so helpers can be automatically added to the view
+        // TODO: unable use password field for key/password
         $this->view = new View("edit_row", "default");
         $this->view->base_uri = $this->base_uri;
         $this->view->setDefaultView(self::$defaultModuleView);
@@ -794,8 +793,11 @@ class Ispapi extends RegistrarModule
     public function addModuleRow(array &$vars)
     {
         // TODO maybe syncing services
-        $meta_fields = ["user", "key", "sandbox"]; //TODO maybe extending this
-        $encrypted_fields = ["key"];
+        $meta_fields = [
+            "user" => 0,
+            "key" => 1,
+            "sandbox" => 0
+        ]; //TODO maybe extending this
 
         // Set unspecified checkboxes
         if (empty($vars["sandbox"])) {
@@ -809,11 +811,11 @@ class Ispapi extends RegistrarModule
             // Build the meta data for this row
             $meta = [];
             foreach ($vars as $key => $value) {
-                if (in_array($key, $meta_fields)) {
+                if (array_key_exists($key, $meta_fields)) {
                     $meta[] = [
                         "key" => $key,
                         "value" => $value,
-                        "encrypted" => in_array($key, $encrypted_fields) ? 1 : 0,
+                        "encrypted" => $meta_fields[$key]
                     ];
                 }
             }
