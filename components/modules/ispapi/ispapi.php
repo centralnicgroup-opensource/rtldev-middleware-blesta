@@ -763,7 +763,7 @@ class Ispapi extends RegistrarModule
      * @return string HTML content containing information to display when viewing the edit module row page
      */
     public function manageEditRow($module_row, array &$vars)
-    {   
+    {
         // Load the view into this object, so helpers can be automatically added to the view
         // TODO: unable use password field for key/password
         $this->view = new View("edit_row", "default");
