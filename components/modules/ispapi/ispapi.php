@@ -337,16 +337,18 @@ class Ispapi extends RegistrarModule
                         "COMMAND" => "TransferDomain",
                         "DOMAIN" => $vars["domain"],
                         "PERIOD" => $vars["NumYears"],
-                        "NAMESERVER0" => $vars["ns1"],
-                        "NAMESERVER1" => $vars["ns2"],
-                        "NAMESERVER2" => $vars["ns3"],
-                        "NAMESERVER3" => $vars["ns4"],
                         "OWNERCONTACT0" => $contact_data["Registrant"],
                         "ADMINCONTACT0" => $contact_data["Admin"],
                         "TECHCONTACT0" => $contact_data["Tech"],
                         "BILLINGCONTACT0" => $contact_data["Billing"],
                         "AUTH" => $vars["transfer_key"],
                     ];
+                    for ($i = 1; $i <= 5; $i++) {
+                        $key = "ns" . $i;
+                        if (!empty($vars[$key])) {
+                            $command["NAMESERVER" . ($i - 1)] = $vars[$key];
+                        }
+                    }
 
                     if (
                         isset($r["PROPERTY"]["USERTRANSFERREQUIRED"])
@@ -416,15 +418,17 @@ class Ispapi extends RegistrarModule
                     "COMMAND" => "AddDomain",
                     "DOMAIN" => $vars["domain"],
                     "PERIOD" => $vars["NumYears"],
-                    "NAMESERVER0" => $vars["ns1"],
-                    "NAMESERVER1" => $vars["ns2"],
-                    "NAMESERVER2" => $vars["ns3"],
-                    "NAMESERVER3" => $vars["ns4"],
                     "OWNERCONTACT0" => $contact_data["Registrant"],
                     "ADMINCONTACT0" => $contact_data["Admin"],
                     "TECHCONTACT0" => $contact_data["Tech"],
                     "BILLINGCONTACT0" => $contact_data["Billing"],
                 ];
+                for ($i = 1; $i <= 5; $i++) {
+                    $key = "ns" . $i;
+                    if (!empty($vars[$key])) {
+                        $command["NAMESERVER" . ($i - 1)] = $vars[$key];
+                    }
+                }
 
                 // Not all TLDs additional fields are like X-<tld>-<something>
                 #$tld_pattern = preg_replace("/\./", " ", strtoupper($tld));
