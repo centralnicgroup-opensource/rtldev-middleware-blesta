@@ -1606,56 +1606,40 @@ class Ispapi extends RegistrarModule
         array $post = null,
         array $files = null
     ) {
-        $this->view = new View($view, "default");
-
         // Load the helpers required for this view
         Loader::loadHelpers($this, ["Form", "Html"]);
 
-        $vars = new stdClass();
-
         $row = $this->getModuleRow($package->module_row);
-
         $fields = $this->serviceFieldsToObject($service->fields);
 
         if (!empty($post)) {
+            // Changes have been sent
             // Modify and save nameservers
-            $vars = $post;
-            // Default to using default nameservers
-            $vars["usedns"] = "Default";
-            foreach ($vars["ns"] as $i => $ns) {
-                if (!empty($ns)) {
-                    $vars["ns" . ($i + 1)] = $ns;
-                    unset($vars["usedns"]);
-                }
-            }
-            unset($vars["ns"]);
-
-            $this->_call([
+            $command = [
                 "COMMAND" => "ModifyDomain",
                 "DOMAIN" => $fields->domain,
-                "NAMESERVER" => [
-                    $vars["ns1"],
-                    $vars["ns2"],
-                    $vars["ns3"],
-                    $vars["ns4"],
-                    $vars["ns5"],
-                ],
                 "INTERNALDNS" => 1,
-            ], $row);
-
-            $vars = (object) $post;
-        } else {
-            // Get nameservers
-            $r = $this->_call([
-                "COMMAND" => "StatusDomain",
-                "DOMAIN" => $fields->domain,
-            ], $row);
-
-            if ($r["CODE"] === "200" && isset($r["PROPERTY"]["NAMESERVER"])) {
-                $vars->ns = $r["PROPERTY"]["NAMESERVER"];
+            ];
+            foreach ($post["ns"] as $i => $ns) {
+                if (!empty($ns)) {
+                    $command["NAMESERVER" . $i] = $ns;
+                }
             }
+            $this->_call($command, $row);
         }
 
+        // Get nameservers
+        $r = $this->_call([
+            "COMMAND" => "StatusDomain",
+            "DOMAIN" => $fields->domain,
+        ], $row);
+
+        $vars = new stdClass();
+        if ($r["CODE"] === "200" && isset($r["PROPERTY"]["NAMESERVER"])) {
+            $vars->ns = $r["PROPERTY"]["NAMESERVER"];
+        }
+        
+        $this->view = new View($view, "default");
         $this->view->set("vars", $vars);
         $this->view->setDefaultView(self::$defaultModuleView);
         return $this->view->fetch();
