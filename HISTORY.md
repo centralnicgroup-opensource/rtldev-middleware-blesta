@@ -1,3 +1,11 @@
+## [3.0.9](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.0.8...v3.0.9) (2022-11-28)
+
+
+### Bug Fixes
+
+* **psr12:** cleaned dangling spaces ([aaf73c5](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/commit/aaf73c52fdad9420fc2a995704ee8b69ced7da6d))
+* **registration/transfer:** patch index access error for nameservers ([7e4bb0c](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/commit/7e4bb0c56598f7d1e7fa8497f8bf1f50c2dd2aac))
+
 ## [3.0.8](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.0.7...v3.0.8) (2022-11-24)
 
 
