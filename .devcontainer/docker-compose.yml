@@ -1,0 +1,46 @@
+version: '3.9'
+networks:
+  blesta:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "172.16.238.0/24"
+
+services:
+  blesta:
+    hostname: blestadev1.hexonet.net
+    mac_address: 02:42:AC:10:ED:0B
+    container_name: dstack-blesta
+    environment:
+      MYSQL_ROOT_PASSWORD: middleware
+      MYSQL_DATABASE: blestadb
+      MYSQL_USER_NAME: admin
+      MYSQL_PASSWORD: middleware
+      MYSQL_HOST: localhost
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PHP_VERSION: 7.4
+    volumes:
+      - ..:/usr/share/rtldev-middleware-blesta-ispapi-registrar:cached
+    ports:
+      - 80:80
+      - 3306:3306
+    networks:
+      blesta:
+        ipv4_address: 172.16.238.11
+
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: dstack-phpmyadmin-blesta
+    restart: always
+    depends_on:
+      - blesta
+    environment:
+      PMA_HOST: 172.16.238.11
+      PMA_PORT: 3306
+    ports:
+      - 8081:80
+    networks:
+      - blesta
