@@ -16,7 +16,8 @@ Download the ZIP archive [here](https://github.com/centralnicgroup-opensource/rt
 
 ## Authors
 
-- **Kai Schwarz** - _development_ - [PapaKai](https://github.com/papakai)
+- **Kai Schwarz** - _development_ - [KaiSchwarz-cnic](https://github.com/kaischwarz-cnic)
+- **Asif Nawaz** - _development_ - [AsifNawaz-cnic](https://github.com/asifnawaz-cnic)
 
 Former Authors:
 
