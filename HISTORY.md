@@ -1,3 +1,10 @@
+## [3.0.10](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.0.9...v3.0.10) (2022-11-29)
+
+
+### Bug Fixes
+
+* **getexpirydate:** patch use of Date->format ([352a772](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/commit/352a772a0802c2c8d670943937dd2fd851133189))
+
 ## [3.0.9](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.0.8...v3.0.9) (2022-11-28)
 
 
