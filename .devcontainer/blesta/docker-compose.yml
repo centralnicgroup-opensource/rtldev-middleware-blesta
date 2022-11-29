@@ -57,7 +57,7 @@ services:
     depends_on:
       - mysql
     volumes:
-      - ../..:/usr/share/rtldev-middleware-blesta:cached
+      - ../..:/usr/share/rtldev-middleware-blesta-ispapi-registrar:cached
     ports:
       - 80:80
     networks:
