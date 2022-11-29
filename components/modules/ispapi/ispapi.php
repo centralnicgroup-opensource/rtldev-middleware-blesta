@@ -1638,7 +1638,7 @@ class Ispapi extends RegistrarModule
         if ($r["CODE"] === "200" && isset($r["PROPERTY"]["NAMESERVER"])) {
             $vars->ns = $r["PROPERTY"]["NAMESERVER"];
         }
-        
+
         $this->view = new View($view, "default");
         $this->view->set("vars", $vars);
         $this->view->setDefaultView(self::$defaultModuleView);
