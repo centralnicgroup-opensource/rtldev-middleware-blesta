@@ -2,19 +2,28 @@
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.224.2/containers/jekyll
 {
   "name": "dstack-blesta",
-  "dockerComposeFile": ["blesta/docker-compose.yml"],
+  "dockerComposeFile": [
+    "docker-compose.yml"
+  ],
   "service": "blesta",
   "workspaceFolder": "/usr/share/rtldev-middleware-blesta-ispapi-registrar",
   "shutdownAction": "stopCompose",
   // Add the IDs of extensions you want installed when the container is created.
-  "extensions": [],
+  "extensions": [
+    "GitHub.vscode-pull-request-github",
+    "ms-vscode-remote.remote-containers",
+    "felixfbecker.php-debug",
+    "bmewburn.vscode-intelephense-client",
+    "mrmlnc.vscode-apache",
+    "xdebug.php-debug"
+  ],
   // Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
-  //"remoteUser": "vscode",
+  "remoteUser": "vscode",
   // Use 'onCreateCommand' to run commands after the container is created (first time).
-  //"postCreateCommand": "zsh /post-create.sh",
+  "postCreateCommand": "zsh /post-create.sh",
   // Run commands after the container is running
   "settings": {
-    // "terminal.integrated.defaultProfile.linux": "zsh"
-    //    "php.validate.executablePath": "/usr/local/bin/php"
+    "terminal.integrated.defaultProfile.linux": "zsh",
+    "php.validate.executablePath": "/usr/local/bin/php"
   } // is this the .vscode/settings.json?
 }
