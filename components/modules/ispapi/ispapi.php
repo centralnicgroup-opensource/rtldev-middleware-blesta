@@ -1865,10 +1865,10 @@ class Ispapi extends RegistrarModule
         $failuredate = $this->_castDate($r["PROPERTY"]["FAILUREDATE"][0], $format);
 
         if ($failuredate["ts"] > $paiduntildate["ts"]) {
-            $expirydate = $paiduntildate;
+            $expirydate = $paiduntildate["ts"];
         } else {
-            $ts = $finalizationdate["ts"] + ($paiduntildate["ts"] - $expirationdate["ts"]);
-            $expirydate = gmdate($format, $ts);
+            $expirydate = $finalizationdate["ts"] + ($paiduntildate["ts"] - $expirationdate["ts"]);
+            //$expirydate = gmdate($format, $ts);
         }
 
         return $this->Date->format($format, $expirydate);
