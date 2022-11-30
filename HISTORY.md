@@ -1,3 +1,10 @@
+## [3.0.11](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.0.10...v3.0.11) (2022-11-30)
+
+
+### Bug Fixes
+
+* **nameservers:** patched php issues in tab nameservers ([7546e09](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/commit/7546e09c8a52f9fa8bc1b24fbd1ff3507082d60f))
+
 ## [3.0.10](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.0.9...v3.0.10) (2022-11-29)
 
 
