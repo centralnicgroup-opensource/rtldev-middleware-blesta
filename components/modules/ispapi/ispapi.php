@@ -1606,6 +1606,8 @@ class Ispapi extends RegistrarModule
         array $post = null,
         array $files = null
     ) {
+        $this->view = new View($view, "default");
+
         // Load the helpers required for this view
         Loader::loadHelpers($this, ["Form", "Html"]);
 
@@ -1639,7 +1641,6 @@ class Ispapi extends RegistrarModule
             $vars->ns = $r["PROPERTY"]["NAMESERVER"];
         }
 
-        $this->view = new View($view, "default");
         $this->view->set("vars", $vars);
         $this->view->setDefaultView(self::$defaultModuleView);
         return $this->view->fetch();
