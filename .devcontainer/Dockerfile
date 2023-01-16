@@ -1,5 +1,5 @@
-FROM composer:latest as composer
-FROM node:latest as nodejs
+FROM composer:ltd as composer
+FROM node:ltd as nodejs
 FROM mcr.microsoft.com/devcontainers/base:ubuntu
 
 ENV DOCKER_USER_ID 501 
@@ -142,7 +142,6 @@ RUN usermod --shell /usr/bin/zsh ${USERNAME} \
 COPY --from=nodejs /usr/local/include/node /usr/local/include/node
 COPY --from=nodejs /usr/local/lib/node_modules /usr/local/lib/node_modules
 COPY --from=nodejs /usr/local/bin /usr/local/bin
-RUN npm install --global npm@latest
 
 # nvm and nodejs install
 COPY ${CONFIGURATION_DIR_PATH}/.zshrc ${USERHOME}/.zshrc
