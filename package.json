@@ -39,6 +39,6 @@
     "gulp-clean": "^0.4.0",
     "gulp-composer": "^0.4.5",
     "gulp-zip": "^5.1.0",
-    "semantic-release": "^20.0.2"
+    "semantic-release": "^20.0.3"
   }
 }
