@@ -1,5 +1,5 @@
-FROM composer:ltd as composer
-FROM node:ltd as nodejs
+FROM composer:lts as composer
+FROM node:lts as nodejs
 FROM mcr.microsoft.com/devcontainers/base:ubuntu
 
 ENV DOCKER_USER_ID 501 
