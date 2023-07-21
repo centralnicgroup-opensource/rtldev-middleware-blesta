@@ -1,3 +1,11 @@
+## [3.0.12](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.0.11...v3.0.12) (2023-07-21)
+
+
+### Bug Fixes
+
+* **.nz, .fi:** review requesting auth ([6a50035](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/commit/6a500354892eee675be39a428e1aea34f5ac7823))
+* **.nz/.fi:** fix oversight with var name ([b5930fb](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/commit/b5930fb089d5df1cb1dd152933b29b3f6e1587b8))
+
 ## [3.0.11](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.0.10...v3.0.11) (2022-11-30)
 
 
