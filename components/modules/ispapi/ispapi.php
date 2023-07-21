@@ -1720,29 +1720,40 @@ class Ispapi extends RegistrarModule
             // - RSRBE-3774
             // - RSRBE-3753
             $response = $r; //StatusDomain
-            if (preg_match("/\.de$/i", $fields->domain)) {
-                $response = $this->_call([
-                    "COMMAND" => "DENIC_CreateAuthInfo1",
-                    "DOMAIN" => $fields->domain,
-                ], $row);
-            } elseif (preg_match("/\.(eu|be)$/i", $fields->domain)) {
+            if (preg_match("/\.(eu|be)$/i", $fields->domain)) {
                 $response = $this->_call([
                     "COMMAND" => "RequestDomainAuthInfo",
                     "DOMAIN" => $fields->domain,
                 ], $row);
                 // TODO -> PENDING = 1|0
+                if ($response["CODE"] === "540") { // .eu
+                    // Object exists; The domain name already has a transfer authorisation code
+                    $response = $r;
+                }
+            } elseif (preg_match("/\.de$/i", $fields->domain)) {
+                $response = $this->_call([
+                    "COMMAND" => "ModifyDomain",
+                    "GENERATERANDOMAUTH" => 1,
+                    "TRANSFERLOCK" => 0,
+                    "DOMAIN" => $fields->domain
+                ], $row);
+            }  elseif (preg_match("/\.(nz|fi)$/i", $fields->domain)) {
+                $response = $this->_call([
+                    "COMMAND" => "ModifyDomain",
+                    "GENERATERANDOMAUTH" => 1,
+                    "DOMAIN" => $fields->domain
+                ], $row);
+                if ($r["CODE"] === "200") {
+                    $response = $this->_call([
+                        "COMMAND" => "StatusDomain",
+                        "DOMAIN" => $fields->domain,
+                    ], $row);
+                }
             }
 
             // check response
             if ($response["CODE"] === "200") {
-                if (
-                    preg_match("/\.(fi|nz)$/i", $fields->domain)
-                    && ($response["PROPERTY"]["TRANSFERLOCK"][0] === "1")
-                ) {
-                    $this->Input->setErrors([
-                        "errors" => ["Failed loading the epp code. Please unlock this domain name first. A new epp code will then be generated and provided here."],
-                    ]);
-                } elseif (!isset($response["PROPERTY"]["AUTH"][0])) {
+                if (!isset($response["PROPERTY"]["AUTH"][0])) {
                     $this->Input->setErrors([
                         "errors" => ["EPP Code has been send to registrant by email."],
                     ]);
