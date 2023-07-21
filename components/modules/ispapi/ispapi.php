@@ -1743,7 +1743,7 @@ class Ispapi extends RegistrarModule
                     "GENERATERANDOMAUTH" => 1,
                     "DOMAIN" => $fields->domain
                 ], $row);
-                if ($r["CODE"] === "200") {
+                if ($response["CODE"] === "200") {
                     $response = $this->_call([
                         "COMMAND" => "StatusDomain",
                         "DOMAIN" => $fields->domain,
