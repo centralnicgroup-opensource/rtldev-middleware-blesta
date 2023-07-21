@@ -1,9 +1,10 @@
 <?php
+
 /**
  * @copyright Copyright (c) 2018-2021, HEXONET
  * @license https://raw.githubusercontent.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/master/LICENSE MIT
  */
- 
+
 // All available TLDs
 Configure::set('Ispapi.tldclassmap', [
     "ACIM" => ".ac.im",

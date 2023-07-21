@@ -1737,7 +1737,7 @@ class Ispapi extends RegistrarModule
                     "TRANSFERLOCK" => 0,
                     "DOMAIN" => $fields->domain
                 ], $row);
-            }  elseif (preg_match("/\.(nz|fi)$/i", $fields->domain)) {
+            } elseif (preg_match("/\.(nz|fi)$/i", $fields->domain)) {
                 $response = $this->_call([
                     "COMMAND" => "ModifyDomain",
                     "GENERATERANDOMAUTH" => 1,
