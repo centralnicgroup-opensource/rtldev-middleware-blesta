@@ -9,8 +9,7 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=16.15.1",
-    "npm": ">=8.11.1"
+    "node": ">=20.6.1"
   },
   "homepage": "https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar",
   "repository": "github:centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar",
@@ -32,13 +31,14 @@
   },
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/exec": "^6.0.2",
+    "@semantic-release/exec": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "end-of-stream-promise": "^1.0.0",
     "gulp": "^4.0.2",
     "gulp-clean": "^0.4.0",
     "gulp-composer": "^0.4.5",
     "gulp-zip": "^5.1.0",
-    "semantic-release": "^21.1.1"
+    "rtldev-middleware-gulp-release-notification-plugin": "github:centralnicgroup-opensource/rtldev-middleware-gulp-release-notification-plugin",
+    "semantic-release": "^22.0.5"
   }
 }
