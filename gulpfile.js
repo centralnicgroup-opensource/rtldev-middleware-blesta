@@ -5,6 +5,7 @@ const exec = require("util").promisify(require("child_process").exec);
 const eosp = require("end-of-stream-promise");
 const composer = require("gulp-composer");
 const cfg = require("./gulpfile.json");
+const publishToTeamsChannel = require('rtldev-middleware-gulp-release-notification-plugin');
 
 /**
  * Perform composer update
@@ -77,3 +78,6 @@ exports.copy = series(doComposerUpdate, doDistClean, doCopyFiles);
 exports.archives = series(doGitZip, doZip);
 
 exports.release = series(exports.copy, exports.archives, doFullClean);
+
+// publish release notifications on Teams channel
+exports.publish = publishToTeamsChannel;
