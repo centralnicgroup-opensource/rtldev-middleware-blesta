@@ -26,7 +26,7 @@ jobs:
         with:
           php-version: ${{ vars.RTLDEV_MW_CI_PHP_VERSION }}
       - name: Setup NodeJS ${{ vars.RTLDEV_MW_CI_NODE_VERSION }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ vars.RTLDEV_MW_CI_NODE_VERSION }}
           check-latest: true
