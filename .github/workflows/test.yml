@@ -10,7 +10,7 @@ on:
 
 jobs:
   test:
-    name: Linting
+    name: 🧪 Linting
     runs-on: ubuntu-latest
 
     steps:
