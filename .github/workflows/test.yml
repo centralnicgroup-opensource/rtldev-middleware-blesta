@@ -1,11 +1,6 @@
 name: Testing
 
 on:
-  pull_request:
-    types:
-      - opened
-      - synchronize
-
   workflow_call:
 
 jobs:
