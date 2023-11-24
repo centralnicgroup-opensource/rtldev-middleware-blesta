@@ -1,11 +1,10 @@
 const { series, src, dest } = require("gulp");
 const clean = require("gulp-clean");
-const zip = require("gulp-zip");
 const exec = require("util").promisify(require("child_process").exec);
 const eosp = require("end-of-stream-promise");
 const composer = require("gulp-composer");
 const cfg = require("./gulpfile.json");
-const publishToTeamsChannel = require('rtldev-middleware-gulp-release-notification-plugin');
+const rename = require('gulp-rename');
 
 /**
  * Perform composer update
@@ -14,7 +13,7 @@ const publishToTeamsChannel = require('rtldev-middleware-gulp-release-notificati
 async function doComposerUpdate() {
   try {
     await exec(`rm -rf ${cfg.vendorFolder}`);
-  } catch (e) {}
+  } catch (e) { }
   await eosp(composer("validate"));
   await eosp(composer("update --no-dev"));
 }
@@ -57,27 +56,29 @@ function doFullClean() {
  * build latest zip archive
  * @return stream
  */
-function doGitZip() {
-  return src(`./${cfg.archiveBuildPath}/**`)
-    .pipe(zip(`${cfg.archiveFileName}-latest.zip`))
-    .pipe(dest("."));
-}
-
-/**
- * build zip archive
- * @return stream
- */
-function doZip() {
-  return src(`./${cfg.archiveBuildPath}/**`)
-    .pipe(zip(`${cfg.archiveFileName}.zip`))
-    .pipe(dest("./pkg"));
+function doZip(callback) {
+  (async () => {
+    try {
+      const zip = await import('gulp-zip');
+      src(`./${cfg.archiveBuildPath}/**`)
+        .pipe(zip.default(`${cfg.archiveFileName}-latest.zip`))
+        .pipe(dest('.'))
+        .pipe(rename(`${cfg.archiveFileName}.zip`))
+        .pipe(dest("./pkg"))
+        .on('end', () => {
+          console.log('Archive generated successfully');
+          callback(null); // Pass null for success, or an error object for failure
+        });
+    } catch (error) {
+      console.error('Error importing module:', error);
+      callback(error); // Pass the error to the callback
+    }
+  })();
 }
 
 exports.copy = series(doComposerUpdate, doDistClean, doCopyFiles);
 
-exports.archives = series(doGitZip, doZip);
-
-exports.release = series(exports.copy, exports.archives, doFullClean);
+exports.release = series(exports.copy, doZip, doFullClean);
 
 // publish release notifications on Teams channel
-exports.publishNotification = publishToTeamsChannel;
+exports.publishNotification = require('rtldev-middleware-gulp-release-notification-plugin');
