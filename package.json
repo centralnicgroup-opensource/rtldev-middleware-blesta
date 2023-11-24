@@ -38,7 +38,7 @@
     "gulp-clean": "^0.4.0",
     "gulp-composer": "^0.4.5",
     "gulp-zip": "^5.1.0",
-    "rtldev-middleware-gulp-release-notification-plugin": "github:centralnicgroup-opensource/rtldev-middleware-gulp-release-notification-plugin",
+    "rtldev-middleware-gulp-release-notification-plugin": "github:centralnicgroup-opensource/rtldev-middleware-gulp-release-notification-plugin#semver:^1.0.0",
     "semantic-release": "^22.0.8"
   }
 }

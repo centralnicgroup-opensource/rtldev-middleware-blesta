@@ -80,4 +80,4 @@ exports.archives = series(doGitZip, doZip);
 exports.release = series(exports.copy, exports.archives, doFullClean);
 
 // publish release notifications on Teams channel
-exports.publish = publishToTeamsChannel;
+exports.publishNotification = publishToTeamsChannel;
