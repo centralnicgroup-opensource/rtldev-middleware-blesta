@@ -1,26 +1,13 @@
-name: Testing
-
+name: Dependabot auto-merge & tests
 on:
-  workflow_call:
+  pull_request:
+    types:
+      - opened
+      - synchronize
 
 jobs:
-  test:
-    name: 🧪 Linting
-    runs-on: ${{ vars.RTLDEV_MW_CI_OS }}
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - name: Super Linter Code Base
-        uses: github/super-linter/slim@v5
-        env:
-          FILTER_REGEX_INCLUDE: "/components/*|updateVersion.sh"
-          VALIDATE_PHP: true
-          VALIDATE_PHP_PHPCS: true
-          VALIDATE_BASH: true
-          VALIDATE_ALL_CODEBASE: false
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+  tests:
+    uses: centralnicgroup-opensource/rtldev-middleware-shareable-workflows/.github/workflows/auto-merge-dependabot-pr.yml
+    secrets: inherit
+    with:
+      repository: ${{ github.repository }}
