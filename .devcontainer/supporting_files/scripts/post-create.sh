@@ -9,7 +9,7 @@ source ~/.zshrc
 
 # install composer deps
 composer install
-npm ci
+npm i
 
 RET=1
 totalTries=0
