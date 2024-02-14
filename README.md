@@ -11,7 +11,7 @@ This Repository covers the Blesta Registrar Module of HEXONET. It provides the f
 
 Download the ZIP archive [here](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/raw/master/blesta-ispapi-registrar-latest.zip) and follow the Documentation.
 
-- [Documentation](https://centralnic-reseller.github.io/centralnic-reseller/docs/hexonet/blesta/)
+- [Documentation](https://centralnicgroup-public.github.io/rtldev-middleware-documentation/docs/hexonet/blesta/)
 - [Release Notes](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/releases)
 
 ## Authors
