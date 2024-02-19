@@ -1,3 +1,10 @@
+## [3.0.13](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.0.12...v3.0.13) (2024-2-19)
+
+
+### Bug Fixes
+
+* **blesta registrar module:** patch for missing period from Domain Renewals ([1f7f84d](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/commit/1f7f84d7faa2e09a409915f83b9182c706fc004c))
+
 ## [3.0.12](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.0.11...v3.0.12) (2023-07-21)
 
 
