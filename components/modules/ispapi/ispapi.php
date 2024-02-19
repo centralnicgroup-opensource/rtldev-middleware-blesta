@@ -1931,6 +1931,7 @@ class Ispapi extends RegistrarModule
         // Fetch ispapi TLDs
         $r = $this->_call([
             "COMMAND" => "StatusUser",
+            "PROPERTIES" => "TLDDATA"
         ], $row);
 
         // Handling api errors
@@ -1938,7 +1939,41 @@ class Ispapi extends RegistrarModule
             return [];
         }
 
-        $tldclassmap = Configure::get("Ispapi.tldclassmap");
+        $tldclassmap = [];
+        $convertIdnTlds = [];
+        if (! empty($r["PROPERTY"]["TLDCLASS"]) && ! empty($r["PROPERTY"]["TLDLABEL"])) {
+            foreach ($r["PROPERTY"]["TLDCLASS"] as $tldKey => $tldClass) {
+                if (empty($tldClass)) {
+                    continue;
+                }
+                $tldLabel = $r["PROPERTY"]["TLDLABEL"][$tldKey];
+                if (strpos($tldLabel, "(") !== false) {
+                    continue;
+                }
+                $tldLabel = ! empty($tldLabel) ? $tldLabel : "."  . strtolower($tldClass);
+                if (preg_match("/^XN--/", $tldClass)) {
+                    $convertIdnTlds[$tldClass] = true;
+                } elseif (!empty($tldClass) && !isset($tldclassmap[$tldClass])) {
+                    $tldclassmap[$tldClass] = $tldLabel;
+                }
+            }
+        }
+
+        if (!empty($convertIdnTlds)) {
+            $idnKeys = array_keys($convertIdnTlds);
+
+            $rconv = $this->_call([
+                "COMMAND" => "ConvertIDN",
+                "DOMAIN" => $idnKeys
+            ], $row);
+
+            if ($rconv["CODE"] === "200") {
+                foreach ($idnKeys as $idnIndex => $idnSubClass) {
+                    $tldclassmap[$idnSubClass] = "." . $rconv["PROPERTY"]["IDN"][$idnIndex];
+                }
+            }
+        }
+
         $tlds = [];
         foreach ($r["PROPERTY"]["RELATIONTYPE"] as $idx => $t) {
             if (preg_match("/^PRICE_CLASS_(MANAGED)?DOMAIN_([^_]+)_(SETUP|CREATE)$/", $t, $m)) {
@@ -1946,9 +1981,8 @@ class Ispapi extends RegistrarModule
                 $tldclass = $m[2];
                 if (isset($tldclassmap[$tldclass])) {
                     $tlds[] = $tldclassmap[$tldclass];
-                } else {
-                    $tlds[] = "." . strtolower($tldclass);
                 }
+                // else | otherwise skip that tldclass
             }
         }
 
