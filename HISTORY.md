@@ -1,3 +1,10 @@
+# [3.1.0](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.0.13...v3.1.0) (2024-2-19)
+
+
+### Features
+
+* **tld import:** identify tlds fully automated, deprecate config setting ([c496507](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/commit/c496507d7bd730e6a380567b24a75440c99fee31))
+
 ## [3.0.13](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.0.12...v3.0.13) (2024-2-19)
 
 
