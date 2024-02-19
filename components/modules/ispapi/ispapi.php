@@ -48,8 +48,8 @@ class Ispapi extends RegistrarModule
     private function _castDate(string $date, string $format): array
     {
         $ts = is_int($date) ?
-        $date :
-        strtotime(str_replace(" ", "T", $date) . "Z"); //RFC 3339 / ISO 8601
+            $date :
+            strtotime(str_replace(" ", "T", $date) . "Z"); //RFC 3339 / ISO 8601
         return [
             "ts" => $ts,
             "short" => gmdate("Y-m-d", $ts),
@@ -588,47 +588,82 @@ class Ispapi extends RegistrarModule
      */
     public function renewService($package, $service, $parent_package = null, $parent_service = null, $years = null)
     {
+        // Return if service type not domain
+        if ($package->meta->type !== "domain") {
+            return null;
+        }
+
         // Credentials to API
         $row = $this->getModuleRow($package->module_row);
 
-        // Renew domain
-        if ($package->meta->type === "domain") {
-            $fields = $this->serviceFieldsToObject($service->fields);
+        $fields = $this->serviceFieldsToObject($service->fields);
 
-            $tld = trim($this->getTld($fields->domain), ".");
-            $sld = trim(substr($fields->domain, 0, -strlen($tld)), ".");
+        $vars = [
+            'domain' => $fields->{'domain'},
+            'years' => 1
+        ];
 
-            $vars["domain"] = $fields->{"domain"};
-
-            if ($years) {
-                $vars["NumYears"] = $years;
+        if (!$years) {
+            foreach ($package->pricing as $pricing) {
+                if ($pricing->id == $service->pricing_id) {
+                    $vars['years'] = $pricing->term;
+                    break;
+                }
             }
+        } else {
+            $vars['years'] = $years;
+        }
 
-            // Renew the domain
-            $r = $this->_call([
-                "COMMAND" => "RenewDomain",
+        // Renew the domain
+        $r = $this->_call([
+            "COMMAND" => "RenewDomain",
+            "DOMAIN" => $vars["domain"],
+            "PERIOD" => $vars["years"],
+        ], $row);
+
+        // Some of the TLDs require following command for renewals (eg: .de)
+        if ($r["CODE"] === "510") {
+            // clear errors from previous call
+            $this->Input->setErrors([]);
+            $this->_call([
+                "COMMAND" => "PayDomainRenewal",
                 "DOMAIN" => $vars["domain"],
-                "PERIOD" => $vars["NumYears"],
+                "PERIOD" => $vars["years"],
             ], $row);
+        }
 
-            // Some of the TLDs require following command for renewals (eg: .de)
-            if ($r["CODE"] === "510") {
-                // clear errors from previous call
-                $this->Input->setErrors([]);
-                $this->_call([
-                    "COMMAND" => "PayDomainRenewal",
-                    "DOMAIN" => $vars["domain"],
-                    "PERIOD" => $vars["NumYears"],
-                ], $row);
-            }
-
-            if ($this->Input->errors()) {
-                return;
-            }
+        if ($this->Input->errors()) {
+            return;
         }
 
         return null;
     }
+
+    // public function renewDomain($domain, $module_row_id = null, array $vars = [])
+    // {
+    //     $row = $this->getModuleRow($module_row_id);
+    //     // Renew the domain
+    //     $r = $this->_call([
+    //         "COMMAND" => "RenewDomain",
+    //         "DOMAIN" => $domain,
+    //         "PERIOD" => $vars['qty'] ?? $vars['years'] ?? 1,
+    //     ], $row);
+
+    //     // Some of the TLDs require following command for renewals (eg: .de)
+    //     if ($r["CODE"] === "510") {
+    //         // clear errors from previous call
+    //         $this->Input->setErrors([]);
+    //         $this->_call([
+    //             "COMMAND" => "PayDomainRenewal",
+    //             "DOMAIN" => $vars["domain"],
+    //             "PERIOD" => $vars['qty'] ?? $vars['years'] ?? 1,
+    //         ], $row);
+    //     }
+
+    //     if ($this->Input->errors()) {
+    //         return;
+    //     }
+    // }
 
     /**
      * Validates input data when attempting to add a package, returns the meta
@@ -1835,7 +1870,7 @@ class Ispapi extends RegistrarModule
                 ]);
             } elseif (
                 !empty($r["PROPERTY"]["CLASS"][0]) // CASE: RESERVED or PREMIUM? BACKORDER
-                 && stripos($r["PROPERTY"]["REASON"][0], "reserved") //RESERVED
+                && stripos($r["PROPERTY"]["REASON"][0], "reserved") //RESERVED
             ) {
                 $this->Input->setErrors([
                     "errors" => [$domain . ": Reserved Domain. Contact Support."],

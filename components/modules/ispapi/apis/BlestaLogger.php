@@ -21,7 +21,7 @@ class BlestaLogger implements \CNIC\LoggerInterface
     {
         $this->mod->log(
             $this->apiURL,
-            $r->getCommandPlain() . "\n" . $post,
+            "Function: " . $this->backtraceFn() . "\n" . $r->getCommandPlain() . "\n" . $post,
             'input',
             true
         );
@@ -32,5 +32,21 @@ class BlestaLogger implements \CNIC\LoggerInterface
             'output',
             $error ? false : $r->isSuccess()
         );
+    }
+
+    public function backtraceFn()
+    {
+        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS | DEBUG_BACKTRACE_PROVIDE_OBJECT);
+        $result = array();
+        foreach ($trace as $t) {
+            if (isset($t["function"]) && isset($t["class"]) && $t["class"] === "Ispapi" && $t["function"] !== "_call") {
+                $result["fnName"] = strtolower($t["function"]);
+                break;
+            }
+        }
+        if (empty($result)) {
+            $result["fnName"] = strtolower($trace[0]["function"]);
+        }
+        return $result["fnName"];
     }
 }
