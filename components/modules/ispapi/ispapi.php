@@ -1272,15 +1272,34 @@ class Ispapi extends RegistrarModule
         ], $row);
 
         // renewal periods
-        $renewalperiods = explode(",", $r["PROPERTY"]["ZONERENEWALPERIODS"][0]);
-        array_unshift($renewalperiods, 0);
+        $renewalPeriods = explode(",", $r["PROPERTY"]["ZONERENEWALPERIODS"][0]);
+        $renewalPeriodList = [];
+        foreach ($renewalPeriods as $year) {
+            // Check if the year string matches the pattern for renewal periods.
+            if (preg_match('/^R?(\d+)Y$/', $year, $matches)) {
+                // Extract the numerical part of the period e.g. 2Y -> 2.
+                $period = $matches[1];
 
+                // User friendly format for the renewal period based on the numerical value.
+                $formattedPeriod = $period <= 2 ? "{$period} year" : "{$period} years";
+
+                // Formatted renewal period in the list for select field
+                $renewalPeriodList[$period] = $formattedPeriod;
+            }
+        }
         // Create domain field and attach to domain label
-        $domain->attach($fields->fieldSelect("renew", $renewalperiods, ["id" => "renew"]));
+        $domain->attach($fields->fieldSelect("renew", $renewalPeriodList, ["id" => "renew"]));
         $fields->setField($domain);
 
         // Display domain information
         $domain_information = $fields->label(Language::_("Ispapi.domain.domaininformation", true), "domaininformation");
+        $domain_information->attach(
+            $fields->fieldText(
+                ["id" => "domain"],
+                ["value" => $vars->domain],
+                ["type" => "hidden"]
+            )
+        );
         // Domain status
         $domain_status = $fields->label(Language::_("Ispapi.domain.domainstatus", true), "domainstatus");
         // Expiry date
@@ -1976,7 +1995,7 @@ class Ispapi extends RegistrarModule
 
         $tldclassmap = [];
         $convertIdnTlds = [];
-        if (! empty($r["PROPERTY"]["TLDCLASS"]) && ! empty($r["PROPERTY"]["TLDLABEL"])) {
+        if (!empty($r["PROPERTY"]["TLDCLASS"]) && !empty($r["PROPERTY"]["TLDLABEL"])) {
             foreach ($r["PROPERTY"]["TLDCLASS"] as $tldKey => $tldClass) {
                 if (empty($tldClass)) {
                     continue;
@@ -1985,7 +2004,7 @@ class Ispapi extends RegistrarModule
                 if (strpos($tldLabel, "(") !== false) {
                     continue;
                 }
-                $tldLabel = ! empty($tldLabel) ? $tldLabel : "."  . strtolower($tldClass);
+                $tldLabel = !empty($tldLabel) ? $tldLabel : "."  . strtolower($tldClass);
                 if (preg_match("/^XN--/", $tldClass)) {
                     $convertIdnTlds[$tldClass] = true;
                 } elseif (!empty($tldClass) && !isset($tldclassmap[$tldClass])) {
