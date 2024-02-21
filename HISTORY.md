@@ -1,3 +1,10 @@
+## [3.1.1](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.1.0...v3.1.1) (2024-2-21)
+
+
+### Bug Fixes
+
+* **blesta registrar module:** manual renewals fix via manage domain section in admin panel ([fb67d52](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/commit/fb67d524a3a3183d0332c82b7a86d73763f747c9))
+
 # [3.1.0](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.0.13...v3.1.0) (2024-2-19)
 
 
