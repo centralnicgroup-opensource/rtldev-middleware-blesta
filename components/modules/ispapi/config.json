@@ -18,6 +18,7 @@
     "module": {
         "row": "Ispapi.module_row",
         "rows": "Ispapi.module_row_plural",
+        "group": "Ispapi.module_group",
         "row_key": "user"
     },
     "email_tags": {

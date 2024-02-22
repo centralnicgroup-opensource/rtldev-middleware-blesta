@@ -1701,6 +1701,79 @@ class Ispapi extends RegistrarModule
     }
 
     /**
+     * Set Domain Nameservers
+     *
+     * @param string $domain
+     * @param int $module_row_id
+     * @param array $nameservers
+     * @return boolean
+     */
+    public function setDomainNameservers($domain, $module_row_id = null, array $nameservers = [])
+    {
+        $row = $this->getModuleRow($module_row_id);
+
+        if (!empty($nameservers)) {
+            // Modify and save nameservers
+            $command = [
+                "COMMAND" => "ModifyDomain",
+                "DOMAIN" => $domain,
+                "INTERNALDNS" => 1,
+            ];
+            foreach ($nameservers as $i => $ns) {
+                if (!empty($ns)) {
+                    $command["NAMESERVER" . $i] = $ns;
+                }
+            }
+            $r = $this->_call($command, $row);
+            return $r["CODE"] === "200";
+        }
+
+        return false;
+    }
+
+    /**
+     * Get Domain Nameservers
+     *
+     * @param string $domain
+     * @param int $module_row_id
+     * @return boolean
+     */
+    public function getDomainNameServers($domain, $module_row_id = null)
+    {
+        $row = $this->getModuleRow($module_row_id);
+
+        // Get nameservers
+        $r = $this->_call([
+            "COMMAND" => "StatusDomain",
+            "DOMAIN" => $domain,
+            "HOSTTYPE" => "ATTRIBUTE"
+        ], $row);
+
+        if ($r["CODE"] === "200" && isset($r["PROPERTY"]["NAMESERVER"])) {
+            $nameservers = [];
+            foreach ($r["PROPERTY"]["NAMESERVER"] as $nameserver) {
+                // Perform the match
+                if (preg_match('/^(\S+)\s+((?:\d{1,3}\.){3}\d{1,3})$/', $nameserver, $matches)) {
+                    // Extract nameserver and IP address
+                    $nameserver = $matches[1];
+                    $ipAddress = $matches[2];
+                    $nameservers[] = [
+                        "url" => $nameserver,
+                        "ips" => [$ipAddress]
+                    ];
+                } else {
+                    $nameservers[] = [
+                        "url" => $nameserver
+                    ];
+                }
+            }
+            return $nameservers;
+        }
+
+        return false;
+    }
+
+    /**
      * Handle updating settings
      *
      * @param string $view The view to use
