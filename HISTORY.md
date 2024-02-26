@@ -1,3 +1,10 @@
+## [3.1.2](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.1.1...v3.1.2) (2024-2-26)
+
+
+### Bug Fixes
+
+* **hexonet blesta registrar module:** Patched an issue updating nameservers via the Manage Domains admin panel. ([c56f37c](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/commit/c56f37c3c47e242e567fd85614d64a8acdcddc88))
+
 ## [3.1.1](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.1.0...v3.1.1) (2024-2-21)
 
 
