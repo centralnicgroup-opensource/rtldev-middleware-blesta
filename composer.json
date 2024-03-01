@@ -6,8 +6,8 @@
         "centralnic-reseller/php-sdk": "^8.0.4"
     },
     "require-dev": {
-		"squizlabs/php_codesniffer": "^3.7"
-	},
+        "squizlabs/php_codesniffer": "^3.7"
+    },
     "license": "MIT",
     "authors": [
         {
@@ -23,19 +23,23 @@
             "homepage": "https://github.com/AsifNawaz-cnic"
         }
     ],
-    
-	"scripts": {
-		"codecheck": [
-			"@composer update",
-			"phpcs --standard=PSR12 -q -n -s --colors --ignore=node_modules,vendor,build,tmp components"
-		],
-		"codefix": [
-			"@composer update",
-			"phpcbf --standard=PSR12 -q --ignore=node_modules,vendor,build,tmp components"
-		]
-	},
+    "scripts": {
+        "codecheck": [
+            "@composer update",
+            "phpcs --standard=PSR12 -q -n -s --colors --ignore=node_modules,vendor,build,tmp components"
+        ],
+        "codefix": [
+            "@composer update",
+            "phpcbf --standard=PSR12 -q --ignore=node_modules,vendor,build,tmp components"
+        ]
+    },
     "config": {
         "optimize-autoloader": true,
         "vendor-dir": "components/modules/ispapi/apis/vendor"
+    },
+    "autoload": {
+        "psr-4": {
+            "HEXONET\\MODULE\\LIB\\": "components/modules/ispapi/lib/"
+        }
     }
 }

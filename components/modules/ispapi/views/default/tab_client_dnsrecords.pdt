@@ -1,0 +1,92 @@
+    <div id="dns-records" class="pad">
+        <h4><?php $this->_('Ispapi.tab_dnsrecord.title_list');?></h4>
+        <p class="mb-2"><?php $this->_('Ispapi.tab_dnsrecord.help_text_1');?></p>
+
+        <div class="table-responsive my-2">
+            <table class="table table-curved table-striped">
+                <thead>
+                    <tr class="heading_row">
+                        <th><span><?php $this->_('Ispapi.dnsrecord.record_type');?></span></th>
+                        <th><span><?php $this->_('Ispapi.dnsrecord.host');?></span></th>
+                        <th><span><?php $this->_('Ispapi.dnsrecord.value');?></span></th>
+                        <th><span><?php $this->_('Ispapi.dnsrecord.distance');?></span></th>
+                        <th><span><?php $this->_('Ispapi.dnsrecord.ttl');?></span></th>
+                        <th><span><?php $this->_('Ispapi.dnsrecord.field_delete');?></span></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <?php
+                    if (count($vars->records) > 0 && isset($vars->records)) {
+                        foreach ($vars->records as $record) {
+                            ?>
+                            <tr>
+                                <td><?php echo (isset($record['type']) ? $record['type'] : null);?></td>
+                                <td><?php echo (isset($record['host']) ? $record['host'] : null);?></td>
+                                <td><?php echo (isset($record['value']) ? $record['value'] : null);?></td>
+                                <td><?php echo (isset($record['distance']) && $record['distance'] != 0 ? $record['distance'] : null);?></td>
+                                <td><?php echo (isset($record['ttl']) ? $record['ttl'] : null);?></td>
+                                <td>
+                                    <?php
+                                    $this->Form->create(
+                                        $this->base_uri . 'services/manage/' . (isset($service_id) ? $service_id : null) . '/tabClientDnsRecords/'
+                                    );
+                                    $this->Form->fieldHidden('record_id', (isset($record['record_id']) ? $record['record_id'] : null));
+
+                                    $button_attributes = [
+                                        'class' => 'btn btn-sm btn-danger',
+                                        'value' => 'deleteDnsRecord',
+                                        'type' => 'submit',
+                                    ];
+
+                                    $this->Form->fieldButton(
+                                        'action',
+                                        $this->_('Ispapi.tab_dnssec.field_delete', true),
+                                        $button_attributes
+                                    );
+
+                                    $this->Form->end();
+                                    ?>
+                                </td>
+                            </tr>
+                            <?php
+                        }
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </div>
+
+        <h4 class="mt-3"><?php $this->_('Ispapi.tab_dnsrecord.title_add');?></h4>
+        <?php
+        $this->Form->create(
+            $this->base_uri . 'services/manage/' . (isset($service_id) ? $service_id : null) . '/tabClientDnsRecords/'
+        );
+        ?>
+        <div class="form-group">
+            <label><?php $this->_('Ispapi.dnsrecord.record_type');?><?php $this->Form->fieldSelect('record_type', $vars->selects['record_type']['options'], null, ['class' => 'form-control']);?></label>
+            <label><?php $this->_('Ispapi.dnsrecord.host');?><?php $this->Form->fieldText('host', null, ['class' => 'form-control']);?></label>
+            <label><?php $this->_('Ispapi.dnsrecord.value');?><?php $this->Form->fieldText('value', null, ['class' => 'form-control']);?></label>
+            <label id="distance" style="display:none;"><?php $this->_('Ispapi.dnsrecord.distance');?><?php $this->Form->fieldText('distance', 10, ['class' => 'form-control']);?></label>
+            <label><?php $this->_('Ispapi.dnsrecord.ttl');?><?php $this->Form->fieldText('ttl', 7207, ['class' => 'form-control']);?></label>
+        </div>
+
+        <button class="btn btn-light float-right" type="submit" name="action" value="addDnsRecord">
+            <i class="fas fa-edit"></i> <?php $this->_('Ispapi.tab_dnsrecord.field_add'); ?>
+        </button>
+        <?php
+        $this->Form->end();
+        ?>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('[name="record_type"]').on('change', function() {
+                if($(this).val() == 'MX') {
+                    $('#distance').show()
+                } else {
+                    $('#distance').hide()
+                }
+            })
+        })
+    </script>
