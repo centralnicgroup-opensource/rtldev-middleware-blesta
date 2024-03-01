@@ -83,6 +83,72 @@ $lang['Ispapi.domain.domainstatus'] = 'Status';
 $lang['Ispapi.domain.expirydate'] = 'Expiry Date';
 
 
+// Service management
+$lang['Ispapi.tab_whois.title'] = 'Whois';
+$lang['Ispapi.tab_whois.section_registrant'] = 'Registrant';
+$lang['Ispapi.tab_whois.section_admin'] = 'Administrative';
+$lang['Ispapi.tab_whois.section_tech'] = 'Technical';
+$lang['Ispapi.tab_whois.section_billing'] = 'Billing';
+$lang['Ispapi.tab_whois.field_submit'] = 'Update Whois';
+$lang['Ispapi.tab_whois.copy_registrant_info'] = 'Copy Registrant Info';
+
+$lang['Ispapi.tab_email_forwarding.title'] = 'Email Forwarding';
+$lang['Ispapi.tab_email_forwarding.desc'] = 'Email forwarding is automatically directing email sent from one address to a different email address. For example, if you had an existing email address of email@email.com, and then registered the domain newdomain.com, you could use email forward to direct sales@newdomain.com to your existing email@email.com email address.';
+$lang['Ispapi.tab_email_forwarding.field_email_address'] = 'Email Address';
+$lang['Ispapi.tab_email_forwarding.field_forward_to'] = 'Forward To';
+$lang['Ispapi.tab_email_forwarding.field_delete'] = 'Delete';
+$lang['Ispapi.tab_email_forwarding.field_submit'] = 'Update Forwarders';
+
+$lang['Ispapi.tab_nameservers.title'] = 'Name Servers';
+$lang['Ispapi.tab_nameservers.desc'] = 'We allow up to 5 possible name servers, although only 2 are required. It is important that you do not enter the IP address of the name server, but instead enter the actual name server name. Name servers are typically formatted like "NS1.host.com".';
+$lang['Ispapi.tab_nameservers.field_ns'] = 'Name Server %1$s'; // %1$s is the name server number
+$lang['Ispapi.tab_nameservers.field_submit'] = 'Update Name Servers';
+
+$lang['Ispapi.tab_hosts.title'] = 'Register Nameservers';
+$lang['Ispapi.tab_hosts.desc'] = 'If you are already familiar with setting up custom name servers and understand how DNS works, you can create custom name servers and assign it to your domain.';
+$lang['Ispapi.tab_hosts.field_host'] = 'Host %1$s'; // %1$s is the host number
+$lang['Ispapi.tab_hosts.field_ip'] = 'IP Address(es)';
+$lang['Ispapi.tab_hosts.field_hostname'] = 'Host';
+$lang['Ispapi.tab_hosts.field_submit'] = 'Update All Hosts';
+$lang['Ispapi.tab_client_hosts.help_text'] = 'On this page you can add your own custom name servers (sometimes referred to as "glue records") to associate with your domains.  To remove a host record blank all IP fields associated with it before clicking update.  You can not delete any host records which have domains actively using it as a nameserver.';
+
+$lang['Ispapi.tab_dnssec.title'] = 'DNSSEC';
+$lang['Ispapi.tab_dnssec.title_list'] = 'Current DS (DNSSEC) Records';
+$lang['Ispapi.tab_dnssec.title_add'] = 'Add DS (DNSSEC) Record';
+$lang['Ispapi.tab_dnssec.field_delete'] = 'Delete Record(s)';
+$lang['Ispapi.tab_dnssec.field_add'] = 'Add Record';
+$lang['Ispapi.tab_dnssec.field_delete'] = 'Delete';
+$lang['Ispapi.tab_dnssec.title_disclaimer'] = 'Disclaimer';
+$lang['Ispapi.tab_dnssec.warning_message1'] = 'You can use this page to manage the DS records for your domain. You should only use this page if you are comfortable with DS records and DNSSEC.';
+$lang['Ispapi.tab_dnssec.warning_message2'] = 'When you manage DS records, <strong>the domain will stop resolving correctly</strong> if your nameservers are not configured correctly with the associated DNSSEC resource records.';
+
+$lang['Ispapi.dnssec.algorithm'] = 'Algorithm';
+$lang['Ispapi.dnssec.digest_type'] = 'Digest Type';
+$lang['Ispapi.dnssec.digest'] = 'Digest';
+$lang['Ispapi.dnssec.key_tag'] = 'Key Tag';
+
+// DNS management
+$lang['Ispapi.tab_dnsrecord.title'] = 'DNS Management';
+$lang['Ispapi.tab_dnsrecord.title_list'] = 'Current DNS Records';
+$lang['Ispapi.tab_dnsrecord.title_add'] = 'Add a DNS Record';
+$lang['Ispapi.tab_dnsrecord.field_delete'] = 'Delete Record(s)';
+$lang['Ispapi.tab_dnsrecord.field_add'] = 'Add Record';
+$lang['Ispapi.tab_dnsrecord.help_text_1'] = 'On this page you can add or delete A, AAAA, CNAME, MX and TXT DNS records. Please be ware that it might take some few minutes for DNS records to propagate.';
+
+$lang['Ispapi.dnsrecord.record_type'] = 'Type';
+$lang['Ispapi.dnsrecord.host'] = 'Host';
+$lang['Ispapi.dnsrecord.value'] = 'Value';
+$lang['Ispapi.dnsrecord.priority'] = 'Priority';
+$lang['Ispapi.dnsrecord.ttl'] = 'TTL';
+$lang['Ispapi.dnsrecord.field_delete'] = 'Delete Record(s)';
+
+$lang['Ispapi.dns_records.record_type'] = 'Record Type';
+$lang['Ispapi.dns_records.record_type.a_record'] = 'A Record';
+$lang['Ispapi.dns_records.record_type.aaaa_record'] = 'AAAA Record';
+$lang['Ispapi.dns_records.record_type.cname_record'] = 'CNAME Record';
+$lang['Ispapi.dns_records.record_type.mx_record'] = 'MX Record';
+$lang['Ispapi.dns_records.record_type.txt_record'] = 'TXT Record';
+
 // Errors
 $lang['Ispapi.!error.user.valid'] = 'Please enter a user.';
 $lang['Ispapi.!error.key.valid'] = 'Please enter a password.';
