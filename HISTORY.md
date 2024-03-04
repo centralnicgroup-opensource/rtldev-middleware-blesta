@@ -1,3 +1,10 @@
+# [3.2.0](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.1.2...v3.2.0) (2024-3-4)
+
+
+### Features
+
+* **Hexonet Registrar Module:** Added DNS Management Addon Feature, Fixed Bugs, and Enhanced Performance ([f9a346d](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/commit/f9a346d7030678b9e26d243d6e07d90102b2779c))
+
 ## [3.1.2](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.1.1...v3.1.2) (2024-2-26)
 
 
