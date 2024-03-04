@@ -9,7 +9,8 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=20.6.1"
+    "node": ">=20.6.1",
+    "npm": ">=10.2.4"
   },
   "homepage": "https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar",
   "repository": "github:centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar",
