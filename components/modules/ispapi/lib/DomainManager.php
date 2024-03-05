@@ -64,7 +64,6 @@ class DomainManager extends Base
 
     public function getDNSZoneRRList($domain)
     {
-        // Example usage of call method
         return $this->call([
             "COMMAND" => "QueryDNSZoneRRList",
             "DNSZONE" => "{$domain}.",
@@ -107,5 +106,83 @@ class DomainManager extends Base
             "DNSZONE" => "{$dns}.",
             "DELRR0" => "{$postData['raw_record']}"
         ]);
+    }
+
+    public function getEmailForwardingRR($domain)
+    {
+        $response = $this->call([
+            "COMMAND" => "QueryDNSZoneRRList",
+            "DNSZONE" => "{$domain}.",
+            "EXTENDED" => 1,
+            "SHORT" => 1,
+            "RRTYPE" => "X-SMTP"
+        ]);
+
+        if ($response["CODE"] !== "200") {
+            return $response;
+        }
+
+        $addresses = [];
+        if ((int) $response["PROPERTY"]["TOTAL"][0] > 0) {
+            foreach ($response["PROPERTY"]["RR"] as $rr) {
+                $fields = explode(" ", $rr);
+                if (
+                    // MAILFORWARD Identifier
+                    ($fields[5] !== "MAILFORWARD")
+                    // prefix
+                    || !(bool)preg_match("/^(.*)\@$/", $fields[4], $m)
+                ) {
+                    continue;
+                }
+                $addresses[] = [
+                    "source" => (strlen($m[1])) ? $m[1] : "*",
+                    "destination" => $fields[6]
+                ];
+            }
+        }
+
+        return array_merge($response, ["resources" => $addresses]);
+    }
+
+    public function saveEmailForwardingRR($domain, $postData, $action = "ADD")
+    {
+        // If add new resource request
+        $resourceType = "ADDRR";
+
+        if ($action === "DELETE") {
+            $delData = explode(" ", $postData['delete']);
+            $postData["source"] = $delData[0];
+            $postData["destination"] = $delData[1];
+            // If delete resource request
+            $resourceType = "DELRR";
+        }
+
+        $command = [
+            "COMMAND" => "UpdateDNSZone",
+            "DNSZONE" => "{$domain}.",
+            "RESOLVETTLCONFLICTS" => 1,
+            "INCSERIAL" => 1,
+            "EXTENDED" => 1,
+            $resourceType => [],
+        ];
+
+        $source = $postData["source"];
+        $destination = $postData["destination"];
+        if (!strlen($source) || !strlen($destination)) {
+            return [
+                "CODE" => "404",
+                "error" => "Email Source or the destination is missing!"
+            ];
+        }
+
+        // Get the part of the source before the '@' symbol
+        $prefix = strstr($source, '@', true);
+
+        // If the source is "*", set it to an empty string
+        $source = $source === "*" ? "" : ($prefix ?: $source);
+
+        $command[$resourceType][] = "@ X-SMTP $source@ MAILFORWARD $destination";
+
+        return $this->call($command);
     }
 }

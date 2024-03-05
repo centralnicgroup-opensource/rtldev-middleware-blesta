@@ -6,8 +6,8 @@
  */
 
 // Basics
-$lang['Ispapi.name'] = 'Ispapi';
-$lang['Ispapi.description'] = 'Resell domains through HEXONET.';
+$lang['Ispapi.name'] = 'Hexonet (ispapi)';
+$lang['Ispapi.description'] = 'Quickly access the resources to resell over 700 TLDs with ease. HEXONET provides top-notch technology, support, and APIs for domain resellers, backed by a dedicated team.';
 $lang['Ispapi.module_row'] = 'Account';
 $lang['Ispapi.module_row_plural'] = 'Accounts';
 
@@ -82,6 +82,20 @@ $lang['Ispapi.domain.domaininformation'] = 'Domain data at your registrar system
 $lang['Ispapi.domain.domainstatus'] = 'Status';
 $lang['Ispapi.domain.expirydate'] = 'Expiry Date';
 
+// E-Mail Forwarding
+$lang['Ispapi.tab_email_forwarding'] = 'E-Mail Forwarding';
+$lang['Ispapi.tab_email_forwarding.title'] = 'Email Forwarding';
+$lang['Ispapi.tab_email_forwarding.desc'] = 'Email forwarding is automatically directing email sent from one address to a different email address. For example, if you had an existing email address of email@email.com, and then registered the domain newdomain.com, you could use email forward to direct sales@newdomain.com to your existing email@email.com email address.';
+$lang['Ispapi.tab_email_forwarding.heading_current_rules'] = 'Current Rules';
+$lang['Ispapi.tab_email_forwarding.heading_add_rule'] = 'Add Rule';
+$lang['Ispapi.tab_email_forwarding.heading_source'] = 'Source';
+$lang['Ispapi.tab_email_forwarding.heading_destination'] = 'Destination';
+$lang['Ispapi.tab_email_forwarding.heading_options'] = 'Options';
+$lang['Ispapi.tab_email_forwarding.option_delete'] = 'Delete';
+$lang['Ispapi.tab_email_forwarding.text_no_forwarding_rules'] = 'There are no E-Mail forwarding rules for this domain.';
+$lang['Ispapi.tab_email_forwarding.field_source'] = 'Source';
+$lang['Ispapi.tab_email_forwarding.field_destination'] = 'Destination';
+$lang['Ispapi.tab_email_forwarding.field_submit'] = 'Add Rule';
 
 // Service management
 $lang['Ispapi.tab_whois.title'] = 'Whois';
@@ -91,13 +105,6 @@ $lang['Ispapi.tab_whois.section_tech'] = 'Technical';
 $lang['Ispapi.tab_whois.section_billing'] = 'Billing';
 $lang['Ispapi.tab_whois.field_submit'] = 'Update Whois';
 $lang['Ispapi.tab_whois.copy_registrant_info'] = 'Copy Registrant Info';
-
-$lang['Ispapi.tab_email_forwarding.title'] = 'Email Forwarding';
-$lang['Ispapi.tab_email_forwarding.desc'] = 'Email forwarding is automatically directing email sent from one address to a different email address. For example, if you had an existing email address of email@email.com, and then registered the domain newdomain.com, you could use email forward to direct sales@newdomain.com to your existing email@email.com email address.';
-$lang['Ispapi.tab_email_forwarding.field_email_address'] = 'Email Address';
-$lang['Ispapi.tab_email_forwarding.field_forward_to'] = 'Forward To';
-$lang['Ispapi.tab_email_forwarding.field_delete'] = 'Delete';
-$lang['Ispapi.tab_email_forwarding.field_submit'] = 'Update Forwarders';
 
 $lang['Ispapi.tab_nameservers.title'] = 'Name Servers';
 $lang['Ispapi.tab_nameservers.desc'] = 'We allow up to 5 possible name servers, although only 2 are required. It is important that you do not enter the IP address of the name server, but instead enter the actual name server name. Name servers are typically formatted like "NS1.host.com".';
