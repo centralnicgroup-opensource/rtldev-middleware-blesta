@@ -1335,47 +1335,6 @@ class Ispapi extends RegistrarModule
     }
 
     /**
-     * Returns all tabs to display to an admin when managing a service whose
-     * package uses this module
-     *
-     * @param stdClass $package A stdClass object representing the selected package
-     * @return array An array of tabs in the format of method => title.
-     *  Example: [ "methodName" => "Title", "methodName2" => "Title2" ]
-     */
-    public function getAdminTabs($package)
-    {
-        if ($package->meta->type === "domain") {
-            return [
-                "tabWhois" => Language::_("Ispapi.tab_whois.title", true),
-                "tabNameservers" => Language::_("Ispapi.tab_nameservers.title", true),
-                "tabSettings" => Language::_("Ispapi.tab_settings.title", true),
-                // TODO we might work on adding DNSSec, Hosts, DNS RR, Admin Actions
-            ];
-        }
-    }
-
-    // /**
-    //  * Returns all tabs to display to a client when managing a service whose
-    //  * package uses this module
-    //  *
-    //  * @param stdClass $package A stdClass object representing the selected package
-    //  * @return array An array of tabs in the format of method => title.
-    //  *  Example: [ "methodName" => "Title", "methodName2" => "Title2" ]
-    //  */
-    // public function getClientTabs($package)
-    // {
-    //     if ($package->meta->type === "domain") {
-    //         return [
-    //             "tabClientWhois" => Language::_("Ispapi.tab_whois.title", true),
-    //             "tabClientNameservers" => Language::_("Ispapi.tab_nameservers.title", true),
-    //             "tabClientSettings" => Language::_("Ispapi.tab_settings.title", true),
-    //             // TODO we might work on adding DNSSec, Hosts, DNS RR, Admin Actions
-    //         ];
-    //     }
-    // }
-
-
-    /**
      * Returns all tabs to display to a client when managing a service.
      *
      * @param stdClass $service A stdClass object representing the service
@@ -2188,7 +2147,7 @@ class Ispapi extends RegistrarModule
         if ($package->meta->type == "domain") {
             $tabs = [
                 "tabWhois" => Language::_("Ispapi.tab_whois.title", true),
-                //"tabEmailForwarding" => Language::_("Ispapi.tab_email_forwarding.title", true),
+                "tabEmailForwarding" => Language::_("Ispapi.tab_email_forwarding", true),
                 "tabNameservers" => Language::_("Ispapi.tab_nameservers.title", true),
                 "tabDnsRecords" => Language::_("Ispapi.tab_dnsrecord.title", true),
                 "tabSettings" => Language::_("Ispapi.tab_settings.title", true),
@@ -2221,6 +2180,100 @@ class Ispapi extends RegistrarModule
     public function tabDnsRecords($package, $service, array $get = null, array $post = null, array $files = null)
     {
         return $this->manageDnsRecords("tab_dnsrecords", $package, $service, $get, $post, $files);
+    }
+
+    /**
+     * Admin Email Forwarding tab
+     *
+     * @param stdClass $package A stdClass object representing the current package
+     * @param stdClass $service A stdClass object representing the current service
+     * @param array $get Any GET parameters
+     * @param array $post Any POST parameters
+     * @param array $files Any FILES parameters
+     * @return string The string representing the contents of this tab
+     */
+    public function tabEmailForwarding($package, $service, array $get = null, array $post = null, array $files = null)
+    {
+        return $this->manageEmailForwarding('tab_email_forwarding', $package, $service, $get, $post, $files);
+    }
+
+    /**
+     * Client Email Forwarding tab
+     *
+     * @param stdClass $package A stdClass object representing the current package
+     * @param stdClass $service A stdClass object representing the current service
+     * @param array $get Any GET parameters
+     * @param array $post Any POST parameters
+     * @param array $files Any FILES parameters
+     * @return string The string representing the contents of this tab
+     */
+    public function tabClientEmailForwarding($package, $service, array $get = null, array $post = null, array $files = null)
+    {
+        return $this->manageEmailForwarding('tab_client_email_forwarding', $package, $service, $get, $post, $files);
+    }
+
+    /**
+     * Email Forwarding client tab
+     *
+     * @param stdClass $package A stdClass object representing the current package
+     * @param stdClass $service A stdClass object representing the current service
+     * @param array $get Any GET parameters
+     * @param array $post Any POST parameters
+     * @param array $files Any FILES parameters
+     * @return string The string representing the contents of this tab
+     */
+    public function manageEmailForwarding(
+        $view,
+        $package,
+        $service,
+        $get,
+        $post,
+        $files
+    ) {
+        $vars = new stdClass();
+
+        // if the domain is pending transfer display a notice of such
+        $checkDomainStatus = $this->checkDomainStatus($service, $package);
+        if (isset($checkDomainStatus)) {
+            return $checkDomainStatus;
+        }
+
+        $this->view = new View($view, 'default');
+        Base::setModule($this->getModuleRow($package->module_row));
+        Base::getIspapiInstance($this);
+
+        // Load the helpers required for this view
+        Loader::loadHelpers($this, ['Form', 'Html']);
+
+        $fields = $this->serviceFieldsToObject($service->fields);
+
+        if (!empty($post)) {
+            // Delete email forwarder
+            if (!empty($post['delete'])) {
+                $response = $this->domainManager->saveEmailForwardingRR($fields->domain, $post, "DELETE");
+            } else {
+                $response = $this->domainManager->saveEmailForwardingRR($fields->domain, $post);
+            }
+
+            Helper::errorHandler($response);
+
+            $vars = (object) $post;
+        }
+
+        // Get email forwarders
+        $response = $this->domainManager->getEmailForwardingRR($fields->domain);
+
+        Helper::errorHandler($response);
+
+        if (isset($response["resources"])) {
+            $vars->addresses = $response["resources"];
+        }
+
+        $this->view->set('vars', $vars);
+        $this->view->set('domain', $fields->domain);
+        $this->view->setDefaultView(self::$defaultModuleView);
+
+        return $this->view->fetch();
     }
 
     /**
@@ -2302,9 +2355,7 @@ class Ispapi extends RegistrarModule
                     break;
             }
 
-            if (!Helper::errorHandler($response)) {
-                return;
-            }
+            Helper::errorHandler($response);
         }
 
         // Load list of Resource Records
