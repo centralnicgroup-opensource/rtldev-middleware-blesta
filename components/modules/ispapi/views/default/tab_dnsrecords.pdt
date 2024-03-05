@@ -72,7 +72,7 @@
             <thead>
                 <tr class="heading_row">
                     <td><span><?php $this->_('Ispapi.dnsrecord.record_type');?></span></td>
-                    <td><span><?php $this->_('Ispapi.dnsrecord.hostname');?></span></td>
+                    <td><span><?php $this->_('Ispapi.dnsrecord.host');?></span></td>
                     <td><span><?php $this->_('Ispapi.dnsrecord.value');?></span></td>
                     <td class="priority" style="display:none;"><span><?php $this->_('Ispapi.dnsrecord.priority');?></span></td>
                     <td><span><?php $this->_('Ispapi.dnsrecord.ttl');?></span></td>
