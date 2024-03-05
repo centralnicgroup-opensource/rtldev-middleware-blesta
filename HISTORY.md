@@ -1,3 +1,10 @@
+## [3.2.1](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.2.0...v3.2.1) (2024-3-5)
+
+
+### Bug Fixes
+
+* **hexonet registrar module:** fixed client area missing tab for DNS management ([83dd4aa](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/commit/83dd4aa54eaa5c33ff37c99749f55db8653a6acb))
+
 # [3.2.0](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.1.2...v3.2.0) (2024-3-4)
 
 
