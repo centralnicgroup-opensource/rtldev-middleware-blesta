@@ -318,7 +318,7 @@ class Ispapi extends RegistrarModule
 
                     //TODO
                     if ($r["CODE"] === "200") {
-                        $transferPeriods = empty($r["PROPERTY"]["ZONETRANSFERPERIODS"][0]) ? [] : preg_replace('/Y$/', '', preg_grep('/^R?(\d+)Y$/', explode(",", $r["PROPERTY"]["ZONETRANSFERPERIODS"][0])));
+                        $transferPeriods = empty($r["PROPERTY"]["ZONETRANSFERPERIODS"][0]) ? [] : preg_replace("/(^R|Y$)/", "", preg_grep("/^R?(\d+)Y$/", explode(",", $r["PROPERTY"]["ZONETRANSFERPERIODS"][0])));
                         if (in_array($vars["NumYears"], $transferPeriods)) {
                             $command["PERIOD"] = $vars["NumYears"];
                         } elseif (in_array(0, $transferPeriods)) {
@@ -544,19 +544,19 @@ class Ispapi extends RegistrarModule
         $fields = $this->serviceFieldsToObject($service->fields);
 
         $vars = [
-            'domain' => $fields->{'domain'},
-            'years' => 1
+            "domain" => $fields->{"domain"},
+            "years" => 1
         ];
 
         if (!$years) {
             foreach ($package->pricing as $pricing) {
                 if ($pricing->id == $service->pricing_id) {
-                    $vars['years'] = $pricing->term;
+                    $vars["years"] = $pricing->term;
                     break;
                 }
             }
         } else {
-            $vars['years'] = $years;
+            $vars["years"] = $years;
         }
 
         // Renew the domain
@@ -591,7 +591,7 @@ class Ispapi extends RegistrarModule
     //     $r = $this->base->call([
     //         "COMMAND" => "RenewDomain",
     //         "DOMAIN" => $domain,
-    //         "PERIOD" => $vars['qty'] ?? $vars['years'] ?? 1,
+    //         "PERIOD" => $vars["qty"] ?? $vars["years"] ?? 1,
     //     ], $row);
 
     //     // Some of the TLDs require following command for renewals (eg: .de)
@@ -601,7 +601,7 @@ class Ispapi extends RegistrarModule
     //         $this->base->call([
     //             "COMMAND" => "PayDomainRenewal",
     //             "DOMAIN" => $vars["domain"],
-    //             "PERIOD" => $vars['qty'] ?? $vars['years'] ?? 1,
+    //             "PERIOD" => $vars["qty"] ?? $vars["years"] ?? 1,
     //         ], $row);
     //     }
 
@@ -1219,7 +1219,7 @@ class Ispapi extends RegistrarModule
         $renewalPeriodList = [];
         foreach ($renewalPeriods as $year) {
             // Check if the year string matches the pattern for renewal periods.
-            if (preg_match('/^R?(\d+)Y$/', $year, $matches)) {
+            if (preg_match("/^R?(\d+)Y$/", $year, $matches)) {
                 // Extract the numerical part of the period e.g. 2Y -> 2.
                 $period = $matches[1];
 
@@ -1354,24 +1354,97 @@ class Ispapi extends RegistrarModule
         }
     }
 
+    // /**
+    //  * Returns all tabs to display to a client when managing a service whose
+    //  * package uses this module
+    //  *
+    //  * @param stdClass $package A stdClass object representing the selected package
+    //  * @return array An array of tabs in the format of method => title.
+    //  *  Example: [ "methodName" => "Title", "methodName2" => "Title2" ]
+    //  */
+    // public function getClientTabs($package)
+    // {
+    //     if ($package->meta->type === "domain") {
+    //         return [
+    //             "tabClientWhois" => Language::_("Ispapi.tab_whois.title", true),
+    //             "tabClientNameservers" => Language::_("Ispapi.tab_nameservers.title", true),
+    //             "tabClientSettings" => Language::_("Ispapi.tab_settings.title", true),
+    //             // TODO we might work on adding DNSSec, Hosts, DNS RR, Admin Actions
+    //         ];
+    //     }
+    // }
+
+
     /**
-     * Returns all tabs to display to a client when managing a service whose
-     * package uses this module
+     * Returns all tabs to display to a client when managing a service.
      *
-     * @param stdClass $package A stdClass object representing the selected package
-     * @return array An array of tabs in the format of method => title.
-     *  Example: [ "methodName" => "Title", "methodName2" => "Title2" ]
+     * @param stdClass $service A stdClass object representing the service
+     * @return array An array of tabs in the format of method => title, or method => array where array contains:
+     *
+     *  - name (required) The name of the link
+     *  - icon (optional) use to display a custom icon
+     *  - href (optional) use to link to a different URL
+     *      Example:
+     *      ['methodName' => "Title", 'methodName2' => "Title2"]
+     *      ['methodName' => ['name' => "Title", 'icon' => "icon"]]
      */
-    public function getClientTabs($package)
+    public function getClientServiceTabs($service)
     {
-        if ($package->meta->type === "domain") {
-            return [
-                "tabClientWhois" => Language::_("Ispapi.tab_whois.title", true),
-                "tabClientNameservers" => Language::_("Ispapi.tab_nameservers.title", true),
-                "tabClientSettings" => Language::_("Ispapi.tab_settings.title", true),
-                // TODO we might work on adding DNSSec, Hosts, DNS RR, Admin Actions
+        Loader::loadModels($this, ['Packages']);
+
+        $package = $this->Packages->get($service->package_id ?? $service->package->id);
+
+        if ($package->meta->type == 'domain') {
+            $tabs = [
+                'tabClientWhois' => [
+                    'name' => Language::_('Ispapi.tab_whois.title', true),
+                    'icon' => 'fas fa-users'
+                ],
+                'tabClientEmailForwarding' => [
+                    'name' => Language::_('Ispapi.tab_email_forwarding.title', true),
+                    'icon' => 'fas fa-envelope'
+                ],
+                'tabClientNameservers' => [
+                    'name' => Language::_('Ispapi.tab_nameservers.title', true),
+                    'icon' => 'fas fa-server'
+                ],
+                'tabClientDnsRecords' => [
+                    'name' => Language::_('Ispapi.tab_dnsrecord.title', true),
+                    'icon' => 'fas fa-sitemap'
+                ],
+                'tabClientSettings' => [
+                    'name' => Language::_('Ispapi.tab_settings.title', true),
+                    'icon' => 'fas fa-cog'
+                ]
             ];
+
+            // Check if DNS Management is enabled
+            if (!$this->featureServiceEnabled('dns_management', $service)) {
+                unset($tabs['tabClientDnssec'], $tabs['tabClientDnsRecords']);
+            }
+
+            // Check if Email Forwarding is enabled
+            if (!$this->featureServiceEnabled('email_forwarding', $service)) {
+                unset($tabs['tabClientEmailForwarding']);
+            }
+
+            return $tabs;
         }
+    }
+
+    /**
+     * Client DNS Records tab
+     *
+     * @param stdClass $package A stdClass object representing the current package
+     * @param stdClass $service A stdClass object representing the current service
+     * @param array $get Any GET parameters
+     * @param array $post Any POST parameters
+     * @param array $files Any FILES parameters
+     * @return string The string representing the contents of this tab
+     */
+    public function tabClientDnsRecords($package, $service, array $get = null, array $post = null, array $files = null)
+    {
+        return $this->manageDnsRecords('tab_client_dnsrecords', $package, $service, $get, $post, $files);
     }
 
     /**
@@ -1700,7 +1773,7 @@ class Ispapi extends RegistrarModule
             $nameservers = [];
             foreach ($r["PROPERTY"]["NAMESERVER"] as $nameserver) {
                 // Perform the match
-                if (preg_match('/^(\S+)\s+((?:\d{1,3}\.){3}\d{1,3})$/', $nameserver, $matches)) {
+                if (preg_match("/^(\S+)\s+((?:\d{1,3}\.){3}\d{1,3})$/", $nameserver, $matches)) {
                     // Extract nameserver and IP address
                     $nameserver = $matches[1];
                     $ipAddress = $matches[2];
@@ -2104,31 +2177,31 @@ class Ispapi extends RegistrarModule
      *
      * @param stdClass $service A stdClass object representing the service
      * @return array An array of tabs in the format of method => title.
-     *  Example: ['methodName' => "Title", 'methodName2' => "Title2"]
+     *  Example: ["methodName" => "Title", "methodName2" => "Title2"]
      */
     public function getAdminServiceTabs($service)
     {
-        Loader::loadModels($this, ['Packages']);
+        Loader::loadModels($this, ["Packages"]);
 
         $package = $this->Packages->get($service->package_id ?? $service->package->id);
 
-        if ($package->meta->type == 'domain') {
+        if ($package->meta->type == "domain") {
             $tabs = [
-                'tabWhois' => Language::_('Ispapi.tab_whois.title', true),
-                //'tabEmailForwarding' => Language::_('Ispapi.tab_email_forwarding.title', true),
-                'tabNameservers' => Language::_('Ispapi.tab_nameservers.title', true),
-                'tabDnsRecords' => Language::_('Ispapi.tab_dnsrecord.title', true),
-                'tabSettings' => Language::_('Ispapi.tab_settings.title', true),
+                "tabWhois" => Language::_("Ispapi.tab_whois.title", true),
+                //"tabEmailForwarding" => Language::_("Ispapi.tab_email_forwarding.title", true),
+                "tabNameservers" => Language::_("Ispapi.tab_nameservers.title", true),
+                "tabDnsRecords" => Language::_("Ispapi.tab_dnsrecord.title", true),
+                "tabSettings" => Language::_("Ispapi.tab_settings.title", true),
             ];
 
             // Check if DNS Management is enabled
-            if (!$this->featureServiceEnabled('dns_management', $service)) {
-                unset($tabs['tabDnssec'], $tabs['tabDnsRecords']);
+            if (!$this->featureServiceEnabled("dns_management", $service)) {
+                unset($tabs["tabDnssec"], $tabs["tabDnsRecords"]);
             }
 
             // Check if Email Forwarding is enabled
-            if (!$this->featureServiceEnabled('email_forwarding', $service)) {
-                unset($tabs['tabEmailForwarding']);
+            if (!$this->featureServiceEnabled("email_forwarding", $service)) {
+                unset($tabs["tabEmailForwarding"]);
             }
 
             return $tabs;
@@ -2147,7 +2220,7 @@ class Ispapi extends RegistrarModule
      */
     public function tabDnsRecords($package, $service, array $get = null, array $post = null, array $files = null)
     {
-        return $this->manageDnsRecords('tab_dnsrecords', $package, $service, $get, $post, $files);
+        return $this->manageDnsRecords("tab_dnsrecords", $package, $service, $get, $post, $files);
     }
 
     /**
@@ -2209,22 +2282,22 @@ class Ispapi extends RegistrarModule
             return $checkDomainStatus;
         }
 
-        $this->view = new View($view, 'default');
+        $this->view = new View($view, "default");
         $this->view->base_uri = $this->base_uri;
 
         // Load the helpers required for this view
-        Loader::loadHelpers($this, ['Form', 'Html']);
+        Loader::loadHelpers($this, ["Form", "Html"]);
 
         $fields = $this->serviceFieldsToObject($service->fields);
-        $this->view->set('domain', $fields->domain);
-        if (!empty($post) && isset($post['action'])) {
-            $action = $post['action'];
+        $this->view->set("domain", $fields->domain);
+        if (!empty($post) && isset($post["action"])) {
+            $action = $post["action"];
 
             switch ($action) {
-                case 'addDnsRecord':
+                case "addDnsRecord":
                     $response = $this->domainManager->addDNS($fields->domain, $post);
                     break;
-                case 'deleteDnsRecord':
+                case "deleteDnsRecord":
                     $response = $this->domainManager->deleteDNS($fields->domain, $post);
                     break;
             }
@@ -2243,9 +2316,9 @@ class Ispapi extends RegistrarModule
         $vars->selects = array_combine(Helper::getSupportedRRTypes(), array_values(Helper::getSupportedRRTypes())); // make keys and values same
         $vars->records = Helper::getResourceRecords($response["PROPERTY"]["RR"]);
 
-        $this->view->set('vars', $vars);
-        $this->view->set('client_id', $service->client_id);
-        $this->view->set('service_id', $service->id);
+        $this->view->set("vars", $vars);
+        $this->view->set("client_id", $service->client_id);
+        $this->view->set("service_id", $service->id);
 
         $this->view->setDefaultView(self::$defaultModuleView);
 

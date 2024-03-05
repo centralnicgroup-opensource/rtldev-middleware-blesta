@@ -92,11 +92,11 @@ class DomainManager extends Base
 
     public function addDNS($domain, $postData)
     {
-        $field = Helper::getResourceRecord($postData);
+        $record = Helper::getResourceRecord($postData);
         return $this->call([
             "COMMAND" => "UpdateDNSZone",
             "DNSZONE" => "{$domain}.",
-            "ADDRR0" => "{$field}"
+            "ADDRR0" => "{$record}"
         ]);
     }
 
