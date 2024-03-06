@@ -1,3 +1,10 @@
+# [3.3.0](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.2.1...v3.3.0) (2024-3-6)
+
+
+### Features
+
+* **hexonet registrar module:** Added Email Forwarding Addon Feature ([3c0c670](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/commit/3c0c670d84a300d25c32a124cfe44f0a3690cff6))
+
 ## [3.2.1](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.2.0...v3.2.1) (2024-3-5)
 
 
