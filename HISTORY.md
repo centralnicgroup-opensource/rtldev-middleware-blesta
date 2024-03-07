@@ -1,3 +1,10 @@
+# [3.4.0](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.3.0...v3.4.0) (2024-03-07)
+
+
+### Features
+
+* **hexonet registrar module:** enhanced Experienced for ID Protection, Domain Lock and Auth Code ([b3cc939](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/commit/b3cc93964f8617db0ed3f3759d61b295b9c6f727))
+
 # [3.3.0](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.2.1...v3.3.0) (2024-3-6)
 
 
