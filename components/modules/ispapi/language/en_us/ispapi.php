@@ -65,10 +65,13 @@ $lang['Ispapi.tab_nameservers.field_submit'] = 'Update Name Servers';
 
 $lang['Ispapi.tab_settings.title'] = 'Settings';
 $lang['Ispapi.tab_settings.field_registrar_lock'] = 'Registrar Lock';
-$lang['Ispapi.tab_settings.field_registrar_lock_yes'] = 'Set the registrar lock. Recommended to prevent unauthorized transfer.';
+$lang['Ispapi.tab_settings.field_registrar_lock_yes'] = 'Registrar Lock. Recommended to activate it prevents unauthorized transfer.';
 $lang['Ispapi.tab_settings.field_registrar_lock_no'] = 'Release the registrar lock so the domain can be transferred.';
+$lang['Ispapi.tab_settings.field_registrar_lock_unsupported'] = 'Registrar Lock is not available for this domain/tld.';
 $lang['Ispapi.tab_settings.field_request_epp'] = 'Request EPP Code/Transfer Key';
 $lang['Ispapi.tab_settings.field_submit'] = 'Update Settings';
+$lang['Ispapi.tab_settings.WhoisPrivacy'] = "Whois Privacy (ID Protection)";
+$lang['Ispapi.tab_settings.WhoisPrivacy_unsupported'] = "Whois Privacy (ID Protection) is not available for this domain/tld.";
 
 $lang['Ispapi.tab_transfer.title'] = 'Transfer';
 $lang['Ispapi.tab_transfer.field_submit'] = 'Transfer Domain';

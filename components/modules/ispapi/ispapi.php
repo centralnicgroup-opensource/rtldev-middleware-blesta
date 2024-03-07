@@ -1787,32 +1787,28 @@ class Ispapi extends RegistrarModule
 
         // Whois privacy settings of a TLD
         $r = $this->domainManager->call([
-            "COMMAND" => "QueryDomainOptions",
-            "DOMAIN0" => $fields->domain,
-            "PROPERTIES" => "LAUNCHPHASES",
-        ]);
-
-        $vars->{"whois_privacy_supported"} = "no";
-        // Display whois_privacy setting for the domain if it is supported
-        if (!empty($r["PROPERTY"]["X-PROXY"][0])) {
-            $vars->{"whois_privacy_supported"} = "yes";
-        }
-
-        // Status domain
-        $r = $this->domainManager->call([
-            "COMMAND" => "StatusDomain",
+            "COMMAND" => "QueryDomainList",
+            "UNIQUE" => 1,
             "DOMAIN" => $fields->domain,
+            "OBJECTCLASS" => "DOMAIN",
+            "WIDE" => 1
         ]);
 
-        // Get transferlock and whois privacy settings information
+        Helper::errorHandler($r);
+
+        // Display whois_privacy & registrar lock setting for the domain if it is supported
         if ($r["CODE"] === "200") {
-            $vars->registrar_lock = ($r["PROPERTY"]["TRANSFERLOCK"][0] === "1");
+            // Registrar lock
+            $vars->registrar_lock = (!isset($r["PROPERTY"]["DOMAINTRANSFERLOCK"][0]) || strlen($r["PROPERTY"]["DOMAINTRANSFERLOCK"][0]) === 0) ? "-1" : $r["PROPERTY"]["DOMAINTRANSFERLOCK"][0] === "1";
+
             // Whois privacy
-            $vars->whois_privacy = ($r["PROPERTY"]["X-ACCEPT-WHOISTRUSTEE-TAC"][0] === "1");
+            $vars->whois_privacy = (!isset($r["PROPERTY"]["X-ACCEPT-WHOISTRUSTEE-TAC"][0]) || strlen($r["PROPERTY"]["X-ACCEPT-WHOISTRUSTEE-TAC"][0]) === 0) ? "-1" : $r["PROPERTY"]["X-ACCEPT-WHOISTRUSTEE-TAC"][0] === "1";
+            // check if id_protection is enabled for the domain
+            $vars->whois_privacy = !$this->featureServiceEnabled('id_protection', $service) ? "-1" : $vars->whois_privacy;
         }
 
         // To get epp/auth code
-        if (isset($post["request_epp"]) && !(isset($post["registrar_lock"]) || isset($post["whois_privacy"]))) {
+        if (isset($post["request_epp"])) {
             // Expiring Authorization Codes
             // https://confluence.centralnic.com/display/RSR/Expiring+Authcodes
             // pending cases:
@@ -1876,12 +1872,12 @@ class Ispapi extends RegistrarModule
                 "COMMAND" => "ModifyDomain",
                 "DOMAIN" => $fields->domain
             ];
-            if ($vars->whois_privacy_supported === "yes" && isset($post["whois_privacy"])) {
+            if ($vars->whois_privacy !== "-1" && isset($post["whois_privacy"])) {
                 $command["X-ACCEPT-WHOISTRUSTEE-TAC"] = $post["whois_privacy"] === "on" ? "1" : "0";
                 $vars->whois_privacy = $post["whois_privacy"] === "on";
             }
 
-            if (isset($post["registrar_lock"])) {
+            if ($vars->registrar_lock !== "-1" && isset($post["registrar_lock"])) {
                 $command["TRANSFERLOCK"] = $post["registrar_lock"] === "on" ? "1" : "0";
                 $vars->registrar_lock = $post["registrar_lock"] === "on";
             }
