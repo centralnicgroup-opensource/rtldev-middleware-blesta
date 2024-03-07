@@ -1804,24 +1804,15 @@ class Ispapi extends RegistrarModule
             "DOMAIN" => $fields->domain,
         ]);
 
-        if (empty($post)) {
-            // Get transferlock and whois privacy settings information
-            if ($r["CODE"] === "200") {
-                $vars->registrar_lock = ($r["PROPERTY"]["TRANSFERLOCK"][0] === "1") ? "true" : "false";
-                // Whois privacy
-                $vars->whois_privacy = ($r["PROPERTY"]["X-ACCEPT-WHOISTRUSTEE-TAC"][0] === "1") ? "true" : "false";
-            }
-            $this->view->set("vars", $vars);
-            $this->view->setDefaultView(self::$defaultModuleView);
-            return $this->view->fetch();
+        // Get transferlock and whois privacy settings information
+        if ($r["CODE"] === "200") {
+            $vars->registrar_lock = ($r["PROPERTY"]["TRANSFERLOCK"][0] === "1");
+            // Whois privacy
+            $vars->whois_privacy = ($r["PROPERTY"]["X-ACCEPT-WHOISTRUSTEE-TAC"][0] === "1");
         }
 
-        // Post values to var variable
-        $vars->registrar_lock = $post["registrar_lock"] ?? false;
-        $vars->whois_privacy = $post["whois_privacy"] ?? false;
-
         // To get epp/auth code
-        if (isset($post["request_epp"]) && !isset($post["save"])) {
+        if (isset($post["request_epp"]) && !(isset($post["registrar_lock"]) || isset($post["whois_privacy"]))) {
             // Expiring Authorization Codes
             // https://confluence.centralnic.com/display/RSR/Expiring+Authcodes
             // pending cases:
@@ -1874,21 +1865,27 @@ class Ispapi extends RegistrarModule
                 }
             } else {
                 $this->Input->setErrors([
-                    "errors" => ["Failed loading the epp code (" . $response["DESCRIPTION"] . ")."],
+                    "errors" => ["Failed loading the epp code (" . $response["error"] . ")."],
                 ]);
             }
         }
 
         // Save transferlock settings of a domain
-        if ((isset($post["registrar_lock"]) || isset($post["whois_privacy"])) && isset($post["save"])) {
+        if ((isset($post["registrar_lock"]) || isset($post["whois_privacy"])) && !isset($post["request_epp"])) {
             $command = [
                 "COMMAND" => "ModifyDomain",
-                "DOMAIN" => $fields->domain,
-                "TRANSFERLOCK" => $post["registrar_lock"] == "true" ? "1" : "0",
+                "DOMAIN" => $fields->domain
             ];
-            if ($vars->whois_privacy_supported === "yes") {
-                $command["X-ACCEPT-WHOISTRUSTEE-TAC"] = $post["whois_privacy"] == "true" ? "1" : "0";
+            if ($vars->whois_privacy_supported === "yes" && isset($post["whois_privacy"])) {
+                $command["X-ACCEPT-WHOISTRUSTEE-TAC"] = $post["whois_privacy"] === "on" ? "1" : "0";
+                $vars->whois_privacy = $post["whois_privacy"] === "on";
             }
+
+            if (isset($post["registrar_lock"])) {
+                $command["TRANSFERLOCK"] = $post["registrar_lock"] === "on" ? "1" : "0";
+                $vars->registrar_lock = $post["registrar_lock"] === "on";
+            }
+
             $this->domainManager->call($command);
         }
 
