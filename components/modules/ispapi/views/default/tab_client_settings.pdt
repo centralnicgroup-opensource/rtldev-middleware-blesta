@@ -5,26 +5,50 @@ $this->Form->create(null, ['id' => 'tab_settings']);
 ?>
 <div class="row panel-fix">
     <div class="col-md-12">
-        <h4><?php $this->_('Ispapi.tab_settings.field_registrar_lock');?></h4>
+        <h4><?php $this->_('Ispapi.tab_settings.title');?></h4>
             <div class="form-group">
             <div class="form-check">
-                <?php $this->Form->fieldCheckbox('registrar_lock', null, $this->Html->ifSet($vars->registrar_lock), ['id' => 'registrar_lock', 'class' => 'form-check-input']); ?>
-                <label class="form-check-label" for="registrar_lock">
-                    <?php $this->Form->label($this->_("Ispapi.tab_settings.field_registrar_lock_yes", true), "registrar_lock", ['class' => "form-check-label"]);?>
-                </label>
+                <?php
+                if ($vars->registrar_lock === "-1"):
+                    $this->Form->fieldCheckbox('registrar_lock', null, false, ['id' => 'registrar_lock', 'class' => 'form-check-input', 'disabled' => 'disabled']);
+                ?>
+                    <label class="form-check-label" for="registrar_lock">
+                        <?php $this->Form->label($this->_("Ispapi.tab_settings.field_registrar_lock_unsupported", true), "registrar_lock", ['class' => "form-check-label"]);?>
+                    </label>
+                <?php 
+                    else:
+                        $this->Form->fieldCheckbox('registrar_lock', null, $this->Html->ifSet($vars->registrar_lock), ['id' => 'registrar_lock', 'class' => 'form-check-input']);
+                ?>
+                    <label class="form-check-label" for="registrar_lock">
+                        <?php $this->Form->label($this->_("Ispapi.tab_settings.field_registrar_lock_yes", true), "registrar_lock", ['class' => "form-check-label"]);?>
+                    </label>
+                <?php    
+                    endif;
+                ?>
             </div>
             </div>
 
-        <?php if ($vars->whois_privacy_supported === "yes"): ?>
             <div class="form-group">
                 <div class="form-check">
-                    <?php $this->Form->fieldCheckbox('whois_privacy', null, $this->Html->ifSet($vars->whois_privacy), ['id' => 'whois_privacy', 'class' => 'form-check-input']); ?>
-                    <label class="form-check-label" for="whois_privacy">
-                        <?php $this->Form->label($this->_("Ispapi.domain.WhoisPrivacy", true), "whois_privacy", ['class' => "form-check-label"]);?>
-                    </label>
+                    <?php
+                    if ($vars->whois_privacy === "-1"):
+                        $this->Form->fieldCheckbox('whois_privacy', null, false, ['id' => 'whois_privacy', 'class' => 'form-check-input', 'disabled' => 'disabled']);
+                    ?>
+                        <label class="form-check-label" for="whois_privacy">
+                            <?php $this->Form->label($this->_("Ispapi.tab_settings.WhoisPrivacy_unsupported", true), "whois_privacy", ['class' => "form-check-label"]);?>
+                        </label>
+                    <?php 
+                        else:
+                            $this->Form->fieldCheckbox('whois_privacy', null, $this->Html->ifSet($vars->whois_privacy), ['id' => 'whois_privacy', 'class' => 'form-check-input']);
+                    ?>
+                        <label class="form-check-label" for="whois_privacy">
+                            <?php $this->Form->label($this->_("Ispapi.tab_settings.WhoisPrivacy", true), "whois_privacy", ['class' => "form-check-label"]);?>
+                        </label>
+                    <?php    
+                        endif;
+                    ?>
                 </div>
             </div>
-        <?php endif; ?>
 
             <div class="form-group row align-items-center">
                 <label class="col-sm-auto col-form-label">
@@ -35,7 +59,7 @@ $this->Form->create(null, ['id' => 'tab_settings']);
                 <?php if ($vars->auth): ?>
                     <div class="col-sm">
                         <?php
-                        $this->Form->fieldText('request_epp', $this->Html->ifSet($vars->auth), ['id' => 'auth', 'readonly' => 'readonly', 'class' => 'form-control']);
+                        $this->Form->fieldText('', $this->Html->ifSet($vars->auth), ['id' => 'auth', 'readonly' => 'readonly', 'class' => 'form-control']);
                         ?>
                     </div>
                     <div class="col-sm-auto">
