@@ -1,3 +1,10 @@
+## [3.4.1](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.4.0...v3.4.1) (2024-03-07)
+
+
+### Bug Fixes
+
+* **hexonet registrar module:** Domain ID Protection and Whois Privacy fix ([2c94abd](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/commit/2c94abd153da28cb08ddb5e70364864083768a0d))
+
 # [3.4.0](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.3.0...v3.4.0) (2024-03-07)
 
 
