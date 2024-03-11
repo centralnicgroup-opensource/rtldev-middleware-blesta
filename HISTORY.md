@@ -1,3 +1,10 @@
+# [3.5.0](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.4.1...v3.5.0) (2024-03-11)
+
+
+### Features
+
+* **hexonet registrar module:** added custom nameserver hosts feature for domains ([095c20b](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/commit/095c20bfc77ab41b895a40b26b6b608319c1fa4f))
+
 ## [3.4.1](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.4.0...v3.4.1) (2024-03-07)
 
 
