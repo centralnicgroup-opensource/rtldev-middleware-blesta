@@ -4,6 +4,12 @@
     ?>
     <div class="row">
         <div class="col-md-12">
+            <?php if ($dnszone_unsupported): ?>
+                    <h4><?php $this->_('Ispapi.tab_dnsrecord.unsupported');?></h4>
+            <?php 
+                return;
+                endif; 
+            ?>
             <h4><?php $this->_('Ispapi.tab_email_forwarding.heading_current_rules');?></h4>
             <div class="table-responsive">
                 <table class="table table-curved table-striped">
