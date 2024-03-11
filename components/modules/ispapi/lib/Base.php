@@ -56,7 +56,7 @@ class Base
             return [
                 "success" => false,
                 "CODE" => $r["CODE"],
-                "error" => $r["CODE"] . " " . $r["DESCRIPTION"],
+                "error" => $r["CODE"] . " " . $r["DESCRIPTION"]
             ];
         }
         return $r;

@@ -1,4 +1,12 @@
     <div id="dns-records">
+        <?php if ($dnszone_unsupported): ?>
+                <div class="title_row first">
+                    <h4><?php $this->_('Ispapi.tab_dnsrecord.unsupported');?></h4>
+                </div>
+        <?php 
+            return;
+            endif; 
+        ?>
         <div class="title_row first">
             <h3><?php $this->_('Ispapi.tab_dnsrecord.title_list');?></h3>
         </div>

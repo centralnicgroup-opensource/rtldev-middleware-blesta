@@ -2,6 +2,14 @@
     <?php
     $this->Form->create();
     ?>
+    <?php if ($dnszone_unsupported): ?>
+            <div class="title_row first">
+                <h4><?php $this->_('Ispapi.tab_email_forwarding.unsupported');?></h4>
+            </div>
+    <?php 
+        return;
+        endif; 
+    ?>
     <div class="title_row first">
         <h3><?php $this->_('Ispapi.tab_email_forwarding.heading_current_rules');?></h3>
     </div>

@@ -1,7 +1,12 @@
     <div id="dns-records" class="pad">
+        <?php if ($dnszone_unsupported): ?>
+                <h4><?php $this->_('Ispapi.tab_dnsrecord.unsupported');?></h4>
+        <?php 
+            return;
+            endif; 
+        ?>
         <h4><?php $this->_('Ispapi.tab_dnsrecord.title_list');?></h4>
         <p class="mb-2"><?php $this->_('Ispapi.tab_dnsrecord.help_text_1');?></p>
-
         <div class="table-responsive my-2">
             <table class="table table-curved table-striped">
                 <thead>
@@ -17,7 +22,7 @@
 
                 <tbody>
                     <?php
-                    if (count($vars->records) > 0 && isset($vars->records)) {
+                    if (isset($vars->records) && count($vars->records) > 0) {
                         foreach ($vars->records as $record) {
                             ?>
                             <tr>
@@ -51,6 +56,8 @@
                             </tr>
                             <?php
                         }
+                    } else {
+                        echo "<tr><td colspan='7'>No DNS Records Found!</td></tr>";
                     }
                     ?>
                 </tbody>

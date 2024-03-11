@@ -1367,6 +1367,10 @@ class Ispapi extends RegistrarModule
                     'name' => Language::_('Ispapi.tab_nameservers.title', true),
                     'icon' => 'fas fa-server'
                 ],
+                'tabClientPrivateNameservers' => [
+                    'name' => Language::_('Ispapi.tab_private_nameservers.title', true),
+                    'icon' => 'fas fa-hdd'
+                ],
                 'tabClientDnsRecords' => [
                     'name' => Language::_('Ispapi.tab_dnsrecord.title', true),
                     'icon' => 'fas fa-sitemap'
@@ -1406,6 +1410,22 @@ class Ispapi extends RegistrarModule
         return $this->manageDnsRecords('tab_client_dnsrecords', $package, $service, $get, $post, $files);
     }
 
+
+    /**
+     * Client Hosts tab
+     *
+     * @param stdClass $package A stdClass object representing the current package
+     * @param stdClass $service A stdClass object representing the current service
+     * @param array $get Any GET parameters
+     * @param array $post Any POST parameters
+     * @param array $files Any FILES parameters
+     * @return string The string representing the contents of this tab
+     */
+    public function tabClientPrivateNameservers($package, $service, array $get = null, array $post = null, array $files = null)
+    {
+        return $this->managePrivateNameServers('tab_client_private_nameservers', $package, $service, $get, $post, $files);
+    }
+
     /**
      * Admin Whois tab
      *
@@ -1434,6 +1454,21 @@ class Ispapi extends RegistrarModule
     public function tabClientWhois($package, $service, array $get = null, array $post = null, array $files = null)
     {
         return $this->manageWhois("tab_client_whois", $package, $service, $get, $post, $files);
+    }
+
+    /**
+     * Admin Private/Custom Nameservers tab
+     *
+     * @param stdClass $package A stdClass object representing the current package
+     * @param stdClass $service A stdClass object representing the current service
+     * @param array $get Any GET parameters
+     * @param array $post Any POST parameters
+     * @param array $files Any FILES parameters
+     * @return string The string representing the contents of this tab
+     */
+    public function tabPrivateNameservers($package, $service, array $get = null, array $post = null, array $files = null)
+    {
+        return $this->managePrivateNameservers('tab_private_nameservers', $package, $service, $get, $post, $files);
     }
 
     /**
@@ -1872,6 +1907,7 @@ class Ispapi extends RegistrarModule
                 "COMMAND" => "ModifyDomain",
                 "DOMAIN" => $fields->domain
             ];
+
             if ($vars->whois_privacy !== "-1" && isset($post["whois_privacy"])) {
                 $command["X-ACCEPT-WHOISTRUSTEE-TAC"] = $post["whois_privacy"] === "on" ? "1" : "0";
                 $vars->whois_privacy = $post["whois_privacy"] === "on";
@@ -2143,6 +2179,7 @@ class Ispapi extends RegistrarModule
                 "tabEmailForwarding" => Language::_("Ispapi.tab_email_forwarding", true),
                 "tabNameservers" => Language::_("Ispapi.tab_nameservers.title", true),
                 "tabDnsRecords" => Language::_("Ispapi.tab_dnsrecord.title", true),
+                "tabPrivateNameservers" => Language::_("Ispapi.tab_private_nameservers.title", true),
                 "tabSettings" => Language::_("Ispapi.tab_settings.title", true),
             ];
 
@@ -2256,7 +2293,17 @@ class Ispapi extends RegistrarModule
         // Get email forwarders
         $response = $this->domainManager->getEmailForwardingRR($fields->domain);
 
-        Helper::errorHandler($response);
+        if (!isset($response["CODE"]) || $response["CODE"] === "545") {
+            $createDNS = $this->domainManager->createDNSZone($fields->domain);
+            Helper::errorHandler($createDNS);
+
+            if (isset($createDNS["CODE"]) && $createDNS["CODE"] !== "200") {
+                $this->view->set("dnszone_unsupported", true);
+                Helper::errorHandler($response);
+            }
+        } else {
+            Helper::errorHandler($response);
+        }
 
         if (isset($response["resources"])) {
             $vars->addresses = $response["resources"];
@@ -2353,17 +2400,94 @@ class Ispapi extends RegistrarModule
 
         // Load list of Resource Records
         $response = $this->domainManager->getDNSZoneRRList($fields->domain);
-        if (!Helper::errorHandler($response)) {
-            return;
+
+        if (!isset($response["CODE"]) || $response["CODE"] === "545") {
+            $createDNS = $this->domainManager->createDNSZone($fields->domain);
+            Helper::errorHandler($createDNS);
+
+            if (isset($createDNS["CODE"]) && $createDNS["CODE"] !== "200") {
+                $this->view->set("dnszone_unsupported", true);
+                Helper::errorHandler($response);
+            }
+        } else {
+            Helper::errorHandler($response);
         }
 
         $vars->selects = array_combine(Helper::getSupportedRRTypes(), array_values(Helper::getSupportedRRTypes())); // make keys and values same
-        $vars->records = Helper::getResourceRecords($response["PROPERTY"]["RR"]);
+        $vars->records = Helper::getResourceRecords($response["PROPERTY"]["RR"] ?? []);
 
         $this->view->set("vars", $vars);
         $this->view->set("client_id", $service->client_id);
         $this->view->set("service_id", $service->id);
+        $this->view->setDefaultView(self::$defaultModuleView);
 
+        return $this->view->fetch();
+    }
+
+
+    /**
+     * Handle updating host information
+     *
+     * @param string $view The name of the view to fetch
+     * @param stdClass $package An stdClass object representing the package
+     * @param stdClass $service An stdClass object representing the service
+     * @param array $get Any GET arguments (optional)
+     * @param array $post Any POST arguments (optional)
+     * @param array $files Any FILES data (optional)
+     * @return string The rendered view
+     */
+    private function managePrivateNameServers($view, $package, $service, array $get = null, array $post = null, array $files = null)
+    {
+        $vars = new stdClass();
+
+        // if the domain is pending transfer display a notice of such
+        $checkDomainStatus = $this->checkDomainStatus($service, $package);
+        if (isset($checkDomainStatus)) {
+            return $checkDomainStatus;
+        }
+
+        $this->view = new View($view, 'default');
+        $this->view->base_uri = $this->base_uri;
+        // Load the helpers required for this view
+        Loader::loadHelpers($this, ['Form', 'Html']);
+
+        Base::setModule($this->getModuleRow($package->module_row));
+        Base::getIspapiInstance($this);
+
+        $fields = $this->serviceFieldsToObject($service->fields);
+
+        if (!empty($post)) {
+            // if all of the ips are blanked, lets remove the host
+            if (isset($post['delete_nameserver']) && !empty($post['delete_nameserver']) && empty($post['new_nameserver']) && empty($post['new_nameserver_ip'])) {
+                $response = $this->domainManager->deleteNameserver($post['delete_nameserver']);
+            }
+
+            if (isset($post['new_nameserver']) && isset($post['new_nameserver_ip']) && !empty($post['new_nameserver']) && !empty($post['new_nameserver_ip'])) {
+                $response = $this->domainManager->registerNameserver($fields->domain, $post);
+            }
+
+            Helper::errorHandler($response);
+
+            $vars = (object) $post;
+        }
+
+        $response = $this->domainManager->getDomainStatus($fields->domain);
+        Helper::errorHandler($response);
+        $vars->hosts = [];
+        foreach ($response["PROPERTY"]["HOST"] as $hostInfo) {
+            // Split the host information into hostname and IP address
+            $hostComponents = explode(" ", $hostInfo);
+            $hostname = explode(".", $hostComponents[0])[0]; // Extract hostname from the first part
+            $ip = $hostComponents[1]; // Extract IP address from the second part
+
+            // Add host information to the array of hosts
+            $vars->hosts[] = ["hostname" => $hostname, "ip" => $ip];
+        }
+
+        $this->view->set('vars', $vars);
+        $this->view->set('domain', $fields->domain);
+        $this->view->set('client_id', $service->client_id);
+        $this->view->set('service_id', $service->id);
         $this->view->setDefaultView(self::$defaultModuleView);
 
         return $this->view->fetch();

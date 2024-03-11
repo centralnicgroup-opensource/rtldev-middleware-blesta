@@ -20,17 +20,13 @@ class Helper
     public static function errorHandler($response)
     {
         if ($response["CODE"] !== "200") {
-            if ($response["CODE"] === "545" && isset($response["DESCRIPTION"])) {
-                Base::getIspapiInstance()->Input->setErrors([
-                    "errors" => [$response["DESCRIPTION"]],
-                ]);
-            } elseif (isset($response["error"])) {
+            if (isset($response["error"])) {
                 Base::getIspapiInstance()->Input->setErrors([
                     "errors" => [$response["error"]],
                 ]);
             } else {
                 Base::getIspapiInstance()->Input->setErrors([
-                    "errors" => ["DNS Not Available!"],
+                    "errors" => ["Oops something went wrong!"],
                 ]);
             }
             return false;

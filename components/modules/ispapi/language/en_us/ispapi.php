@@ -109,18 +109,19 @@ $lang['Ispapi.tab_whois.section_billing'] = 'Billing';
 $lang['Ispapi.tab_whois.field_submit'] = 'Update Whois';
 $lang['Ispapi.tab_whois.copy_registrant_info'] = 'Copy Registrant Info';
 
-$lang['Ispapi.tab_nameservers.title'] = 'Name Servers';
-$lang['Ispapi.tab_nameservers.desc'] = 'We allow up to 5 possible name servers, although only 2 are required. It is important that you do not enter the IP address of the name server, but instead enter the actual name server name. Name servers are typically formatted like "NS1.host.com".';
-$lang['Ispapi.tab_nameservers.field_ns'] = 'Name Server %1$s'; // %1$s is the name server number
-$lang['Ispapi.tab_nameservers.field_submit'] = 'Update Name Servers';
+$lang['Ispapi.tab_nameservers.title'] = 'Nameservers';
+$lang['Ispapi.tab_nameservers.desc'] = 'We allow up to 5 possible nameservers, although only 2 are required. It is important that you do not enter the IP address of the name server, but instead enter the actual name server name. Name servers are typically formatted like "NS1.host.com".';
+$lang['Ispapi.tab_nameservers.field_ns'] = 'Nameserver %1$s'; // %1$s is the name server number
+$lang['Ispapi.tab_nameservers.field_submit'] = 'Update Nameservers';
 
-$lang['Ispapi.tab_hosts.title'] = 'Register Nameservers';
-$lang['Ispapi.tab_hosts.desc'] = 'If you are already familiar with setting up custom name servers and understand how DNS works, you can create custom name servers and assign it to your domain.';
-$lang['Ispapi.tab_hosts.field_host'] = 'Host %1$s'; // %1$s is the host number
-$lang['Ispapi.tab_hosts.field_ip'] = 'IP Address(es)';
-$lang['Ispapi.tab_hosts.field_hostname'] = 'Host';
-$lang['Ispapi.tab_hosts.field_submit'] = 'Update All Hosts';
-$lang['Ispapi.tab_client_hosts.help_text'] = 'On this page you can add your own custom name servers (sometimes referred to as "glue records") to associate with your domains.  To remove a host record blank all IP fields associated with it before clicking update.  You can not delete any host records which have domains actively using it as a nameserver.';
+$lang['Ispapi.tab_private_nameservers.title'] = 'Nameserver Hosts';
+$lang['Ispapi.tab_private_nameservers.desc'] = 'If you are already familiar with setting up custom name servers and understand how DNS works, you can create custom name servers and assign it to your domain.';
+$lang['Ispapi.tab_private_nameservers.field_host'] = 'Hostname %1$s'; // %1$s is the host number
+$lang['Ispapi.tab_private_nameservers.field_ip'] = 'IP Address(es)';
+$lang['Ispapi.tab_private_nameservers.field_hostname'] = 'Hostname';
+$lang['Ispapi.tab_private_nameservers.field_submit'] = 'Add New';
+$lang['Ispapi.tab_private_nameservers.actions'] = 'Actions';
+$lang['Ispapi.tab_private_nameservers.help_text'] = 'On this page you can add your own custom name servers (sometimes referred to as "glue records") to associate with your domains.  To remove a host record blank all IP fields associated with it before clicking update.  You can not delete any host records which have domains actively using it as a nameserver.';
 
 $lang['Ispapi.tab_dnssec.title'] = 'DNSSEC';
 $lang['Ispapi.tab_dnssec.title_list'] = 'Current DS (DNSSEC) Records';
@@ -144,6 +145,7 @@ $lang['Ispapi.tab_dnsrecord.title_add'] = 'Add a DNS Record';
 $lang['Ispapi.tab_dnsrecord.field_delete'] = 'Delete Record(s)';
 $lang['Ispapi.tab_dnsrecord.field_add'] = 'Add Record';
 $lang['Ispapi.tab_dnsrecord.help_text_1'] = 'On this page you can add or delete A, AAAA, CNAME, MX and TXT DNS records. Please be ware that it might take some few minutes for DNS records to propagate.';
+$lang['Ispapi.tab_dnsrecord.unsupported'] = 'Creation of DNS Zone for the requested domain failed. Please refresh this page again!';
 
 $lang['Ispapi.dnsrecord.record_type'] = 'Type';
 $lang['Ispapi.dnsrecord.host'] = 'Host';

@@ -41,25 +41,21 @@ class DomainManager extends Base
         ];
     }
 
-    public function create($params, $dnszone)
+    public function createDNSZone($domain)
     {
-        // $ispapi_module = new ();
-        $r = Ispapi::_call([
+        // Prepare the domain for DNS Zone Creation
+        $this->call([
+            "COMMAND" => "ModifyDomain",
+            "DOMAIN" => $domain,
+            "INTERNALDNS" => 1
+        ]);
+
+        // Create non hidden DNS Zone
+        return $this->call([
             "COMMAND" => "CreateDNSZone",
-            "DNSZONE" => $dnszone,
+            "DNSZONE" => "{$domain}.",
             "EXTERNAL" => 0
-        ], $params);
-        if ($r["CODE"] !== "200") {
-            return [
-                "success" => false,
-                "error" => "Creating non-hidden DNSZone failed. (" . $r["CODE"] . " " . $r["DESCRIPTION"] . ")",
-                "errorcode" => $r["CODE"]
-            ];
-        }
-        return [
-            "success" => true,
-            "data" => $r["PROPERTY"]
-        ];
+        ]);
     }
 
     public function getDNSZoneRRList($domain)
@@ -184,5 +180,22 @@ class DomainManager extends Base
         $command[$resourceType][] = "@ X-SMTP $source@ MAILFORWARD $destination";
 
         return $this->call($command);
+    }
+
+    public function registerNameserver($domain, $postData)
+    {
+        return $this->call([
+            "COMMAND" => "AddNameserver",
+            "NAMESERVER" => "{$postData['new_nameserver']}.{$domain}",
+            "IPADDRESS0" => $postData["new_nameserver_ip"]
+        ]);
+    }
+
+    public function deleteNameserver($nameserver)
+    {
+        return $this->call([
+            "COMMAND" => "DeleteNameserver",
+            "NAMESERVER" => "{$nameserver}"
+        ]);
     }
 }
