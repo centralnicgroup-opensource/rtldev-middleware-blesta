@@ -79,10 +79,36 @@ class DomainManager extends Base
 
     public function getDomainOptions($domain)
     {
-        return $this->call([
+        list($sld, $tld) = explode(".", $domain, 2);
+        $cache = Helper::hasCache("{$tld}_options");
+        if ($cache) {
+            $cache->cached = true;
+            return $cache;
+        }
+
+        $response = $this->call([
             "COMMAND" => "QueryDomainOptions",
             "DOMAIN0" => $domain
         ]);
+
+        $return = [];
+
+        if ($response["CODE"] === "200") {
+            $transferPeriods = empty($response["PROPERTY"]["ZONETRANSFERPERIODS"][0]) ? [] : preg_replace("/(^R|Y$)/", "", preg_grep("/^R?(\d+)Y$/", explode(",", $response["PROPERTY"]["ZONETRANSFERPERIODS"][0])));
+            $renewalPeriods = empty($response["PROPERTY"]["ZONERENEWALPERIODS"][0]) ? [] : preg_replace("/(^R|Y$)/", "", preg_grep("/^R?(\d+)Y$/", explode(",", $response["PROPERTY"]["ZONERENEWALPERIODS"][0])));
+
+            $return["renewal"]["periods"] = $renewalPeriods;
+            $return["renewal"]["defaultPeriod"] = $renewalPeriods[0] ?? -1;
+
+            $return["transfer"]["periods"] = $transferPeriods;
+            $return["transfer"]["defaultPeriod"] = $transferPeriods[0] ?? -1;
+            $return["transfer"]["isFree"] = in_array("0", $transferPeriods);
+
+            $return["addons"]["IDProtection"] = in_array("WHOISTRUSTEE", explode(" ", $response["PROPERTY"]["X-PROXY"][0]));
+            $return = Helper::setCache("{$tld}_options", $return);
+        }
+
+        return !empty($return) ? $return : $response;
     }
 
     public function addDNS($domain, $postData)

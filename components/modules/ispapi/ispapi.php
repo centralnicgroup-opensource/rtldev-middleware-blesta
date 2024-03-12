@@ -20,9 +20,8 @@ class Ispapi extends RegistrarModule
      */
     private static $defaultModuleView = "components" . DS . "modules" . DS . "ispapi" . DS;
 
-    private $base;
-
     private $domainManager;
+
     /**
      * Initializes the module
      */
@@ -311,24 +310,18 @@ class Ispapi extends RegistrarModule
                     //auto-detect default transfer period
                     //for example, es, no, nu tlds require period value as zero (free transfers).
                     //in Blesta the default value is based on the package settings for those TLDs created by user
-                    $r = $this->domainManager->call([
-                        "COMMAND" => "QueryDomainOptions",
-                        "DOMAIN0" => $vars["domain"],
-                    ]);
+                    $getDomainOptions = $this->domainManager->getDomainOptions($vars["domain"]);
+                    Helper::errorHandler($getDomainOptions);
 
-                    //TODO
-                    if ($r["CODE"] === "200") {
-                        $transferPeriods = empty($r["PROPERTY"]["ZONETRANSFERPERIODS"][0]) ? [] : preg_replace("/(^R|Y$)/", "", preg_grep("/^R?(\d+)Y$/", explode(",", $r["PROPERTY"]["ZONETRANSFERPERIODS"][0])));
-                        if (in_array($vars["NumYears"], $transferPeriods)) {
-                            $command["PERIOD"] = $vars["NumYears"];
-                        } elseif (in_array(0, $transferPeriods)) {
-                            $command["PERIOD"] = "0";
-                        } else {
-                            $this->Input->setErrors([
-                                "errors" => ["Domain Transfer Period is Invalid"],
-                            ]);
-                            return;
-                        }
+                    if (in_array($vars["NumYears"], $getDomainOptions->transfer->periods)) {
+                        $command["PERIOD"] = $vars["NumYears"];
+                    } elseif ($r["transfer"]->isFree) {
+                        $command["PERIOD"] = "0";
+                    } else {
+                        $this->Input->setErrors([
+                            "errors" => ["Domain Transfer Period is Invalid"]
+                        ]);
+                        return;
                     }
 
                     //do not send contact information for gTLD (Including nTLDs)
@@ -1210,26 +1203,20 @@ class Ispapi extends RegistrarModule
         Base::getIspapiInstance($this);
 
         // Supported renewal periods of TLD
-        $r = $this->domainManager->getDomainOptions($vars->domain);
-        if (!Helper::errorHandler($r)) {
-            return [];
-        }
+        $getDomainOptions = $this->domainManager->getDomainOptions($vars->domain);
+        Helper::errorHandler($getDomainOptions);
+
         // renewal periods
-        $renewalPeriods = explode(",", $r["PROPERTY"]["ZONERENEWALPERIODS"][0]);
+        $renewalPeriods = $getDomainOptions->renewal->periods;
         $renewalPeriodList = [];
-        foreach ($renewalPeriods as $year) {
-            // Check if the year string matches the pattern for renewal periods.
-            if (preg_match("/^R?(\d+)Y$/", $year, $matches)) {
-                // Extract the numerical part of the period e.g. 2Y -> 2.
-                $period = $matches[1];
+        foreach ($renewalPeriods as $period) {
+            // User friendly format for the renewal period based on the numerical value.
+            $formattedPeriod = $period <= 2 ? "{$period} year" : "{$period} years";
 
-                // User friendly format for the renewal period based on the numerical value.
-                $formattedPeriod = $period <= 2 ? "{$period} year" : "{$period} years";
-
-                // Formatted renewal period in the list for select field
-                $renewalPeriodList[$period] = $formattedPeriod;
-            }
+            // Formatted renewal period in the list for select field
+            $renewalPeriodList[$period] = $formattedPeriod;
         }
+
         // Create domain field and attach to domain label
         $domain->attach($fields->fieldSelect("renew", $renewalPeriodList, ["id" => "renew"]));
         $fields->setField($domain);

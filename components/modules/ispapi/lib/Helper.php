@@ -19,7 +19,7 @@ class Helper
 
     public static function errorHandler($response)
     {
-        if ($response["CODE"] !== "200") {
+        if (!isset($response->cached) && $response["CODE"] !== "200") {
             if (isset($response["error"])) {
                 Base::getIspapiInstance()->Input->setErrors([
                     "errors" => [$response["error"]],
@@ -118,7 +118,7 @@ class Helper
         ];
     }
 
-        /**
+    /**
      * Builds and returns the rules required to add/edit a module row
      *
      * @param array $vars An array of key/value data pairs
@@ -152,5 +152,63 @@ class Helper
                 ],
             ],
         ];
+    }
+
+    /**
+     * retrieve data from cache if available.
+     *
+     * @param string $keyName The key name for the cache.
+     * @return mixed|false The cached data or false if caching is disabled or an error occurs.
+     */
+    public static function hasCache(string $keyName)
+    {
+        // If cache is disabled or key name is empty, return false
+        if (!\Configure::get("Caching.on") || empty($keyName)) {
+            return false;
+        }
+
+        // Fetch the data from cache if available
+        $cache = \Cache::fetchCache(
+            $keyName,
+            \Configure::get("Blesta.company_id") . \DS . "modules" . \DS . "ispapi" . \DS
+        );
+
+        // If cache exists, return the cached data
+        if ($cache) {
+            return json_decode($cache);
+        }
+
+        return false;
+    }
+
+    /**
+     * Set cache data in the system.
+     *
+     * @param string $keyName The key name for the cache.
+     * @param array $cacheData The data to store in cache.
+     * @return bool True if the data was successfully cached, false otherwise.
+     */
+    public static function setCache(string $keyName, array $cacheData)
+    {
+        // If caching is disabled, key name is empty, or cache data is empty, return false
+        if (!\Configure::get("Caching.on") || empty($keyName) || empty($cacheData)) {
+            return false;
+        }
+
+        try {
+            // Write data to cache
+            \Cache::writeCache(
+                $keyName,
+                json_encode($cacheData),
+                strtotime("1 day") - time(),
+                \Configure::get("Blesta.company_id") . \DS . "modules" . \DS . "ispapi" . \DS
+            );
+        } catch (\Exception $e) {
+            // Write to cache failed, so disable caching
+            \Configure::set("Caching.on", false);
+            return false;
+        }
+
+        return self::hasCache($keyName);
     }
 }
