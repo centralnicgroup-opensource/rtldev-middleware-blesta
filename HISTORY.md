@@ -1,3 +1,10 @@
+## [3.5.1](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.5.0...v3.5.1) (2024-03-12)
+
+
+### Performance Improvements
+
+* **hexonet registrar module:** caching tld periods and addons data to improve performance ([2deafde](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/commit/2deafde38cbc64d489c706c6a197d5fa1c9301bc))
+
 # [3.5.0](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.4.1...v3.5.0) (2024-03-11)
 
 
