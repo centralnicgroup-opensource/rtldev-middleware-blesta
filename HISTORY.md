@@ -1,3 +1,10 @@
+# [3.6.0](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.5.1...v3.6.0) (2024-03-18)
+
+
+### Features
+
+* **hexonet registrar module:** Implemented DNSSEC feature integration along with additional module configuration. ([a88aa1d](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/commit/a88aa1dcc80aaade77ca98e8c56b73c6b07329f9))
+
 ## [3.5.1](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.5.0...v3.5.1) (2024-03-12)
 
 
