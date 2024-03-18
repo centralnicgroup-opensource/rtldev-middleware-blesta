@@ -17,6 +17,7 @@ $lang['Ispapi.manage.module_rows_title'] = 'Accounts';
 $lang['Ispapi.manage.module_rows_heading.user'] = 'User';
 $lang['Ispapi.manage.module_rows_heading.key'] = 'Password';
 $lang['Ispapi.manage.module_rows_heading.sandbox'] = 'Sandbox / OT&E';
+$lang['Ispapi.manage.module_rows_heading.dnssec'] = 'DNSSEC Management';
 $lang['Ispapi.manage.module_rows_heading.options'] = 'Options';
 $lang['Ispapi.manage.module_rows.edit'] = 'Edit';
 $lang['Ispapi.manage.module_rows.delete'] = 'Delete';
@@ -27,8 +28,10 @@ $lang['Ispapi.manage.module_rows_no_results'] = 'There are no accounts.';
 $lang['Ispapi.row_meta.user'] = 'User';
 $lang['Ispapi.row_meta.key'] = 'Password';
 $lang['Ispapi.row_meta.sandbox'] = 'Sandbox';
-$lang['Ispapi.row_meta.sandbox_true'] = 'Yes';
-$lang['Ispapi.row_meta.sandbox_false'] = 'No';
+$lang['Ispapi.row_meta.dnssec'] = 'DNSSEC Management';
+$lang['Ispapi.row_meta.true'] = 'Yes';
+$lang['Ispapi.row_meta.false'] = 'No';
+
 
 // Add row
 $lang['Ispapi.add_row.box_title'] = 'Add Ispapi Account';
@@ -124,19 +127,26 @@ $lang['Ispapi.tab_private_nameservers.actions'] = 'Actions';
 $lang['Ispapi.tab_private_nameservers.help_text'] = 'On this page you can add your own custom name servers (sometimes referred to as "glue records") to associate with your domains.  To remove a host record blank all IP fields associated with it before clicking update.  You can not delete any host records which have domains actively using it as a nameserver.';
 
 $lang['Ispapi.tab_dnssec.title'] = 'DNSSEC';
-$lang['Ispapi.tab_dnssec.title_list'] = 'Current DS (DNSSEC) Records';
-$lang['Ispapi.tab_dnssec.title_add'] = 'Add DS (DNSSEC) Record';
-$lang['Ispapi.tab_dnssec.field_delete'] = 'Delete Record(s)';
+$lang['Ispapi.tab_dnssec.ds_title_list'] = 'Current DS (DNSSEC) Records';
+$lang['Ispapi.tab_dnssec.key_title_list'] = 'Current Key (DNSSEC) Records';
+$lang['Ispapi.tab_dnssec.ds_title_add'] = 'Add DS (DNSSEC) Record';
+$lang['Ispapi.tab_dnssec.key_title_add'] = 'Add Key (DNSSEC) Record';
 $lang['Ispapi.tab_dnssec.field_add'] = 'Add Record';
+$lang['Ispapi.tab_dnssec.field_actions'] = 'Actions';
 $lang['Ispapi.tab_dnssec.field_delete'] = 'Delete';
 $lang['Ispapi.tab_dnssec.title_disclaimer'] = 'Disclaimer';
-$lang['Ispapi.tab_dnssec.warning_message1'] = 'You can use this page to manage the DS records for your domain. You should only use this page if you are comfortable with DS records and DNSSEC.';
-$lang['Ispapi.tab_dnssec.warning_message2'] = 'When you manage DS records, <strong>the domain will stop resolving correctly</strong> if your nameservers are not configured correctly with the associated DNSSEC resource records.';
+$lang['Ispapi.tab_dnssec.warning_message1'] = 'You can use this page to manage the DS/Key records for your domain. You should only use this page if you are comfortable with DS/Key records and DNSSEC.';
+$lang['Ispapi.tab_dnssec.warning_message2'] = 'When you manage DS/Key records, <strong>the domain will stop resolving correctly</strong> if your nameservers are not configured correctly with the associated DNSSEC resource records.';
 
 $lang['Ispapi.dnssec.algorithm'] = 'Algorithm';
 $lang['Ispapi.dnssec.digest_type'] = 'Digest Type';
 $lang['Ispapi.dnssec.digest'] = 'Digest';
+$lang['Ispapi.dnssec.flags'] = 'Flags';
 $lang['Ispapi.dnssec.key_tag'] = 'Key Tag';
+$lang['Ispapi.dnssec.public_key'] = 'Public Key';
+$lang['Ispapi.dnssec.protocol'] = 'Protocol';
+$lang['Ispapi.dnssec.nodata'] = 'No Records found!';
+$lang['Ispapi.dnssec.unsupported'] = 'DNSSEC is not supported for this domain.';
 
 // DNS management
 $lang['Ispapi.tab_dnsrecord.title'] = 'DNS Management';

@@ -4,15 +4,15 @@ namespace HEXONET\MODULE\LIB;
 
 class Base
 {
-    private static $ispapiInstance;
+    private static $moduleInstance;
     private static $module;
 
-    public static function getIspapiInstance($instance = null)
+    public static function moduleInstance($instance = null)
     {
-        if (self::$ispapiInstance && !$instance) {
-            return self::$ispapiInstance;
+        if (self::$moduleInstance && !$instance) {
+            return self::$moduleInstance;
         }
-        return self::$ispapiInstance = $instance;
+        return self::$moduleInstance = $instance;
     }
 
     public static function setModule(\stdClass $module)
@@ -27,7 +27,7 @@ class Base
 
     public function call(array $command, string $successCase = "/^200$/")
     {
-        if (self::$module === null || self::$ispapiInstance === null) {
+        if (self::$module === null || self::$moduleInstance === null) {
             throw new \Exception("Row is not set. Please set row before making the call.");
         }
 
@@ -40,8 +40,8 @@ class Base
 
         $cl->setCredentials(self::$module->meta->user, self::$module->meta->key)
             ->setReferer($_SERVER["HTTP_HOST"])
-            ->setUserAgent("Blesta", BLESTA_VERSION, [
-                "ispapi/" . self::$ispapiInstance->getVersion(),
+            ->setUserAgent("Blesta", \BLESTA_VERSION, [
+                "ispapi/" . self::$moduleInstance->getVersion(),
             ])
             ->enableDebugMode() // activate logging
             ->setCustomLogger(new \BlestaLogger(
