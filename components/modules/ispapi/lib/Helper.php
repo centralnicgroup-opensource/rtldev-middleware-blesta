@@ -4,6 +4,8 @@ namespace HEXONET\MODULE\LIB;
 
 use HEXONET\MODULE\LIB\Base;
 
+define("CNIC_TLD_CACHE", "1 day");
+
 class Helper
 {
     public static function getResourceRecord($data)
@@ -21,11 +23,11 @@ class Helper
     {
         if (!isset($response->cached) && $response["CODE"] !== "200") {
             if (isset($response["error"])) {
-                Base::getIspapiInstance()->Input->setErrors([
+                Base::moduleInstance()->Input->setErrors([
                     "errors" => [$response["error"]],
                 ]);
             } else {
-                Base::getIspapiInstance()->Input->setErrors([
+                Base::moduleInstance()->Input->setErrors([
                     "errors" => ["Oops something went wrong!"],
                 ]);
             }
@@ -124,9 +126,9 @@ class Helper
      * @param array $vars An array of key/value data pairs
      * @return array An array of Input rules suitable for Input::setRules()
      */
-    public static function getRowRules(&$vars)
+    public static function getRowRules(&$vars, $module_row_id)
     {
-        $instance = Base::getIspapiInstance();
+        $instance = Base::moduleInstance();
         return [
             "user" => [
                 "valid" => [
@@ -147,6 +149,8 @@ class Helper
                         [$instance, "validateConnection"],
                         $vars["user"],
                         isset($vars["sandbox"]) ? $vars["sandbox"] : "false",
+                        isset($vars["dnssec"]) ? $vars["dnssec"] : "false",
+                        $module_row_id
                     ],
                     "message" => \Language::_("Ispapi.!error.key.valid_connection", true),
                 ],
@@ -200,7 +204,7 @@ class Helper
             \Cache::writeCache(
                 $keyName,
                 json_encode($cacheData),
-                strtotime("1 day") - time(),
+                strtotime(CNIC_TLD_CACHE) - time(),
                 \Configure::get("Blesta.company_id") . \DS . "modules" . \DS . "ispapi" . \DS
             );
         } catch (\Exception $e) {

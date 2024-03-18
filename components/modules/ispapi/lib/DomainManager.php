@@ -111,6 +111,14 @@ class DomainManager extends Base
         return !empty($return) ? $return : $response;
     }
 
+    public function getDomainRepositoryInfo($domain)
+    {
+        return $this->call([
+            "COMMAND" => "QueryDomainRepositoryInfo",
+            "DOMAIN" => $domain
+        ]);
+    }
+
     public function addDNS($domain, $postData)
     {
         $record = Helper::getResourceRecord($postData);
@@ -223,5 +231,34 @@ class DomainManager extends Base
             "COMMAND" => "DeleteNameserver",
             "NAMESERVER" => "{$nameserver}"
         ]);
+    }
+
+    public function addDnssecRecord($domain, $postData, $type = "DS")
+    {
+        $command = [
+            "COMMAND" => "ModifyDomain",
+            "DOMAIN" => $domain
+        ];
+        if ($type === "DS") {
+            $command["ADDSECDNS-DS0"] = $postData['key_tag'] . " " . $postData['algorithm'] . " " . $postData['digest_type'] . " " . $postData['digest'];
+        } else {
+            $command["ADDSECDNS-KEY0"] = $postData['flags'] . " " . $postData['protocol'] . " " . $postData['algorithm'] . " " . $postData['public_key'];
+        }
+        return $this->call($command);
+    }
+
+    public function deleteDnssecRecord($domain, $postData, $type = "DS")
+    {
+        $command = [
+            "COMMAND" => "ModifyDomain",
+            "DOMAIN" => $domain
+        ];
+
+        if ($type === "DS") {
+            $command["DELSECDNS-DS0"] = $postData['key_tag'] . " " . $postData['algorithm'] . " " . $postData['digest_type'] . " " . $postData['digest'];
+        } else {
+            $command["DELSECDNS-KEY0"] = $postData['flags'] . " " . $postData['protocol'] . " " . $postData['algorithm'] . " " . $postData['public_key'];
+        }
+        return $this->call($command);
     }
 }

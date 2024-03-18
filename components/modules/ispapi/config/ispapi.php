@@ -237,6 +237,44 @@ Configure::set('Ispapi.whois_fields', [
     ]
 ]);
 
+// DNSSEC
+Configure::set('Ispapi.dnssec', [
+    'flags' => [
+        'label' => Language::_('Ispapi.dnssec.flags', true),
+        'type' => 'select',
+        'options' => [
+            '' => Language::_('AppController.select.please', true),
+            '256' => 'Zone Signing Key (256)',
+            '257' => 'Key Signing Key (257)'
+        ]
+    ],
+    'digest_type' => [
+       'label' => Language::_('Ispapi.dnssec.digest_type', true),
+       'type' => 'select',
+       'options' => [
+           '' => Language::_('AppController.select.please', true),
+           '2' => 'SHA-256 (2)',
+           '3' => 'GOST R 34.11-94 (3)',
+           '4' => 'SHA-384 (4)'
+       ]
+    ],
+    'algorithm' => [
+        'label' => Language::_('Ispapi.dnssec.algorithm', true),
+        'type' => 'select',
+        'options' => [
+            '' => Language::_('AppController.select.please', true),
+            '8' => 'RSA/SHA-256 (8)',
+            '10' => 'RSA/SHA-512 (10)',
+            '12' => 'ECC-GOST (12)',
+            '13' => 'ECDSA Curve P-256 with SHA-256 (13)',
+            '14' => 'ECDSA Curve P-384 with SHA-384 (14)',
+            '15' => 'Ed25519 (15)',
+            '16' => 'Ed448 (16)'
+        ]
+    ],
+]);
+
+// Additional domain fields
 
 // .US
 Configure::set('Ispapi.domain_fields.us', [

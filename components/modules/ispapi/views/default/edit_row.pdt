@@ -29,6 +29,12 @@
                         $this->Form->label($this->_('Ispapi.row_meta.sandbox', true), 'sandbox', ['class' => 'inline']);
                         ?>
                     </li>
+                    <li>
+                        <?php
+                        $this->Form->fieldCheckbox('dnssec', 'true', $this->Html->ifSet($vars->dnssec) == 'true', ['id' => 'dnssec']);
+                        $this->Form->label($this->_('Ispapi.row_meta.dnssec', true), 'dnssec', ['class' => 'inline']);
+                        ?>
+                    </li>
                 </ul>
             </div>
 

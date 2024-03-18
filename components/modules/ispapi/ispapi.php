@@ -66,19 +66,6 @@ class Ispapi extends RegistrarModule
     }
 
     /**
-     * Attempts to log the given info to the module log.
-     * (Make native Log function public allowing us to forward it to our BlestaLogger)
-     * @param string $url The URL contacted for this request
-     * @param string $data A string of module data sent along with the request (optional)
-     * @param string $direction The direction of the log entry (input or output, default input)
-     * @param bool $success True if the request was successful, false otherwise
-     */
-    public function log($url, $data = null, $direction = "input", $success = false)
-    {
-        parent::log($url, $data, $direction, $success);
-    }
-
-    /**
      * Attempts to validate service info. This is the top-level error checking method. Sets Input errors on failure.
      *
      * @param stdClass $package A stdClass object representing the selected package
@@ -145,7 +132,7 @@ class Ispapi extends RegistrarModule
 
         $row = $this->getModuleRow($package->module_row);
         Base::setModule($row);
-        Base::getIspapiInstance($this);
+        Base::moduleInstance($this);
 
         if (isset($vars["use_module"]) && $vars["use_module"] == "true") {
             if ($package->meta->type === "domain") {
@@ -488,7 +475,7 @@ class Ispapi extends RegistrarModule
         if ($package->meta->type === "domain") {
             $row = $this->getModuleRow($package->module_row);
             Base::setModule($row);
-            Base::getIspapiInstance($this);
+            Base::moduleInstance($this);
             $fields = $this->serviceFieldsToObject($service->fields);
 
             $this->domainManager->call([
@@ -533,7 +520,7 @@ class Ispapi extends RegistrarModule
         // Credentials to API
         $row = $this->getModuleRow($package->module_row);
         Base::setModule($row);
-        Base::getIspapiInstance($this);
+        Base::moduleInstance($this);
         $fields = $this->serviceFieldsToObject($service->fields);
 
         $vars = [
@@ -722,6 +709,11 @@ class Ispapi extends RegistrarModule
             $vars["sandbox"] = "false";
         }
 
+        // Set unspecified checkboxes
+        if (!empty($vars) && empty($vars["dnssec"])) {
+            $vars["dnssec"] = "false";
+        }
+
         $this->view->set("vars", (object) $vars);
 
         return $this->view->fetch();
@@ -751,6 +743,9 @@ class Ispapi extends RegistrarModule
         } elseif (empty($vars["sandbox"])) {
             // Set unspecified checkboxes
             $vars["sandbox"] = "false";
+        } elseif (empty($vars["dnssec"])) {
+            // Set unspecified checkboxes
+            $vars["dnssec"] = "false";
         }
 
         $this->view->set("vars", (object) $vars);
@@ -767,13 +762,14 @@ class Ispapi extends RegistrarModule
      *  - value The value for this key
      *  - encrypted Whether or not this field should be encrypted (default 0, not encrypted)
      */
-    public function addModuleRow(array &$vars)
+    public function addModuleRow(array &$vars, $module_row_id = null)
     {
         // TODO maybe syncing services
         $meta_fields = [
             "user" => 0,
             "key" => 1,
-            "sandbox" => 0
+            "sandbox" => 0,
+            "dnssec" => 0
         ]; //TODO maybe extending this
 
         // Set unspecified checkboxes
@@ -781,7 +777,13 @@ class Ispapi extends RegistrarModule
             $vars["sandbox"] = "false";
         }
 
-        $this->Input->setRules(Helper::getRowRules($vars));
+        // Set unspecified checkboxes
+        if (empty($vars["dnssec"])) {
+            $vars["dnssec"] = "false";
+        }
+
+        Base::moduleInstance($this);
+        $this->Input->setRules(Helper::getRowRules($vars, $module_row_id));
 
         // Validate module row
         if ($this->Input->validates($vars)) {
@@ -814,8 +816,7 @@ class Ispapi extends RegistrarModule
      */
     public function editModuleRow($module_row, array &$vars)
     {
-        // Same as adding
-        return $this->addModuleRow($vars);
+        return $this->addModuleRow($vars, $module_row->module_id ?? null);
     }
 
     /**
@@ -1200,7 +1201,7 @@ class Ispapi extends RegistrarModule
         // Create domain label
         $domain = $fields->label(Language::_("Ispapi.manage.manual_renewal", true), "renew");
         Base::setModule($this->getModuleRow($package->module_row));
-        Base::getIspapiInstance($this);
+        Base::moduleInstance($this);
 
         // Supported renewal periods of TLD
         $getDomainOptions = $this->domainManager->getDomainOptions($vars->domain);
@@ -1362,6 +1363,10 @@ class Ispapi extends RegistrarModule
                     'name' => Language::_('Ispapi.tab_dnsrecord.title', true),
                     'icon' => 'fas fa-sitemap'
                 ],
+                'tabClientDnssec' => [
+                    'name' => Language::_('Ispapi.tab_dnssec.title', true),
+                    'icon' => 'fas fa-globe-americas'
+                ],
                 'tabClientSettings' => [
                     'name' => Language::_('Ispapi.tab_settings.title', true),
                     'icon' => 'fas fa-cog'
@@ -1370,12 +1375,17 @@ class Ispapi extends RegistrarModule
 
             // Check if DNS Management is enabled
             if (!$this->featureServiceEnabled('dns_management', $service)) {
-                unset($tabs['tabClientDnssec'], $tabs['tabClientDnsRecords']);
+                unset($tabs['tabClientDnsRecords']);
             }
 
             // Check if Email Forwarding is enabled
             if (!$this->featureServiceEnabled('email_forwarding', $service)) {
                 unset($tabs['tabClientEmailForwarding']);
+            }
+
+            // Check if DNSSEC is enabled
+            if (!$this->featureServiceEnabled('dnssec', $service)) {
+                unset($tabs['tabClientDnssec']);
             }
 
             return $tabs;
@@ -1397,6 +1407,20 @@ class Ispapi extends RegistrarModule
         return $this->manageDnsRecords('tab_client_dnsrecords', $package, $service, $get, $post, $files);
     }
 
+    /**
+     * Client DNS Sec tab
+     *
+     * @param stdClass $package A stdClass object representing the current package
+     * @param stdClass $service A stdClass object representing the current service
+     * @param array $get Any GET parameters
+     * @param array $post Any POST parameters
+     * @param array $files Any FILES parameters
+     * @return string The string representing the contents of this tab
+     */
+    public function tabClientDnssec($package, $service, array $get = null, array $post = null, array $files = null)
+    {
+        return $this->manageDnssec('tab_client_dnssec', $package, $service, $get, $post, $files);
+    }
 
     /**
      * Client Hosts tab
@@ -1456,6 +1480,22 @@ class Ispapi extends RegistrarModule
     public function tabPrivateNameservers($package, $service, array $get = null, array $post = null, array $files = null)
     {
         return $this->managePrivateNameservers('tab_private_nameservers', $package, $service, $get, $post, $files);
+    }
+
+
+    /**
+     * Admin DNSSEC tab
+     *
+     * @param stdClass $package A stdClass object representing the current package
+     * @param stdClass $service A stdClass object representing the current service
+     * @param array $get Any GET parameters
+     * @param array $post Any POST parameters
+     * @param array $files Any FILES parameters
+     * @return string The string representing the contents of this tab
+     */
+    public function tabDnssec($package, $service, array $get = null, array $post = null, array $files = null)
+    {
+        return $this->manageDnssec('tab_dnssec', $package, $service, $get, $post, $files);
     }
 
     /**
@@ -1537,7 +1577,7 @@ class Ispapi extends RegistrarModule
 
         $row = $this->getModuleRow($package->module_row);
         Base::setModule($row);
-        Base::getIspapiInstance($this);
+        Base::moduleInstance($this);
 
         $vars = new stdClass();
 
@@ -1664,7 +1704,7 @@ class Ispapi extends RegistrarModule
         Loader::loadHelpers($this, ["Form", "Html"]);
 
         Base::setModule($this->getModuleRow($package->module_row));
-        Base::getIspapiInstance($this);
+        Base::moduleInstance($this);
         $fields = $this->serviceFieldsToObject($service->fields);
 
         if (!empty($post)) {
@@ -1710,7 +1750,7 @@ class Ispapi extends RegistrarModule
     public function setDomainNameservers($domain, $module_row_id = null, array $nameservers = [])
     {
         Base::setModule($this->getModuleRow($module_row_id));
-        Base::getIspapiInstance($this);
+        Base::moduleInstance($this);
 
         if (!empty($nameservers)) {
             // Modify and save nameservers
@@ -1743,7 +1783,7 @@ class Ispapi extends RegistrarModule
     public function getDomainNameServers($domain, $module_row_id = null)
     {
         Base::setModule($this->getModuleRow($module_row_id));
-        Base::getIspapiInstance($this);
+        Base::moduleInstance($this);
         // Get nameservers
         $r = $this->domainManager->getDomainStatus($domain);
         if (!Helper::errorHandler($r)) {
@@ -1800,7 +1840,7 @@ class Ispapi extends RegistrarModule
         $vars = new stdClass();
 
         Base::setModule($this->getModuleRow($package->module_row));
-        Base::getIspapiInstance($this);
+        Base::moduleInstance($this);
 
         $fields = $this->serviceFieldsToObject($service->fields);
 
@@ -1924,7 +1964,7 @@ class Ispapi extends RegistrarModule
     {
         $row = $this->getModuleRow($module_row_id);
         Base::setModule($row);
-        Base::getIspapiInstance($this);
+        Base::moduleInstance($this);
 
         $r = $this->domainManager->call([
             "COMMAND" => "CheckDomains",
@@ -1987,7 +2027,7 @@ class Ispapi extends RegistrarModule
         $domain = $this->getServiceDomain($service);
 
         Base::setModule($this->getModuleRow($service->module_row_id ?? null));
-        Base::getIspapiInstance($this);
+        Base::moduleInstance($this);
 
         $r = $this->domainManager->call([
             "COMMAND" => "StatusDomain",
@@ -2048,7 +2088,7 @@ class Ispapi extends RegistrarModule
         }
 
         Base::setModule($row);
-        Base::getIspapiInstance($this);
+        Base::moduleInstance($this);
         // Fetch the TLDs results from the cache, if they exist
         $cache = Cache::fetchCache(
             "tlds",
@@ -2165,14 +2205,15 @@ class Ispapi extends RegistrarModule
                 "tabWhois" => Language::_("Ispapi.tab_whois.title", true),
                 "tabEmailForwarding" => Language::_("Ispapi.tab_email_forwarding", true),
                 "tabNameservers" => Language::_("Ispapi.tab_nameservers.title", true),
-                "tabDnsRecords" => Language::_("Ispapi.tab_dnsrecord.title", true),
                 "tabPrivateNameservers" => Language::_("Ispapi.tab_private_nameservers.title", true),
+                "tabDnsRecords" => Language::_("Ispapi.tab_dnsrecord.title", true),
+                'tabDnssec' => Language::_('Ispapi.tab_dnssec.title', true),
                 "tabSettings" => Language::_("Ispapi.tab_settings.title", true),
             ];
 
             // Check if DNS Management is enabled
             if (!$this->featureServiceEnabled("dns_management", $service)) {
-                unset($tabs["tabDnssec"], $tabs["tabDnsRecords"]);
+                unset($tabs["tabDnsRecords"]);
             }
 
             // Check if Email Forwarding is enabled
@@ -2180,6 +2221,10 @@ class Ispapi extends RegistrarModule
                 unset($tabs["tabEmailForwarding"]);
             }
 
+            // Check if DNSSEC is enabled
+            if (!$this->featureServiceEnabled("dnssec", $service)) {
+                unset($tabs["tabDnssec"]);
+            }
             return $tabs;
         }
     }
@@ -2257,7 +2302,7 @@ class Ispapi extends RegistrarModule
 
         $this->view = new View($view, 'default');
         Base::setModule($this->getModuleRow($package->module_row));
-        Base::getIspapiInstance($this);
+        Base::moduleInstance($this);
 
         // Load the helpers required for this view
         Loader::loadHelpers($this, ['Form', 'Html']);
@@ -2312,6 +2357,13 @@ class Ispapi extends RegistrarModule
      */
     private function featureServiceEnabled($feature, $service)
     {
+        if ($feature === "dnssec") {
+            $row = $this->getModuleRow($service->module_row_id);
+            if ($row->meta->dnssec === 'true') {
+                return true;
+            }
+        }
+
         // Get service option groups
         foreach ($service->options as $option) {
             if ($option->option_name == $feature) {
@@ -2332,6 +2384,113 @@ class Ispapi extends RegistrarModule
     private function checkDomainStatus($service, $package)
     {
         // hello
+    }
+
+
+    /**
+     * Handle updating host information
+     *
+     * @param string $view The name of the view to fetch
+     * @param stdClass $package An stdClass object representing the package
+     * @param stdClass $service An stdClass object representing the service
+     * @param array $get Any GET arguments (optional)
+     * @param array $post Any POST arguments (optional)
+     * @param array $files Any FILES data (optional)
+     * @return string The rendered view
+     */
+    private function manageDnssec($view, $package, $service, array $get = null, array $post = null, array $files = null)
+    {
+        $vars = new stdClass();
+
+        // if the domain is pending transfer display a notice of such
+        $checkDomainStatus = $this->checkDomainStatus($service, $package);
+        if (isset($checkDomainStatus)) {
+            return $checkDomainStatus;
+        }
+
+        $this->view = new View($view, 'default');
+        $this->view->base_uri = $this->base_uri;
+        // Load the helpers required for this view
+        Loader::loadHelpers($this, ['Form', 'Html']);
+        $fields = $this->serviceFieldsToObject($service->fields);
+
+        Base::setModule($this->getModuleRow($package->module_row));
+        Base::moduleInstance($this);
+
+        if (!empty($post)) {
+            $action = $post['action'] ?? false;
+            if ($action) {
+                switch ($action) {
+                    case 'addDsDnssec':
+                        $response = $this->domainManager->addDnssecRecord($fields->domain, $post);
+                        break;
+                    case 'deleteDsDnssec':
+                        $response = $this->domainManager->deleteDnssecRecord($fields->domain, $post);
+                        break;
+                    case 'addKeyDnssec':
+                        $response = $this->domainManager->addDnssecRecord($fields->domain, $post, "KEY");
+                        break;
+                    case 'deleteKeyDnssec':
+                        $response = $this->domainManager->deleteDnssecRecord($fields->domain, $post, "KEY");
+                        break;
+                }
+                Helper::errorHandler($response);
+            }
+        }
+
+        $domainRepoInfo = $this->domainManager->getDomainRepositoryInfo($fields->domain);
+        Helper::errorHandler($domainRepoInfo);
+
+        $supports_ds_data = isset($domainRepoInfo["PROPERTY"]["ZONESECDNSINTERFACE"][0]) && $domainRepoInfo["PROPERTY"]["ZONESECDNSINTERFACE"][0] === "DS";
+
+        $secdnsds_formatted = [];
+        $secdnskey_formatted = [];
+        if ($supports_ds_data) {
+            $response = $this->domainManager->getDomainStatus($fields->domain);
+            Helper::errorHandler($response);
+
+            if ($response["CODE"] === "200") {
+                $secdnsds = (isset($response["PROPERTY"]["SECDNS-DS"])) ? $response["PROPERTY"]["SECDNS-DS"] : [];
+                //delete empty KEY records, if cb fn not provided, array_filter will remove empty entries
+                $secdnskey = (isset($response["PROPERTY"]["SECDNS-KEY"])) ? array_values(array_filter($response["PROPERTY"]["SECDNS-KEY"])) : [];
+
+                //split in different fields
+                foreach ($secdnskey as $key) {
+                    list($flags, $protocol, $algorithm, $public_key) = preg_split("/\s+/", $key);
+                    $secdnskey_formatted[] = [
+                        "flags" => $flags,
+                        "protocol" => $protocol,
+                        "algorithm" => $algorithm,
+                        "public_key" => $public_key
+                    ];
+                }
+
+                //split in different fields
+                foreach ($secdnsds as $ds) {
+                    list($keytag, $alg, $digesttype, $digest) = preg_split("/\s+/", $ds);
+                    $secdnsds_formatted[] = [
+                        "key_tag" => $keytag,
+                        "algorithm" => $alg,
+                        "digest_type" => $digesttype,
+                        "digest" => $digest
+                    ];
+                }
+            }
+        }
+
+        $vars->selects = Configure::get('Ispapi.dnssec');
+        $vars->ds_records = $secdnsds_formatted;
+        $vars->key_records = $secdnskey_formatted;
+
+        $this->view->set('vars', $vars);
+        $this->view->set('client_id', $service->client_id);
+        $this->view->set('service_id', $service->id);
+        $this->view->set('domain', $fields->domain);
+        $this->view->set('supports_ds_data', $supports_ds_data);
+        $this->view->set('supports_key_data', !$supports_ds_data);
+        $this->view->setDefaultView(self::$defaultModuleView);
+
+        return $this->view->fetch();
     }
 
     /**
@@ -2355,7 +2514,7 @@ class Ispapi extends RegistrarModule
     ) {
         $vars = new stdClass();
         Base::setModule($this->getModuleRow($package->module_row));
-        Base::getIspapiInstance($this);
+        Base::moduleInstance($this);
         // if the domain is pending transfer display a notice of such
         $checkDomainStatus = $this->checkDomainStatus($service, $package);
         if (isset($checkDomainStatus)) {
@@ -2439,7 +2598,7 @@ class Ispapi extends RegistrarModule
         Loader::loadHelpers($this, ['Form', 'Html']);
 
         Base::setModule($this->getModuleRow($package->module_row));
-        Base::getIspapiInstance($this);
+        Base::moduleInstance($this);
 
         $fields = $this->serviceFieldsToObject($service->fields);
 
@@ -2488,27 +2647,27 @@ class Ispapi extends RegistrarModule
      * @param string $sandbox "true" if this is a sandbox account, false otherwise
      * @return bool True if the connection details are valid, false otherwise
      */
-    public function validateConnection($key, $user, $sandbox)
+    public function validateConnection($key, $user, $sandbox, $dnssec, $module_row_id)
     {
         $row = json_decode(json_encode([
+            "module_id" => $module_row_id ?? null,
             "meta" => [
                 "user" => $user,
                 "key" => $key,
                 "sandbox" => $sandbox,
+                "dnssec" => $dnssec,
             ],
         ]));
 
         Base::setModule($row);
-        Base::getIspapiInstance($this);
+        Base::moduleInstance($this);
         $r = $this->domainManager->call([
             "COMMAND" => "CheckAuthentication",
             "SUBUSER" => $user,
-            "PASSWORD" => $key,
+            "PASSWORD" => $key
         ]);
 
-        if ($r["CODE"] !== "200") {
-            return null;
-        }
+        Helper::errorHandler($r);
         // Workarround to call that only 1 time.
         static $included = false;
 
