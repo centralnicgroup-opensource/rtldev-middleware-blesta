@@ -79,6 +79,3 @@ function doZip(callback) {
 exports.copy = series(doComposerUpdate, doDistClean, doCopyFiles);
 
 exports.release = series(exports.copy, doZip, doFullClean);
-
-// publish release notifications on Teams channel
-exports.publishNotification = require('rtldev-middleware-gulp-release-notification-plugin');
