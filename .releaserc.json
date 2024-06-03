@@ -63,6 +63,18 @@
                     "blesta-ispapi-registrar-latest.zip"
                 ]
             }
+        ],
+        "semantic-release-teams-notify-plugin",
+        [
+            "@semantic-release/github",
+            {
+                "assets": [
+                    {
+                        "label": "Blesta Module (zip)",
+                        "path": "pkg/blesta-ispapi-registrar.zip"
+                    }
+                ]
+            }
         ]
     ]
 }
