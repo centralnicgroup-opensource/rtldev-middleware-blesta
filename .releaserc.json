@@ -1,4 +1,8 @@
 {
+    "ci": false,
+    "branch": [
+        "master"
+    ],
     "plugins": [
         "@semantic-release/commit-analyzer",
         "@semantic-release/release-notes-generator",
@@ -9,9 +13,42 @@
             }
         ],
         [
-            "@semantic-release/exec",
+            "semantic-release-replace-plugin",
             {
-                "prepareCmd": "./updateVersion.sh ${nextRelease.version} && gulp release"
+                "replacements": [
+                    {
+                        "files": [
+                            "./release.json"
+                        ],
+                        "from": "(19|20)\\d{2}[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12]\\d|3[01])",
+                        "to": "${(new Date()).toISOString().split('T')[0]}",
+                        "countMatches": true
+                    },
+                    {
+                        "files": [
+                            "./LICENSE"
+                        ],
+                        "from": "2018-(20[2-9][0-9]|20[0-9][0-9])",
+                        "to": "2018-${new Date().getFullYear()}",
+                        "countMatches": true
+                    },
+                    {
+                        "files": [
+                            "./release.json",
+                            "./components/modules/ispapi/config.json"
+                        ],
+                        "from": "\"\\d+\\.\\d+\\.\\d+\"",
+                        "to": "\"${nextRelease.version}\"",
+                        "results": [
+                            {
+                                "hasChanged": true,
+                                "numMatches": 2,
+                                "numReplacements": 5
+                            }
+                        ],
+                        "countMatches": true
+                    }
+                ]
             }
         ],
         [
@@ -24,18 +61,6 @@
                     "components/modules/ispapi/ispapi.php",
                     "release.json",
                     "blesta-ispapi-registrar-latest.zip"
-                ]
-            }
-        ],
-        "semantic-release-teams-notify-plugin",
-        [
-            "@semantic-release/github",
-            {
-                "assets": [
-                    {
-                        "label": "Blesta Module (zip)",
-                        "path": "pkg/blesta-ispapi-registrar.zip"
-                    }
                 ]
             }
         ]
