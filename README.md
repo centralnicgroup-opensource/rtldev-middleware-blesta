@@ -5,27 +5,42 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/hexonet/php-sdk/blob/master/CONTRIBUTING.md)
 
-This Repository covers the Blesta Registrar Module of HEXONET. It provides the following features in Blesta:
+This repository covers the Blesta Registrar Module by HEXONET. This module integrates seamlessly with Blesta, providing a comprehensive suite of features for efficient domain management and sales.
+
+## Features
+
+- **Automated TLD Identification**: Fully automates the identification and configuration of TLDs, streamlining setup and reducing manual input.
+- **Manual Renewals**: Allows manual renewal of domains directly from the Blesta admin panel, offering greater control and flexibility.
+- **Domain Transfers**: Facilitates domain transfers, including specific handling for TLDs requiring auth codes (e.g., .nz, .fi).
+- **Nameserver Management**: Simplifies nameserver management with easy-to-use interfaces and recent patches for improved stability.
+- **Expiry Date Management**: Ensures accurate management of domain expiry dates using the PHP Date format.
+- **Enhanced Security and Stability**: Regular updates and patches to enhance security and operational stability.
+- **DNS Management**: Comprehensive DNS management capabilities, including adding, updating, and deleting DNS records.
+- **Email Forwarding**: Supports configuration of email forwarding services for domains.
+- **ID Protection**: Offers options for domain ID protection, locking, and auth code retrieval.
+- **DNSSEC Support**: Integrates DNSSEC for enhanced domain security.
+- **Custom Nameservers**: Allows the setup and management of custom nameserver hosts.
 
 ## Resources
 
-Download the ZIP archive [here](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/raw/master/blesta-ispapi-registrar-latest.zip) and follow the Documentation.
+Download the latest version of the module from the link below and follow the detailed documentation for installation and usage instructions.
 
+- [Download ZIP Archive](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/raw/master/blesta-ispapi-registrar-latest.zip)
 - Documentation:
-  - [HEXONET](https://www.hexonet.support/hc/en-gb/articles/13652703424029-Blesta-Module-Installation-Upgrade)
+  - [Blesta Module Documentation](https://www.hexonet.support/hc/en-gb/sections/13652744879645-Blesta)
 - [Release Notes](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/releases)
 
 ## Authors
 
-- **Kai Schwarz** - _development_ - [KaiSchwarz-cnic](https://github.com/kaischwarz-cnic)
-- **Asif Nawaz** - _development_ - [AsifNawaz-cnic](https://github.com/asifnawaz-cnic)
+- **Kai Schwarz** - _Development_ - [KaiSchwarz-cnic](https://github.com/kaischwarz-cnic)
+- **Asif Nawaz** - _Development_ - [AsifNawaz-cnic](https://github.com/asifnawaz-cnic)
 
-Former Authors:
+### Former Authors
 
-- **Tulasi Seelamkurthi** - [tulsi91](//github.com/tulsi91)
+- **Tulasi Seelamkurthi** - [tulsi91](https://github.com/tulsi91)
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/blob/master/LICENSE) file for details.
 
-[HEXONET GmbH](https://hexonet.net)
+For more information, visit [HEXONET GmbH](https://hexonet.net).
