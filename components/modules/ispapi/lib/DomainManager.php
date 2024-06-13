@@ -17,7 +17,7 @@ class DomainManager extends Base
         }
         // DANGER! statusdnszone resolves for "hidden" dnszones
         // which are not visible to CP (QueryDNSZoneList command)
-        $r = Util::call([
+        $r = $this->call([
             "COMMAND" => "QueryDNSZoneList",
             "DNSZONE" => $dnszone
         ], $row);
