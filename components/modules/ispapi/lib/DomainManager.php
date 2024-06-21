@@ -77,6 +77,15 @@ class DomainManager extends Base
         ]);
     }
 
+    public function getDomainStatusCached($domain)
+    {
+        return $this->call([
+            "COMMAND" => "QueryDomainList",
+            "DOMAIN" => $domain,
+            "WIDE" => "1"
+        ]);
+    }
+
     public function getDomainOptions($domain)
     {
         list($sld, $tld) = explode(".", $domain, 2);
