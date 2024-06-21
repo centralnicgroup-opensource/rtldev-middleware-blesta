@@ -186,10 +186,10 @@ class Ispapi extends RegistrarModule
                     } elseif (strpos($key, "Country") !== false) {
                         $vars[$key] = $client->country;
                     } elseif (strpos($key, "Phone") !== false) {
-                        $vars[$key] = $this->formatPhone(
+                        $vars[$key] = isset($numbers[0]) ? $this->formatPhone(
                             isset($numbers[0]) ? $numbers[0]->number : null,
                             $client->country
-                        );
+                        ) : null;
                     } elseif (strpos($key, "EmailAddress") !== false) {
                         $vars[$key] = $client->email;
                     }
@@ -232,7 +232,7 @@ class Ispapi extends RegistrarModule
                         "DOMAIN" => $vars["domain"],
                         "AUTH" => $vars["transfer_key"],
                     ], "/^(200|218)$/");
-
+                    Helper::errorHandler($r);
                     // Handling api errors
                     if ($this->Input->errors()) {
                         return;
@@ -319,8 +319,8 @@ class Ispapi extends RegistrarModule
                         unset($command["BILLINGCONTACT0"]);
                     }
 
-                    $this->domainManager->call($command);
-
+                    $r = $this->domainManager->call($command);
+                    Helper::errorHandler($r);
                     // Handling api errors
                     if ($this->Input->errors()) {
                         return;
@@ -366,8 +366,8 @@ class Ispapi extends RegistrarModule
                     }
                 }
 
-                $this->domainManager->call($command);
-
+                $r = $this->domainManager->call($command);
+                Helper::errorHandler($r);
                 // Handle api errors
                 if ($this->Input->errors()) {
                     return;
@@ -473,16 +473,17 @@ class Ispapi extends RegistrarModule
     {
         // Set renewal mode to AUTOEXPIRE
         if ($package->meta->type === "domain") {
-            $row = $this->getModuleRow($package->module_row);
+            $row = $this->getModuleRow($service->module_row_id ?? $package->module_row);
             Base::setModule($row);
             Base::moduleInstance($this);
             $fields = $this->serviceFieldsToObject($service->fields);
 
-            $this->domainManager->call([
+            $r = $this->domainManager->call([
                 "COMMAND" => "SetDomainRenewalMode",
                 "DOMAIN" => $fields->domain,
                 "RENEWALMODE" => "AUTOEXPIRE",
             ]);
+            Helper::errorHandler($r);
 
             if ($this->Input->errors()) {
                 return;
@@ -518,7 +519,7 @@ class Ispapi extends RegistrarModule
         }
 
         // Credentials to API
-        $row = $this->getModuleRow($package->module_row);
+        $row = $this->getModuleRow($service->module_row_id ?? $package->module_row);
         Base::setModule($row);
         Base::moduleInstance($this);
         $fields = $this->serviceFieldsToObject($service->fields);
@@ -557,7 +558,7 @@ class Ispapi extends RegistrarModule
             ]);
         }
 
-        if ($this->Input->errors()) {
+        if (!Helper::errorHandler($r)) {
             return;
         }
 
@@ -1194,7 +1195,8 @@ class Ispapi extends RegistrarModule
      */
     public function getAdminEditFields($package, $vars = null)
     {
-        Loader::loadHelpers($this, ["Form", "Html"]);
+        Loader::loadHelpers($this, ['Html']);
+        Loader::loadComponents($this, ['Record']);
 
         $fields = new ModuleFields();
 
@@ -1237,7 +1239,7 @@ class Ispapi extends RegistrarModule
         $expirydate = $fields->label(Language::_("Ispapi.domain.expirydate", true), "expirydate");
 
         if ($package->meta->type === "domain") {
-            $r = $this->domainManager->getDomainStatus($vars->domain);
+            $r = $this->domainManager->getDomainStatusCached($vars->domain);
             if (!Helper::errorHandler($r)) {
                 return;
             }
@@ -1246,11 +1248,11 @@ class Ispapi extends RegistrarModule
                 // Expiry date at our system [HM-696]
                 $r = $r["PROPERTY"];
 
-                $expirationdate = $r["EXPIRATIONDATE"][0];
+                $expirationdate = $r["DOMAINEXPIRATIONDATE"][0];
                 $expirationts = strtotime($expirationdate);
-                $finalizationdate = $r["FINALIZATIONDATE"][0];
-                $paiduntildate = $r["PAIDUNTILDATE"][0];
-                $failuredate = $r["FAILUREDATE"][0];
+                $finalizationdate = $r["DOMAINFINALIZATIONDATE"][0];
+                $paiduntildate = $r["DOMAINPAIDUNTILDATE"][0];
+                $failuredate = $r["DOMAINFAILUREDATE"][0];
 
                 // Status of the domain at our system
                 if (preg_match("/ACTIVE/i", $r["STATUS"][0])) {
@@ -1288,11 +1290,13 @@ class Ispapi extends RegistrarModule
             );
         }
 
-        $fields->setField($domain_information);
-        $fields->setField($domain_status);
-        $fields->setField($expirydate);
+        if (!isset($_POST["submit"])) {
+            $fields->setField($domain_information);
+            $fields->setField($domain_status);
+            $fields->setField($expirydate);
+        }
 
-        #return $fields;
+        // #return $fields;
         return (isset($fields) ? $fields : new ModuleFields());
     }
 
@@ -1575,7 +1579,7 @@ class Ispapi extends RegistrarModule
         // Load the helpers required for this view
         Loader::loadHelpers($this, ["Form", "Html"]);
 
-        $row = $this->getModuleRow($package->module_row);
+        $row = $this->getModuleRow($service->module_row_id ?? $package->module_row);
         Base::setModule($row);
         Base::moduleInstance($this);
 
@@ -1841,7 +1845,6 @@ class Ispapi extends RegistrarModule
 
         Base::setModule($this->getModuleRow($package->module_row));
         Base::moduleInstance($this);
-
         $fields = $this->serviceFieldsToObject($service->fields);
 
         $tld = trim($this->getTld($fields->domain), ".");
@@ -2052,6 +2055,37 @@ class Ispapi extends RegistrarModule
         }
 
         return $this->Date->format($format, $expirydate);
+    }
+
+    /**
+     * Gets the domain registration date
+     *
+     * @param stdClass $service The service belonging to the domain to lookup
+     * @param string $format The format to return the registration date in
+     * @return string The domain registration date in UTC time in the given format
+     * @see Services::get()
+     */
+    public function getRegistrationDate($service, $format = 'Y-m-d H:i:s')
+    {
+        Loader::loadHelpers($this, ["Date"]);
+
+        $domain = $this->getServiceDomain($service);
+
+        Base::setModule($this->getModuleRow($service->module_row_id ?? null));
+        Base::moduleInstance($this);
+
+        $r = $this->domainManager->call([
+            "COMMAND" => "QueryDomainList",
+            "DOMAIN" => $domain,
+        ]);
+
+        if ($r["CODE"] !== "200") {
+            return false;
+        }
+
+        // cast our UTC API timestamp format to useful formats in local timezone
+        $createdDate = $this->_castDate($r["PROPERTY"]["CREATEDDATE"][0], $format);
+        return $this->Date->format($format, $createdDate);
     }
 
     /**

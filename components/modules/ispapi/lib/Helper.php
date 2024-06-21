@@ -126,7 +126,7 @@ class Helper
      * @param array $vars An array of key/value data pairs
      * @return array An array of Input rules suitable for Input::setRules()
      */
-    public static function getRowRules(&$vars, $module_row_id)
+    public static function getRowRules(&$vars, $module_row_id = null)
     {
         $instance = Base::moduleInstance();
         return [
