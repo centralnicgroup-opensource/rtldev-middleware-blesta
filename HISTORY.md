@@ -1,3 +1,10 @@
+# [3.7.0](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.6.0...v3.7.0) (2024-06-24)
+
+
+### Features
+
+* **ispapi registrar module:** Add getRegistrationDate for Blesta 5.10.0 compatibility and bug fixes ([393cefb](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/commit/393cefbccc35856da4e421e2f566cbe5b73911a6))
+
 # [3.6.0](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.5.1...v3.6.0) (2024-03-18)
 
 
