@@ -45,13 +45,6 @@
                         ],
                         "from": "\"\\d+\\.\\d+\\.\\d+\"",
                         "to": "\"${nextRelease.version}\"",
-                        "results": [
-                            {
-                                "hasChanged": true,
-                                "numMatches": 2,
-                                "numReplacements": 5
-                            }
-                        ],
                         "countMatches": true
                     }
                 ]
