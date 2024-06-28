@@ -23,7 +23,7 @@ services:
       args:
         PHP_VERSION: 8.1
     volumes:
-      - ..:/usr/share/rtldev-middleware-blesta-ispapi-registrar:cached
+      - ..:/usr/share/rtldev-middleware-blesta:cached
     ports:
       - 80:80
       - 3306:3306

@@ -41,7 +41,7 @@
                     {
                         "files": [
                             "./release.json",
-                            "./components/modules/ispapi/config.json"
+                            "./components/modules/cnr/config.json"
                         ],
                         "from": "\"\\d+\\.\\d+\\.\\d+\"",
                         "to": "\"${nextRelease.version}\"",
@@ -56,10 +56,10 @@
                 "assets": [
                     "HISTORY.md",
                     "@(package?(-lock)|composer).json",
-                    "components/modules/ispapi/config.json",
-                    "components/modules/ispapi/ispapi.php",
+                    "components/modules/cnr/config.json",
+                    "components/modules/cnr/cnr.php",
                     "release.json",
-                    "blesta-ispapi-registrar-latest.zip"
+                    "blesta-cnr-registrar-latest.zip"
                 ]
             }
         ],
@@ -69,7 +69,11 @@
             {
                 "assets": [
                     {
-                        "label": "Blesta Module (zip)",
+                        "label": "CentralNic Reseller (CNR) Blesta Module (ZIP)",
+                        "path": "pkg/blesta-cnr-registrar.zip"
+                    },
+                    {
+                        "label": "Hexonet (ISPAPI) Blesta Module (ZIP)",
                         "path": "pkg/blesta-ispapi-registrar.zip"
                     }
                 ]

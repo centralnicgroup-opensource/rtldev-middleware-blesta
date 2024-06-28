@@ -35,9 +35,14 @@ function doDistClean() {
  * @return stream
  */
 function doCopyFiles() {
-  return src(cfg.filesForArchive, { base: "." }).pipe(
-    dest(cfg.archiveBuildPath)
-  );
+  return src(cfg.filesForArchive, { base: "." })
+    .pipe(dest(cfg.archiveBuildPath))
+    .on('end', () => {
+      // Copy the blesta-ispapi-registrar-latest.zip file to the pkg folder
+      src(`${cfg.archiveHXFileName}-latest.zip`, { base: "." })
+      .pipe(rename(`${cfg.archiveHXFileName}.zip`))
+        .pipe(dest("./pkg"));
+    });
 }
 
 /**

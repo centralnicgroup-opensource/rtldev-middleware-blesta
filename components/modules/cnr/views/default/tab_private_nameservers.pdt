@@ -1,0 +1,59 @@
+    <div class="title_row first">
+        <h3><?php $this->_('Cnr.tab_private_nameservers.title'); ?></h3>
+    </div>
+    <div id="domain-hosts">
+        <?php
+        $this->Form->create($this->base_uri . 'clients/servicetab/' . (isset($client_id) ? $client_id : null) . '/' . (isset($service_id) ? $service_id : null) . '/tabPrivateNameservers/');
+        ?>
+        <table class="table">
+        <?php if(!empty($vars->hosts)) { ?>
+            <thead>
+                <tr class="heading_row">
+                    <td><span><?php echo $this->_('Cnr.tab_private_nameservers.field_hostname'); ?></span></td>
+                    <td><span><?php $this->_('Cnr.tab_private_nameservers.field_ip'); ?></span></td>
+                    <td><span><?php $this->_('Cnr.tab_private_nameservers.actions'); ?></span></td>
+                </tr>
+            </thead>
+            <?php } foreach ($vars->hosts as $host) {
+            ?>
+                <!-- Update existing host records -->
+                <tbody>
+                    <tr>
+                        <td<?php echo isset($index) && $index !== 0 ? ' class="text-muted"' : ''; ?>><?php echo $host["hostname"]; ?></td>
+                        <td><?php echo $host["ip"];?></td>
+                        <td>
+                            <button type="submit" class="btn btn-sm btn-light btn-danger float-right" name="delete_nameserver" value="<?php echo $host["hostname"]; ?>"><i class="fas fa-trash-alt"></i> Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            <?php } ?>
+            <!-- Add New Host Record -->
+            <thead>
+            <tr class="heading_row">
+                <td><span><?php echo $this->_('Cnr.tab_private_nameservers.field_hostname'); ?></span></td>
+                <td colspan="2"><span><?php $this->_('Cnr.tab_private_nameservers.field_ip'); ?></span></td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td><?php $this->Form->fieldText('new_nameserver');
+                    echo '.' . $domain; ?></td>
+                <td colspan="2"><?php $this->Form->fieldText('new_nameserver_ip'); ?></td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="button_row">
+                <?php
+                $button_attributes = [
+                    'class' => 'btn btn-primary float-right',
+                    'value' => 'managePrivateNameservers',
+                    'type' => 'submit',
+                ];
+
+                $this->Form->fieldButton('action', $this->_('Cnr.tab_private_nameservers.field_submit', true), $button_attributes);
+                ?>
+            </div>
+        <?php
+        $this->Form->end();
+        ?>
+    </div>

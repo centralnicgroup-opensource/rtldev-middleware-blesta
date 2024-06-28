@@ -1,19 +1,25 @@
 {
-  "name": "blesta-ispapi-registrar",
-  "description": "The ISPAPI Registrar Module for BLESTA",
+  "name": "rtldev-middleware-blesta",
+  "description": "The CentralNic Reseller (CNR) Registrar Module for BLESTA",
   "version": "0.0.0-development",
   "private": true,
-  "author": {
-    "name": "Kai Schwarz",
-    "email": "kschwarz@hexonet.net"
-  },
+  "authors": [
+    {
+      "name": "Kai Schwarz",
+      "email": "kai.schwarz@centralnic.com"
+    },
+    {
+      "name": "Asif Nawaz",
+      "email": "asif.nawaz@centralnic.com"
+    }
+  ],
   "license": "MIT",
   "engines": {
     "node": ">=20.6.1"
   },
-  "homepage": "https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar",
-  "repository": "github:centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar.git",
-  "bugs": "https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/issues",
+  "homepage": "https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta",
+  "repository": "github:centralnicgroup-opensource/rtldev-middleware-blesta.git",
+  "bugs": "https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/issues",
   "keywords": [
     "blesta",
     "web host automation platform",
@@ -21,6 +27,8 @@
     "domain registrar module",
     "hexonet",
     "ispapi",
+    "cnr",
+    "centralnic reseller",
     "domain",
     "isp",
     "registration"
@@ -42,5 +50,9 @@
     "semantic-release": "^24.1.1",
     "semantic-release-replace-plugin": "github:centralnicgroup-opensource/rtldev-middleware-semantic-release-replace-plugin",
     "semantic-release-teams-notify-plugin": "github:centralnicgroup-opensource/rtldev-middleware-semantic-release-notify-plugin"
-  }
+  },
+  "scripts": {
+		"codeCheck": "composer run-script codecheck",
+		"codeFix": "composer run-script codefix"
+	}
 }

@@ -1,5 +1,6 @@
 {
-  "archiveFileName": "blesta-ispapi-registrar",
+  "archiveFileName": "blesta-cnr-registrar",
+  "archiveHXFileName": "blesta-ispapi-registrar",
   "archiveBuildPath": "build",
   "filesForArchive": [
     "README.md",
@@ -10,7 +11,7 @@
   ],
   "filesForCleanup": [
     "templates_c",
-    "components/modules/ispapi/composer.lock",
+    "components/modules/cnr/composer.lock",
     ".phpunit.result.cache",
     "tmp"
   ]

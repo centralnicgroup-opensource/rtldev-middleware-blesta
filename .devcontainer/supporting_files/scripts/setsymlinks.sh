@@ -9,8 +9,8 @@ if [ ! -d "/var/www/html/blesta" ]; then
 fi
 
 # symlink registrar module @ hexonet
-if [[ -d "/usr/share/rtldev-middleware-blesta-ispapi-registrar" && ! -L "/var/www/html/blesta/components/modules/ispapi" ]]
+if [[ -d "/usr/share/rtldev-middleware-blesta" && ! -L "/var/www/html/blesta/components/modules/cnr" ]]
 then
-    ln -s "/usr/share/rtldev-middleware-blesta-ispapi-registrar/components/modules/ispapi" "/var/www/html/blesta/components/modules/ispapi"
-    chown -h www-data.www-data "/var/www/html/blesta/components/modules/ispapi"
+    ln -s "/usr/share/rtldev-middleware-blesta/components/modules/cnr" "/var/www/html/blesta/components/modules/cnr"
+    chown -h www-data.www-data "/var/www/html/blesta/components/modules/cnr"
 fi

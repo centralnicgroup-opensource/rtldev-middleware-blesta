@@ -1,0 +1,131 @@
+    <div id="dns-records">
+        <?php if ($dnszone_unsupported): ?>
+                <div class="title_row first">
+                    <h4><?php $this->_('Cnr.tab_dnsrecord.unsupported');?></h4>
+                </div>
+        <?php 
+            return;
+            endif; 
+        ?>
+        <div class="title_row first">
+            <h3><?php $this->_('Cnr.tab_dnsrecord.title_list');?></h3>
+        </div>
+        <p><?php $this->_('Cnr.tab_dnsrecord.help_text_1');?></p>
+        <table class="table">
+            <thead>
+                <tr class="heading_row">
+                    <td><span><?php $this->_('Cnr.dnsrecord.record_type');?></span></td>
+                    <td><span><?php $this->_('Cnr.dnsrecord.host');?></span></td>
+                    <td><span><?php $this->_('Cnr.dnsrecord.value');?></span></td>
+                    <td><span><?php $this->_('Cnr.dnsrecord.priority');?></span></td>
+                    <td><span><?php $this->_('Cnr.dnsrecord.ttl');?></span></td>
+                    <td><span><?php $this->_('Cnr.dnsrecord.field_delete');?></span></td>
+                </tr>
+            </thead>
+            <tbody>
+            <?php
+            if (count($vars->records) > 0 && isset($vars->records)) {
+                $i = 0;
+                foreach ($vars->records as $record) {
+                    ?>
+                    <tr<?php echo ($i % 2 == 1) ? ' class="odd_row"' : ''?>>
+                        <td><?php echo (isset($record['record_type']) ? $record['record_type'] : null);?></td>
+                        <td><?php echo (isset($record['hostname']) ? $record['hostname'] : null);?></td>
+                        <td><?php echo (isset($record['address']) ? $record['address'] : null);?></td>
+                        <td><?php echo (isset($record['priority']) && $record['priority'] != 0 ? $record['priority'] : null);?></td>
+                        <td><?php echo (isset($record['ttl']) ? $record['ttl'] : null);?></td>
+                        <td>
+                            <?php
+                            $this->Form->create(
+                                $this->base_uri . 'clients/servicetab/' . (isset($client_id) ? $client_id : null)
+                                    . '/' . (isset($service_id) ? $service_id : null) . '/tabDnsRecords/'
+                            );
+                            $this->Form->fieldHidden('raw_record', (isset($record['raw_record']) ? $record['raw_record'] : null));
+
+                            $button_attributes = [
+                                'class' => 'btn btn-sm',
+                                'value' => 'deleteDnsRecord',
+                                'type' => 'submit'
+                            ];
+
+                            $this->Form->fieldButton(
+                                'action',
+                                $this->_('Cnr.tab_dnssec.field_delete', true),
+                                $button_attributes
+                            );
+
+                            $this->Form->end();
+                            ?>
+                        </td>
+                    </tr>
+                    <?php
+                    $i++;
+                }
+            }
+            ?>
+            </tbody>
+        </table>
+
+        <div class="title_row">
+            <h3><?php $this->_('Cnr.tab_dnsrecord.title_add');?></h3>
+        </div>
+        <?php
+        $this->Form->create(
+            $this->base_uri . 'clients/servicetab/' . (isset($client_id) ? $client_id : null)
+                . '/' . (isset($service_id) ? $service_id : null) . '/tabDnsRecords/'
+        );
+        ?>
+        <table class="table">
+            <!-- Add New DNS Record -->
+            <thead>
+                <tr class="heading_row">
+                    <td><span><?php $this->_('Cnr.dnsrecord.record_type');?></span></td>
+                    <td><span><?php $this->_('Cnr.dnsrecord.host');?></span></td>
+                    <td><span><?php $this->_('Cnr.dnsrecord.value');?></span></td>
+                    <td class="priority" style="display:none;"><span><?php $this->_('Cnr.dnsrecord.priority');?></span></td>
+                    <td><span><?php $this->_('Cnr.dnsrecord.ttl');?></span></td>
+                    <td></td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><?php $this->Form->fieldSelect('record_type', $vars->selects);?></td>
+                    <td><?php $this->Form->fieldText('hostname');?></td>
+                    <td><?php $this->Form->fieldText('address');?></td>
+                    <td class="priority" style="display:none;"><?php $this->Form->fieldText('priority', "1");?></td>
+                    <td><?php $this->Form->fieldText('ttl', 3600);?></td>
+                    <td>
+                        <?php
+                        $button_attributes = [
+                            'class' => 'btn btn-primary',
+                            'value' => 'addDnsRecord',
+                            'type' => 'submit',
+                        ];
+
+                        $this->Form->fieldButton(
+                            'action',
+                            $this->_('Cnr.tab_dnsrecord.field_add', true),
+                            $button_attributes
+                        );
+                        ?>
+                    </td>
+
+                </tr>
+            </tbody>
+        </table>
+        <?php
+        $this->Form->end();
+        ?>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('[name="record_type"]').on('change', function() {
+                if($(this).val() == 'MX' || $(this).val() == 'SRV') {
+                    $('.priority').show();
+                } else {
+                    $('.priority').hide();
+                }
+            })
+        })
+    </script>
