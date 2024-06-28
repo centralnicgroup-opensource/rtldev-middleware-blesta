@@ -297,10 +297,10 @@ class Ispapi extends RegistrarModule
                     //auto-detect default transfer period
                     //for example, es, no, nu tlds require period value as zero (free transfers).
                     //in Blesta the default value is based on the package settings for those TLDs created by user
-                    $getDomainOptions = $this->domainManager->getDomainOptions($vars["domain"]);
-                    Helper::errorHandler($getDomainOptions);
+                    $getZoneInfo = $this->domainManager->getZoneInfo($vars["domain"]);
+                    Helper::errorHandler($getZoneInfo);
 
-                    if (in_array($vars["NumYears"], $getDomainOptions->transfer->periods)) {
+                    if (in_array($vars["NumYears"], $getZoneInfo->transfer->periods)) {
                         $command["PERIOD"] = $vars["NumYears"];
                     } elseif ($r["transfer"]->isFree) {
                         $command["PERIOD"] = "0";
@@ -1206,11 +1206,11 @@ class Ispapi extends RegistrarModule
         Base::moduleInstance($this);
 
         // Supported renewal periods of TLD
-        $getDomainOptions = $this->domainManager->getDomainOptions($vars->domain);
-        Helper::errorHandler($getDomainOptions);
+        $getZoneInfo = $this->domainManager->getZoneInfo($vars->domain);
+        Helper::errorHandler($getZoneInfo);
 
         // renewal periods
-        $renewalPeriods = $getDomainOptions->renewal->periods;
+        $renewalPeriods = $getZoneInfo->renewal->periods;
         $renewalPeriodList = [];
         foreach ($renewalPeriods as $period) {
             // User friendly format for the renewal period based on the numerical value.
@@ -2108,12 +2108,47 @@ class Ispapi extends RegistrarModule
     }
 
     /**
+     * Get a list of the TLD prices
+     *
+     * @param int $module_row_id The ID of the module row to fetch for the current module
+     * @return array A list of all TLDs and their pricing
+     *    [tld => [currency => [year# => ['register' => price, 'transfer' => price, 'renew' => price]]]]
+     */
+    public function getTldPricing($module_row_id = null)
+    {
+        $moduleRow = $this->getModuleRows()[0];
+        $this->setModuleRow($moduleRow);
+        $tld_prices = $this->getPrices();
+        $tld_yearly_prices = [];
+        foreach ($tld_prices as $tld => $currency_prices) {
+            $tld_yearly_prices[$tld] = [];
+            foreach ($currency_prices as $currency => $prices) {
+                $tld_yearly_prices[$tld][$currency] = [];
+                foreach (range(1, 10) as $years) {
+                    // Filter by 'terms'
+                    if (isset($filters['terms']) && !in_array($years, $filters['terms'])) {
+                        continue;
+                    }
+
+                    $tld_yearly_prices[$tld][$currency][$years] = [
+                        'register' => $prices->registration * $years,
+                        'transfer' => $prices->transfer * $years,
+                        'renew' => $prices->renew * $years
+                    ];
+                }
+            }
+        }
+
+        return $tld_yearly_prices;
+    }
+
+    /**
      * Get a list of the TLDs supported by the registrar module
      *
      * @param int $module_row_id The ID of the module row to fetch for the current module
      * @return array A list of all TLDs supported by the registrar module
      */
-    public function getTlds($module_row_id = null)
+    public function getTlds($module_row_id = null, $extended = false)
     {
         $row = $this->getModuleRow($module_row_id);
         $row = !empty($row) ? $row : $this->getModuleRows()[0];
@@ -2123,9 +2158,10 @@ class Ispapi extends RegistrarModule
 
         Base::setModule($row);
         Base::moduleInstance($this);
+        $cacheKey = $extended ? "tlds" : "tlds_extended";
         // Fetch the TLDs results from the cache, if they exist
         $cache = Cache::fetchCache(
-            "tlds",
+            $cacheKey,
             Configure::get("Blesta.company_id") . DS . "modules" . DS . "ispapi" . DS
         );
         if ($cache) {
@@ -2133,10 +2169,7 @@ class Ispapi extends RegistrarModule
         }
 
         // Fetch ispapi TLDs
-        $r = $this->domainManager->call([
-            "COMMAND" => "StatusUser",
-            "PROPERTIES" => "TLDDATA"
-        ]);
+        $r = $this->domainManager->getTldData();
 
         // Handling api errors
         if ($r["CODE"] !== "200") {
@@ -2184,29 +2217,32 @@ class Ispapi extends RegistrarModule
                 // block relation just leads to not getting the relation returned
                 $tldclass = $m[2];
                 if (isset($tldclassmap[$tldclass])) {
-                    $tlds[] = $tldclassmap[$tldclass];
+                    $tlds[$tldclass] = $tldclassmap[$tldclass];
                 }
                 // else | otherwise skip that tldclass
             }
         }
 
-        // cleanup and sort list of tlds
-        $tlds = array_values(array_unique($tlds));
-        usort($tlds, function ($tld1, $tld2) {
-            $a = implode(".", array_reverse(explode(".", $tld1))); //com, uk.co
-            $b = implode(".", array_reverse(explode(".", $tld2))); //ca, de.com
-            if ($a === $b) {
-                return 0;
-            }
-            return ($a > $b) ? 1 : -1;
-        });
+        // if do not remove tld label if tlds are requested for tld pricing
+        if (!$extended) {
+            // cleanup and sort list of tlds
+            $tlds = array_values(array_unique($tlds));
+            usort($tlds, function ($tld1, $tld2) {
+                $a = implode(".", array_reverse(explode(".", $tld1))); //com, uk.co
+                $b = implode(".", array_reverse(explode(".", $tld2))); //ca, de.com
+                if ($a === $b) {
+                    return 0;
+                }
+                return ($a > $b) ? 1 : -1;
+            });
+        }
 
         // Save the TLDs results to the cache
         if (count($tlds) > 0) {
             if (Configure::get("Caching.on") && is_writable(CACHEDIR)) {
                 try {
                     Cache::writeCache(
-                        "tlds",
+                        $cacheKey,
                         base64_encode(serialize($tlds)),
                         strtotime(Configure::get("Blesta.cache_length")) - time(),
                         Configure::get("Blesta.company_id") . DS . "modules" . DS . "ispapi" . DS
@@ -2781,5 +2817,154 @@ class Ispapi extends RegistrarModule
     public function debug($data)
     {
         file_put_contents("/tmp/dump.txt", var_export($data, true));
+    }
+
+    /**
+     * Retrieves all the Namesilo prices
+     *
+     * @param array $filters A list of criteria by which to filter fetched pricings including but not limited to:
+     *
+     *  - tlds A list of tlds for which to fetch pricings
+     *  - currencies A list of currencies for which to fetch pricings
+     * @return array An array containing all the TLDs with their respective prices
+     */
+    protected function getPrices(array $filters = [])
+    {
+        // Fetch the TLDs results from the cache, if they exist
+        $cache = Cache::fetchCache(
+            'tlds_prices',
+            Configure::get('Blesta.company_id') . DS . 'modules' . DS . 'ispapi' . DS
+        );
+
+        if ($cache) {
+            $result = unserialize(base64_decode($cache));
+        }
+
+        Loader::loadModels($this, ['Currencies']);
+        Base::setModule($this->getModuleRows()[0]);
+        Base::moduleInstance($this);
+
+        if (!isset($result)) {
+            $tldswithClass = $this->getTlds(null, true);
+            $domains = [];
+            foreach ($tldswithClass as $tld) {
+                $domains[] = "example" . $tld;
+            }
+            $zoneInformations = $this->domainManager->getZoneInfo($domains);
+            Helper::errorHandler($zoneInformations);
+            // Handling api errors
+            if ($this->Input->errors()) {
+                return;
+            }
+            var_dump($zoneInformations["berlin"]->renewal->periods);
+            die();
+            // Save the TLDs results to the cache
+            if (
+                Configure::get('Caching.on') && is_writable(CACHEDIR)
+                && count($result) > 0
+            ) {
+                try {
+                    Cache::writeCache(
+                        'tlds_prices',
+                        base64_encode(serialize($result)),
+                        strtotime(Configure::get('Blesta.cache_length')) - time(),
+                        Configure::get('Blesta.company_id') . DS . 'modules' . DS . 'namesilo' . DS
+                    );
+                } catch (Exception $e) {
+                    // Write to cache failed, so disable caching
+                    Configure::set('Caching.on', false);
+                }
+            }
+        }
+
+        $tlds = [];
+        if (isset($result->detail) && $result->detail == 'success') {
+            $tlds = (array) $result;
+            unset($tlds['code']);
+            unset($tlds['detail']);
+        }
+
+        // Get all currencies
+        $currencies = $this->Currencies->getAll(Configure::get('Blesta.company_id'));
+
+        // Convert namesilo prices to all currencies
+        $pricing = [];
+
+        foreach ($tlds as $tld => $tld_pricing) {
+            $tld = '.' . trim($tld, '.');
+
+            // Filter by 'tlds'
+            if (isset($filters['tlds']) && !in_array($tld, $filters['tlds'])) {
+                continue;
+            }
+
+            foreach ($currencies as $currency) {
+                // Filter by 'currencies'
+                if (isset($filters['currencies']) && !in_array($currency->code, $filters['currencies'])) {
+                    continue;
+                }
+
+                $pricing[$tld][$currency->code] = (object) [
+                    'registration' => $this->Currencies->convert(
+                        is_scalar($tld_pricing->registration) ? $tld_pricing->registration : 0,
+                        'USD',
+                        $currency->code,
+                        Configure::get('Blesta.company_id')
+                    ),
+                    'transfer' => $this->Currencies->convert(
+                        is_scalar($tld_pricing->transfer) ? $tld_pricing->transfer : 0,
+                        'USD',
+                        $currency->code,
+                        Configure::get('Blesta.company_id')
+                    ),
+                    'renew' => $this->Currencies->convert(
+                        is_scalar($tld_pricing->renew) ? $tld_pricing->renew : 0,
+                        'USD',
+                        $currency->code,
+                        Configure::get('Blesta.company_id')
+                    )
+                ];
+            }
+        }
+
+        return $pricing;
+    }
+
+
+    /**
+     * Retrieves all the Ispapi module rows
+     *
+     * @return array An array containing all the module rows
+     */
+    private function getRows()
+    {
+        Loader::loadModels($this, ['ModuleManager']);
+
+        $module_rows = [];
+        $modules = $this->ModuleManager->getInstalled();
+
+        foreach ($modules as $module) {
+            $module_data = $this->ModuleManager->get($module->id);
+
+            foreach ($module_data->rows as $module_row) {
+                if (isset($module_row->meta->ispapi_module)) {
+                    $module_rows[] = $module_row;
+                }
+            }
+        }
+
+        return $module_rows;
+    }
+
+    /**
+     * Retrieves the Ispapi module row
+     *
+     * @return null|stdClass An stdClass object representing the module row if found, otherwise void
+     */
+    private function getRow()
+    {
+        $module_rows = $this->getRows();
+
+        return $module_rows[0] ?? null;
     }
 }

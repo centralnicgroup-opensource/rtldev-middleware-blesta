@@ -21,10 +21,12 @@ class Helper
 
     public static function errorHandler($response)
     {
-        if (!isset($response->cached) && $response["CODE"] !== "200") {
-            if (isset($response["error"])) {
+        // Check if response indicates an error
+        if (isset($response['CODE']) && $response['CODE'] !== "200") {
+            // Handle non-successful responses
+            if (isset($response['error'])) {
                 Base::moduleInstance()->Input->setErrors([
-                    "errors" => [$response["error"]],
+                    "errors" => [$response['error']],
                 ]);
             } else {
                 Base::moduleInstance()->Input->setErrors([
@@ -33,6 +35,8 @@ class Helper
             }
             return false;
         }
+
+        // No explicit error, assume successful response
         return true;
     }
 
@@ -189,10 +193,10 @@ class Helper
      * Set cache data in the system.
      *
      * @param string $keyName The key name for the cache.
-     * @param array $cacheData The data to store in cache.
+     * @param object|array $cacheData The data to store in cache.
      * @return bool True if the data was successfully cached, false otherwise.
      */
-    public static function setCache(string $keyName, array $cacheData)
+    public static function setCache(string $keyName, object|array $cacheData)
     {
         // If caching is disabled, key name is empty, or cache data is empty, return false
         if (!\Configure::get("Caching.on") || empty($keyName) || empty($cacheData)) {
@@ -214,5 +218,21 @@ class Helper
         }
 
         return self::hasCache($keyName);
+    }
+
+    /**
+     * Helper function to parse period data.
+     *
+     * @param array|string $periods Periods data from API response.
+     * @return array Parsed periods.
+     */
+    public static function parsePeriods($periods)
+    {
+        if (empty($periods)) {
+            return [];
+        }
+
+        // Filter and format periods array
+        return preg_replace("/(^R|Y$)/", "", preg_grep("/^R?(\d+)Y$/", explode(",", $periods)));
     }
 }

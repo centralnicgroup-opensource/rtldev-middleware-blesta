@@ -86,38 +86,95 @@ class DomainManager extends Base
         ]);
     }
 
-    public function getDomainOptions($domain)
+
+    /**
+     * Retrieve zone information for TLDs.
+     *
+     * @param string|array<string,string> $domains Single domain or array of domains.
+     * @return object|array<object> Zone information per TLD.
+     */
+    public function getZoneInfo($domains)
     {
-        list($sld, $tld) = explode(".", $domain, 2);
-        $cache = Helper::hasCache("{$tld}_options");
-        if ($cache) {
-            $cache->cached = true;
-            return $cache;
+        $isSingleDomain = false;
+
+        // If a single domain is passed, convert it to an array
+        if (!is_array($domains)) {
+            $domains = [$domains];
+            $isSingleDomain = true;
         }
 
-        $response = $this->call([
-            "COMMAND" => "QueryDomainOptions",
-            "DOMAIN0" => $domain
-        ]);
-
+        // Initialize arrays for return and TLDs to query
         $return = [];
+        $tldsToQuery = [];
 
-        if ($response["CODE"] === "200") {
-            $transferPeriods = empty($response["PROPERTY"]["ZONETRANSFERPERIODS"][0]) ? [] : preg_replace("/(^R|Y$)/", "", preg_grep("/^R?(\d+)Y$/", explode(",", $response["PROPERTY"]["ZONETRANSFERPERIODS"][0])));
-            $renewalPeriods = empty($response["PROPERTY"]["ZONERENEWALPERIODS"][0]) ? [] : preg_replace("/(^R|Y$)/", "", preg_grep("/^R?(\d+)Y$/", explode(",", $response["PROPERTY"]["ZONERENEWALPERIODS"][0])));
+        // Check and load cache for each domain's TLD
+        foreach ($domains as $idx => $domain) {
+            list($sld, $tld) = explode(".", $domain, 2);
+            // Only load cache if TLD result hasn't been retrieved yet
+            if (!isset($return[$tld])) {
+                // Check if cache exists for the TLD
+                $cache = false;//Helper::hasCache("{$tld}_options");
 
-            $return["renewal"]["periods"] = $renewalPeriods;
-            $return["renewal"]["defaultPeriod"] = $renewalPeriods[0] ?? -1;
-
-            $return["transfer"]["periods"] = $transferPeriods;
-            $return["transfer"]["defaultPeriod"] = $transferPeriods[0] ?? -1;
-            $return["transfer"]["isFree"] = in_array("0", $transferPeriods);
-
-            $return["addons"]["IDProtection"] = in_array("WHOISTRUSTEE", explode(" ", $response["PROPERTY"]["X-PROXY"][0]));
-            $return = Helper::setCache("{$tld}_options", $return);
+                if ($cache) {
+                    // Cache found, add to return directly
+                    $return[$tld] = $cache;
+                } else {
+                    // Cache not found, mark TLD for query
+                    $tldsToQuery[$idx] = $domain;
+                }
+            }
         }
 
-        return !empty($return) ? $return : $response;
+        // Prepare the bulk request payload
+        $payload = ["COMMAND" => "QueryDomainOptions"];
+        foreach ($tldsToQuery as $idx => $domain) {
+            $payload["DOMAIN{$idx}"] = $domain;
+        }
+
+        // Send the bulk request if there are TLDs to query
+        if (count($tldsToQuery) > 0) {
+            $response = $this->call($payload);
+            // Process the bulk response
+            foreach ($tldsToQuery as $idx => $domain) {
+                $tldData = [];
+                list($sld, $tld) = explode(".", $domain, 2);
+
+                if ($response["CODE"] === "200") {
+   
+                    // Process response properties for renewal, registration, transfer
+                    $transferPeriods = Helper::parsePeriods($response["PROPERTY"]["ZONETRANSFERPERIODS"][$idx]);
+                    $renewalPeriods = Helper::parsePeriods($response["PROPERTY"]["ZONERENEWALPERIODS"][$idx]);
+                    $registrationPeriods = Helper::parsePeriods($response["PROPERTY"]["ZONEREGISTRATIONPERIODS"][$idx]);
+
+                    // Build the tld data structure
+                    $tldData["renewal"]["periods"] = $renewalPeriods;
+                    $tldData["renewal"]["defaultPeriod"] = $renewalPeriods[0] ?? -1;
+
+                    $tldData["registration"]["periods"] = $registrationPeriods;
+                    $tldData["registration"]["defaultPeriod"] = $registrationPeriods[0] ?? -1;
+
+                    $tldData["transfer"]["periods"] = $transferPeriods;
+                    $tldData["transfer"]["defaultPeriod"] = $transferPeriods[0] ?? -1;
+                    $tldData["transfer"]["isFree"] = in_array("0", $transferPeriods);
+
+                    $tldData["addons"]["IDProtection"] = in_array("WHOISTRUSTEE", explode(" ", $response["PROPERTY"]["X-PROXY"][$idx]));
+
+                    // Cache the result for this TLD
+                    $tldData = Helper::setCache("{$tld}_options", $tldData);
+                    
+                    // Update return array with the processed data
+                    $return[$tld] = $tldData;
+                }
+            }
+        }
+
+        // Return data based on single or multiple domain input
+        if ($isSingleDomain && !empty($domains[0])) {
+            list(, $tld) = explode(".", $domains[0], 2);
+            return $return[$tld];
+        }
+
+        return $return ?? $response;
     }
 
     public function getDomainRepositoryInfo($domain)
@@ -269,5 +326,13 @@ class DomainManager extends Base
             $command["DELSECDNS-KEY0"] = $postData['flags'] . " " . $postData['protocol'] . " " . $postData['algorithm'] . " " . $postData['public_key'];
         }
         return $this->call($command);
+    }
+
+    public function getTldData()
+    {
+        return $this->call([
+            "COMMAND" => "StatusUser",
+            "PROPERTIES" => "TLDDATA"
+        ]);
     }
 }
