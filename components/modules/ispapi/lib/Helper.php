@@ -228,11 +228,19 @@ class Helper
      */
     public static function parsePeriods($periods)
     {
-        if (empty($periods)) {
-            return [];
-        }
-
-        // Filter and format periods array
-        return preg_replace("/(^R|Y$)/", "", preg_grep("/^R?(\d+)Y$/", explode(",", $periods)));
+        return array_values(array_unique( // unique values, re-indexed
+            array_map( // convert strings to ints
+                "intval",
+                preg_grep( // filter out 1M period, not supported by whmcs at all;  and empty string which is probably a no longer supported zone
+                    "/^(1M)?$/",
+                    preg_replace(
+                        "/^R/", // replace "R" of reset periods
+                        "",
+                        explode(",", $periods)
+                    ),
+                    PREG_GREP_INVERT
+                )
+            )
+        ));
     }
 }

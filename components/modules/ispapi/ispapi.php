@@ -2169,7 +2169,7 @@ class Ispapi extends RegistrarModule
         }
 
         // Fetch ispapi TLDs
-        $r = $this->domainManager->getTldData();
+        $r = $this->domainManager->getUserData();
 
         // Handling api errors
         if ($r["CODE"] !== "200") {
@@ -2217,7 +2217,7 @@ class Ispapi extends RegistrarModule
                 // block relation just leads to not getting the relation returned
                 $tldclass = $m[2];
                 if (isset($tldclassmap[$tldclass])) {
-                    $tlds[$tldclass] = $tldclassmap[$tldclass];
+                    $tlds[$tldclassmap[$tldclass]] = $tldclass;
                 }
                 // else | otherwise skip that tldclass
             }
@@ -2226,7 +2226,7 @@ class Ispapi extends RegistrarModule
         // if do not remove tld label if tlds are requested for tld pricing
         if (!$extended) {
             // cleanup and sort list of tlds
-            $tlds = array_values(array_unique($tlds));
+            $tlds = array_keys(array_unique($tlds));
             usort($tlds, function ($tld1, $tld2) {
                 $a = implode(".", array_reverse(explode(".", $tld1))); //com, uk.co
                 $b = implode(".", array_reverse(explode(".", $tld2))); //ca, de.com
@@ -2837,36 +2837,60 @@ class Ispapi extends RegistrarModule
         );
 
         if ($cache) {
-            $result = unserialize(base64_decode($cache));
+            $tldPriceData = unserialize(base64_decode($cache));
         }
 
         Loader::loadModels($this, ['Currencies']);
         Base::setModule($this->getModuleRows()[0]);
         Base::moduleInstance($this);
 
-        if (!isset($result)) {
+        if (!isset($tldPriceData)) {
             $tldswithClass = $this->getTlds(null, true);
             $domains = [];
-            foreach ($tldswithClass as $tld) {
+            foreach ($tldswithClass as $tld => $_) {
                 $domains[] = "example" . $tld;
             }
-            $zoneInformations = $this->domainManager->getZoneInfo($domains);
+            $zoneInformations = $this->domainManager->getZoneInfo($domains, $tldswithClass);
             Helper::errorHandler($zoneInformations);
+
+            // Fetch ispapi User data including tlds data
+            $tldData = $this->domainManager->getUserData();
+            Helper::errorHandler($tldData);
             // Handling api errors
             if ($this->Input->errors()) {
                 return;
             }
-            var_dump($zoneInformations["berlin"]->renewal->periods);
-            die();
+
+            $tldData = $tldData["PROPERTY"];
+            $userAccountCurrency = $tldData["ACCOUNTCURRENCY"];
+
+            $tldPriceData = [];
+            // Loop through the unique types
+            foreach (array_unique($tldData["RELATIONTYPE"]) as $idx => $type) {
+                // Skip any type that doesn't match the pattern
+                if (!(bool)preg_match("/^PRICE_CLASS_DOMAIN_[^_]+_(CURRENCY|ANNUAL|SETUP|TRANSFER)[0-9]?$/", $type)) {
+                    continue;
+                }
+
+                // Get the TLD label and class
+                $tldLabel = $tldData["TLDLABEL"][$idx];
+                $tldClass = $tldData["TLDCLASS"][$idx];
+
+                $tldPriceData[$tldLabel]["TLD_CLASS"] = $tldClass;
+                // Replace 'PRICE_CLASS_DOMAIN_' with 'TLD_' and convert to lowercase
+                $key = str_replace("PRICE_CLASS_DOMAIN_" . $tldClass . "_", "TLD_COST_", $type);
+                $tldPriceData[$tldLabel][$key] = (float) $tldData["RELATIONVALUE"][$idx];
+            }
+
             // Save the TLDs results to the cache
             if (
                 Configure::get('Caching.on') && is_writable(CACHEDIR)
-                && count($result) > 0
+                && count($tldPriceData) > 0
             ) {
                 try {
                     Cache::writeCache(
                         'tlds_prices',
-                        base64_encode(serialize($result)),
+                        base64_encode(serialize($tldPriceData)),
                         strtotime(Configure::get('Blesta.cache_length')) - time(),
                         Configure::get('Blesta.company_id') . DS . 'modules' . DS . 'namesilo' . DS
                     );
@@ -2877,24 +2901,17 @@ class Ispapi extends RegistrarModule
             }
         }
 
-        $tlds = [];
-        if (isset($result->detail) && $result->detail == 'success') {
-            $tlds = (array) $result;
-            unset($tlds['code']);
-            unset($tlds['detail']);
-        }
-
         // Get all currencies
         $currencies = $this->Currencies->getAll(Configure::get('Blesta.company_id'));
 
         // Convert namesilo prices to all currencies
         $pricing = [];
 
-        foreach ($tlds as $tld => $tld_pricing) {
-            $tld = '.' . trim($tld, '.');
+        foreach ($tldPriceData as $tld => $tld_pricing) {
+            $tldFilter = '.' . trim($tld, '.');
 
             // Filter by 'tlds'
-            if (isset($filters['tlds']) && !in_array($tld, $filters['tlds'])) {
+            if (isset($filters['tlds']) && !in_array($tldFilter, $filters['tlds'])) {
                 continue;
             }
 
@@ -2904,29 +2921,21 @@ class Ispapi extends RegistrarModule
                     continue;
                 }
 
-                $pricing[$tld][$currency->code] = (object) [
-                    'registration' => $this->Currencies->convert(
-                        is_scalar($tld_pricing->registration) ? $tld_pricing->registration : 0,
-                        'USD',
-                        $currency->code,
-                        Configure::get('Blesta.company_id')
-                    ),
-                    'transfer' => $this->Currencies->convert(
-                        is_scalar($tld_pricing->transfer) ? $tld_pricing->transfer : 0,
-                        'USD',
-                        $currency->code,
-                        Configure::get('Blesta.company_id')
-                    ),
-                    'renew' => $this->Currencies->convert(
-                        is_scalar($tld_pricing->renew) ? $tld_pricing->renew : 0,
-                        'USD',
-                        $currency->code,
-                        Configure::get('Blesta.company_id')
-                    )
-                ];
+                foreach ($tld_pricing as $priceKey => $priceValue) {
+                    if ($priceKey === "TLD_COST_CURRENCY" || $priceKey === "TLD_CLASS") {
+                        continue;
+                    }
+                    $pricing[$tld][$currency->code] = (object) [
+                        $priceKey => $this->Currencies->convert(
+                            is_scalar($priceValue) ? $priceValue : 0,
+                            $tld_pricing[$priceKey]["TLD_COST_CURRENCY"] ?? $userAccountCurrency,
+                            $currency->code,
+                            Configure::get('Blesta.company_id')
+                        )
+                    ];
+                }
             }
         }
-
         return $pricing;
     }
 

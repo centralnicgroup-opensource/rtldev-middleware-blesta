@@ -91,9 +91,10 @@ class DomainManager extends Base
      * Retrieve zone information for TLDs.
      *
      * @param string|array<string,string> $domains Single domain or array of domains.
+     * @param array<string,string> $tldsWithClass list of tlds with their tld classes
      * @return object|array<object> Zone information per TLD.
      */
-    public function getZoneInfo($domains)
+    public function getZoneInfo($domains, $tldsWithClass = null)
     {
         $isSingleDomain = false;
 
@@ -113,7 +114,7 @@ class DomainManager extends Base
             // Only load cache if TLD result hasn't been retrieved yet
             if (!isset($return[$tld])) {
                 // Check if cache exists for the TLD
-                $cache = false;//Helper::hasCache("{$tld}_options");
+                $cache = Helper::hasCache("{$tld}_options");
 
                 if ($cache) {
                     // Cache found, add to return directly
@@ -140,28 +141,53 @@ class DomainManager extends Base
                 list($sld, $tld) = explode(".", $domain, 2);
 
                 if ($response["CODE"] === "200") {
-   
+
                     // Process response properties for renewal, registration, transfer
                     $transferPeriods = Helper::parsePeriods($response["PROPERTY"]["ZONETRANSFERPERIODS"][$idx]);
                     $renewalPeriods = Helper::parsePeriods($response["PROPERTY"]["ZONERENEWALPERIODS"][$idx]);
                     $registrationPeriods = Helper::parsePeriods($response["PROPERTY"]["ZONEREGISTRATIONPERIODS"][$idx]);
 
+                    // tld info
+                    $isAfnicTLD = (bool)preg_match("/^AFNIC-/i", $response["PROPERTY"]["REPOSITORY"][$idx]);
+
                     // Build the tld data structure
-                    $tldData["renewal"]["periods"] = $renewalPeriods;
-                    $tldData["renewal"]["defaultPeriod"] = $renewalPeriods[0] ?? -1;
-
-                    $tldData["registration"]["periods"] = $registrationPeriods;
-                    $tldData["registration"]["defaultPeriod"] = $registrationPeriods[0] ?? -1;
-
-                    $tldData["transfer"]["periods"] = $transferPeriods;
-                    $tldData["transfer"]["defaultPeriod"] = $transferPeriods[0] ?? -1;
-                    $tldData["transfer"]["isFree"] = in_array("0", $transferPeriods);
-
-                    $tldData["addons"]["IDProtection"] = in_array("WHOISTRUSTEE", explode(" ", $response["PROPERTY"]["X-PROXY"][$idx]));
+                    $tldData = [
+                        "tld" => [
+                            "label" => "." . $tld,
+                            "class" => $tldsWithClass["." . $tld],
+                            "isAFNIC" => $isAfnicTLD,
+                            "repository" => $response["PROPERTY"]["REPOSITORY"][$idx],
+                            "categories" => explode(",", $response["PROPERTY"]["CATEGORY"][$idx])
+                        ],
+                        "registration" => [
+                            "periods" => $registrationPeriods,
+                            "defaultPeriod" => $registrationPeriods[0] ?? -1
+                        ],
+                        "renewal" => [
+                            "periods" => $renewalPeriods,
+                            "defaultPeriod" => $renewalPeriods[0] ?? -1,
+                            "explicit" => ($response["PROPERTY"]["REGISTRYEXPLICITRENEWAL"][$idx] === "YES"),
+                            "paymentPeriod" => ($response["PROPERTY"]["ZONERENEWALPAYMENTPERIOD"][$idx] === "") ? null : (int)$response["PROPERTY"]["ZONERENEWALPAYMENTPERIOD"][$idx]
+                        ],
+                        "transfer" => [
+                            "periods" => $transferPeriods,
+                            "defaultPeriod" => $transferPeriods[0] ?? -1,
+                            "isFree" => in_array("0", $transferPeriods)
+                        ],
+                        "trade" => [
+                            "required" => (bool)preg_match("/TRADE/", $response["PROPERTY"]["ZONEPOLICYREGISTRANTNAMECHANGEBY"][$idx]),
+                            "isStandard" => $response["PROPERTY"]["ZONEPOLICYREGISTRANTNAMECHANGEBY"][$idx] === "TRADE",
+                            "isIRTP" => $response["PROPERTY"]["ZONEPOLICYREGISTRANTNAMECHANGEBY"][$idx] === "ICANN-TRADE",
+                            "triggerFields" => ["Registrant" => ["First Name", "Last Name", "Organization Name", "Email"]]
+                        ],
+                        "addons" => [
+                            "IDProtection" => in_array("WHOISTRUSTEE", explode(" ", $response["PROPERTY"]["X-PROXY"][$idx]))
+                        ]
+                    ];
 
                     // Cache the result for this TLD
                     $tldData = Helper::setCache("{$tld}_options", $tldData);
-                    
+
                     // Update return array with the processed data
                     $return[$tld] = $tldData;
                 }
@@ -328,7 +354,7 @@ class DomainManager extends Base
         return $this->call($command);
     }
 
-    public function getTldData()
+    public function getUserData()
     {
         return $this->call([
             "COMMAND" => "StatusUser",
