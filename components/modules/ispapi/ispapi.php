@@ -2121,6 +2121,7 @@ class Ispapi extends RegistrarModule
         $tld_prices = $this->getPrices();
         $tld_yearly_prices = [];
         foreach ($tld_prices as $tld => $currency_prices) {
+            $ziInfo = $this->domainManager->getZoneInfo("domain" . $tld);
             $tld_yearly_prices[$tld] = [];
             foreach ($currency_prices as $currency => $prices) {
                 $tld_yearly_prices[$tld][$currency] = [];
@@ -2137,6 +2138,8 @@ class Ispapi extends RegistrarModule
                     ];
                 }
             }
+            //var_dump($tld_yearly_prices);
+            //die();
         }
 
         return $tld_yearly_prices;
