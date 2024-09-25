@@ -1,3 +1,15 @@
+# [4.0.0](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v3.7.0...v4.0.0) (2024-09-25)
+
+
+### Features
+
+* **CentralNic Reseller:** Introduce Registrar Module ([44ba3c4](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/commit/44ba3c4f86044218dd7ed87135f6fbf94563db23))
+
+
+### BREAKING CHANGES
+
+* **CentralNic Reseller:** Deprecate HEXONET registrar module as of upcoming migration to the CentralNic Reseller (CNR) Platform and by that in favor of the CNR Module. We still offer the HEXONET/ispapi registrar module via ZIP File in master branch or via Readme / Release Overview.
+
 # [3.7.0](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta-ispapi-registrar/compare/v3.6.0...v3.7.0) (2024-06-24)
 
 
