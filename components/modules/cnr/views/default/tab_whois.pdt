@@ -8,7 +8,7 @@
     foreach ($sections as $key) {
         ?>
     <div class="title_row<?php echo ($i == 0 ? ' first' : '');?>">
-        <h3><?php $this->_('Cnr.tab_whois.section_' . $key);?></h3>
+        <h3><?php $this->_('Cnr.tab_whois.section_' . strtolower($key));?></h3>
     </div>
     <div class="pad">
         <ul>

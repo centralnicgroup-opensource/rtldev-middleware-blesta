@@ -54,7 +54,7 @@ class BlestaLogger implements \CNIC\LoggerInterface
     protected function logHandle($url, $data = null, $direction = 'input', $success = false)
     {
         if (!$this->module_row_id) { // id is not provided when adding username and password first time
-            return ;
+            return;
         }
 
         if (!isset($this->Logs)) {

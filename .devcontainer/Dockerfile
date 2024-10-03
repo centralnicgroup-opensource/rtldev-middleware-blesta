@@ -32,6 +32,8 @@ ENV CONFIGURATION_DIR_PATH supporting_files/configuration
 ENV ARCHIVES_DIR_PATH supporting_files/archives
 ENV SCRIPTS_DIR_PATH supporting_files/scripts
 ENV MYSQL_DUMP_DIR_PATH supporting_files/mysql-dump
+# Set a default value for ZSH_CUSTOM if it's not already set
+ENV ZSH_CUSTOM=/home/vscode/.oh-my-zsh/custom
 
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
 ENV DEBIAN_FRONTEND noninteractive
@@ -51,9 +53,12 @@ RUN apt-get update \
     && apt-get -y install software-properties-common cron
 RUN LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php && \
     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 4F4EA0AAE5267A6C
-RUN apt-get -y install supervisor postfix python3-setuptools wget jq sudo git apache2 php${PHP_VERSION}-xdebug libapache2-mod-php${PHP_VERSION} mysql-server php${PHP_VERSION}-mysql pwgen php${PHP_VERSION}-apcu php${PHP_VERSION}-gd php${PHP_VERSION}-xml php${PHP_VERSION}-mbstring zip unzip php${PHP_VERSION}-zip curl php${PHP_VERSION}-curl && \
+RUN apt-get -y install supervisor postfix python3-setuptools wget jq sudo git apache2 php-pear php${PHP_VERSION}-dev libapache2-mod-php${PHP_VERSION} mysql-server php${PHP_VERSION}-mysql pwgen php${PHP_VERSION}-apcu php${PHP_VERSION}-gd php${PHP_VERSION}-xml php${PHP_VERSION}-mbstring zip unzip php${PHP_VERSION}-zip curl php${PHP_VERSION}-curl && \
     echo "ServerName localhost" >> /etc/apache2/apache2.conf
 # echo "port = 3360" >> /etc/mysql/my.cnf
+
+## INSTALL XDEBUG STABLE VERSION
+RUN pecl install xdebug-3.2.2
 
 # Cleanup
 RUN apt-get -y autoremove && \
@@ -142,9 +147,6 @@ RUN usermod --shell /usr/bin/zsh ${USERNAME} \
 COPY --from=nodejs /usr/local/include/node /usr/local/include/node
 COPY --from=nodejs /usr/local/lib/node_modules /usr/local/lib/node_modules
 COPY --from=nodejs /usr/local/bin /usr/local/bin
-
-# Set a default value for ZSH_CUSTOM if it's not already set
-ENV ZSH_CUSTOM=${USERHOME}/.oh-my-zsh/custom
 
 # Clone the powerlevel10k theme for zsh and change owner
 RUN git clone --depth=1 https://github.com/romkatv/powerlevel10k.git $ZSH_CUSTOM/themes/powerlevel10k \
