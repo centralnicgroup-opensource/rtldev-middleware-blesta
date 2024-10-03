@@ -8,7 +8,7 @@
                 <?php
                 foreach ($sections as $index => $key) {
                     ?>
-                <li<?php echo $index == 0 ? ' class="active"' : '';?>><a href="#<?php $this->Html->_($key);?>" data-toggle="tab"><?php $this->_('Cnr.tab_whois.section_' . $key);?></a></li>
+                <li<?php echo $index == 0 ? ' class="active"' : '';?>><a href="#<?php $this->Html->_($key);?>" data-toggle="tab"><?php $this->_('Cnr.tab_whois.section_' . strtolower($key));?></a></li>
                     <?php
                 }
                 ?>

@@ -169,9 +169,9 @@ class DomainManager extends Base
                             "dnssec_dsdata" => ((int)$responseProperty['SUPPORTSDNSSECDSDATA'][0] === 1),
                             "categories" => explode(",", $responseProperty["NTLDCATEGORIES"][0]),
                             "periods" => Helper::parsePeriods($responseProperty["PERIODS"][0]),
-                            "redemptionDays" => ((int)$responseProperty["REDEMPTIONPERIODDAYS"][0] ?: 0),
-                            "graceDays" => ((int)$responseProperty['AUTORENEWGRACEPERIODDAYS'][0] ?: 0),
-                            "unlockWithAuthCode" => (bool)preg_match("/\.fi$/i", $domain),
+                            "redemptionDays" => (int) ($responseProperty["REDEMPTIONPERIODDAYS"][0] ?? 0),
+                            "graceDays" => (int) ($responseProperty['AUTORENEWGRACEPERIODDAYS'][0] ?? 0),
+                            "unlockWithAuthCode" => (bool) preg_match("/\.fi$/i", $domain),
                             "updated_at" => date("Y-m-d H:i:s")
                         ],
                         "registration" => [
@@ -183,7 +183,7 @@ class DomainManager extends Base
                             "defaultPeriod" => $renewalPeriods[0] ?? -1,
                             "renewalMode" => $responseProperty["RENEWALMODE"][0] ?? "DEFAULT",
                             "supportsRenewal" => $supportsRenewal,
-                            "paymentPeriod" => (int)$responseProperty["AUTORENEWGRACEPERIODDAYS"][0],
+                            "paymentPeriod" => (int) $responseProperty["AUTORENEWGRACEPERIODDAYS"][0],
                         ],
                         "transfer" => [
                             "periods" => $transferPeriods,
@@ -394,5 +394,23 @@ class DomainManager extends Base
         $command["COMMAND"] = "DeleteWebFwd";
         $command["source"] = $hostName;
         $this->call($command);
+    }
+
+    public function getAdditionalFields($params)
+    {
+        $command["COMMAND"] = "QueryCommandSyntax";
+        $command["DOMAIN"] = $params["domain"];
+        switch ($params["type"]) {
+            case "modify":
+            case "trade":
+            case "transfer":
+                $command["COMMANDNAME"] = ucfirst($params["type"]) . "Domain";
+                break;
+            default:
+                $command["COMMANDNAME"] = "AddDomain";
+                break;
+        }
+        //$command["NEWFORMAT"] = 1;
+        return $this->call($command);
     }
 }
