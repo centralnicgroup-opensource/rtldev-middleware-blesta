@@ -7,20 +7,26 @@
 
 This repository contains the Blesta Registrar Module for CentralNic Reseller, offering a comprehensive suite of features for efficient domain management and sales. 
 
-## Features
+#### Key / Additional Features:
 
-- **Automated TLD Identification**: Streamlines setup by automatically identifying and configuring TLDs, reducing manual input.
-- **Manual Renewals**: Provides the ability to manually renew domains directly from the Blesta admin panel, offering greater control and flexibility.
-- **Domain Transfers**: Facilitates domain transfers with specific handling for TLDs requiring auth codes (e.g., .nz, .fi).
-- **Nameserver Management**: Enhances nameserver management through user-friendly interfaces and improved stability.
-- **Expiry Date Management**: Accurately manages domain expiry dates using the PHP Date format.
-- **Enhanced Security and Stability**: Regular updates and patches to ensure security and operational stability.
-- **DNS Management**: Comprehensive capabilities for adding, updating, and deleting DNS records.
-- **Email Forwarding**: Supports configuration of email forwarding services for domains.
-- **ID Protection**: Offers options for domain ID protection, including locking and auth code retrieval.
-- **DNSSEC Support**: Integrates DNSSEC to enhance domain security.
-- **Custom Nameservers**: Facilitates the setup and management of custom nameserver hosts.
-- **TLD Pricing**: Supports importing TLD lists along with associated pricing.
+- **Domain Registrations**: Supports new domain registrations through a streamlined interface.
+- **Domain Transfers**: Facilitates domain transfers, including handling auth code requirements for specific TLDs such as .nz and .fi.
+- **Domain Renewals**: Supports both manual and automatic domain renewals via the Blesta admin panel for increased flexibility.
+- **Registrar Lock**: Provides the ability to enable a registrar lock to prevent unauthorized domain transfers.
+- **Custom Nameservers & Nameserver Management**: Allows easy management and setup of custom nameservers.
+- **WHOIS Contact Updates**: Supports updating Whois contact information for registered domains.
+- **Get EPP Code**: Offers retrieval of EPP (authorization) codes required for domain transfers.
+- **Additional Domain Fields**: Supports additional domain-specific fields required by certain TLDs.
+- **TLD Import**: Automates the import of TLDs to streamline domain setup and management.
+- **TLD Pricing**: Supports importing TLD pricing lists for efficient pricing management.
+
+#### Supported Add-Ons:
+
+- **DNS Management**: Provides comprehensive DNS management, including adding, updating, and deleting DNS records.
+- **Email Forwarding**: Enables the configuration of email forwarding services for domains.
+- **ID Protection**: Offers ID protection for domains to safeguard personal information associated with registrations.
+- **DNSSEC Management**: Integrates DNSSEC to improve domain security by enabling DNS Security Extensions.
+- **Custom Nameservers**: Allows users to set up and manage custom nameserver hosts for their domains.
 
 ## Resources
 
