@@ -1,3 +1,10 @@
+# [4.1.0](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v4.0.1...v4.1.0) (2024-10-15)
+
+
+### Features
+
+* **CNR Registrar Module:** API-Driven domain additional fields with custom translations, also includes an patch which fixes the issue with TLD Pricing Import ([8961088](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/commit/896108843fc35c074f6f8046a632d6ffad9d9587))
+
 ## [4.0.1](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v4.0.0...v4.0.1) (2024-10-15)
 
 
