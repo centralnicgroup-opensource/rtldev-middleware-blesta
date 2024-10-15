@@ -1,3 +1,10 @@
+## [4.0.1](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v4.0.0...v4.0.1) (2024-10-15)
+
+
+### Bug Fixes
+
+* **cnr registrar module:** patched an issue to avoid conflict with ispapi module ([6936fa0](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/commit/6936fa0f1c141184959fcc547219fc5e8eacedff))
+
 # [4.0.0](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v3.7.0...v4.0.0) (2024-09-25)
 
 
