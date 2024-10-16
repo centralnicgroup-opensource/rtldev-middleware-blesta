@@ -19,6 +19,7 @@
         <table class="table">
             <tr class="heading_row">
                 <td><span><?php $this->_('Cnr.manage.module_rows_heading.user');?></span></td>
+                <td><span><?php $this->_('Cnr.manage.module_rows_heading.status');?></span></td>
                 <td><span><?php $this->_('Cnr.manage.module_rows_heading.sandbox');?></span></td>
                 <td><span><?php $this->_('Cnr.manage.module_rows_heading.dnssec');?></span></td>
                 <td class="last"><span><?php $this->_('Cnr.manage.module_rows_heading.options');?></span></td>
@@ -28,8 +29,27 @@
                 ?>
             <tr<?php echo ($i%2 == 1) ? ' class="odd_row"' : '';?>>
                 <td><?php $this->Html->_($module->rows[$i]->meta->user);?></td>
-                <td><?php echo $this->_('Cnr.row_meta.' . $this->Html->ifSet($module->rows[$i]->meta->sandbox, 'false'));?></td>
-                <td><?php echo $this->_('Cnr.row_meta.' . $this->Html->ifSet($module->rows[$i]->meta->dnssec, 'false'));?></td>
+                <td>
+                    <?php 
+                    echo $this->Html->ifSet($module->rows[$i]->meta->connectivity, 'false') == 'true' 
+                        ? '<i class="fa fa-check" style="color: green;"></i>' 
+                        : '<i class="fa fa-times" style="color: red;"></i>';
+                    ?>
+                </td>
+                <td>
+                    <?php 
+                    echo $this->Html->ifSet($module->rows[$i]->meta->sandbox, 'false') == 'true' 
+                        ? '<i class="fa fa-check" style="color: green;"></i>' 
+                        : '<i class="fa fa-times" style="color: red;"></i>';
+                    ?>
+                </td>
+                <td>
+                    <?php 
+                    echo $this->Html->ifSet($module->rows[$i]->meta->dnssec, 'false') == 'true' 
+                        ? '<i class="fa fa-check" style="color: green;"></i>' 
+                        : '<i class="fa fa-times" style="color: red;"></i>';
+                    ?>
+                </td>              
                 <td>
                     <a href="<?php echo $this->Html->safe($this->base_uri . 'settings/company/modules/editrow/' . $this->Html->ifSet($module->id) . '/' . $this->Html->ifSet($module->rows[$i]->id) . '/');?>"><?php $this->_('Cnr.manage.module_rows.edit');?></a>
                     <?php
