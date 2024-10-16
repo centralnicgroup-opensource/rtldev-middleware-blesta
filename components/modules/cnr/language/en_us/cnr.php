@@ -18,6 +18,7 @@ $lang['Cnr.manage.module_rows_heading.user'] = 'User';
 $lang['Cnr.manage.module_rows_heading.key'] = 'Password';
 $lang['Cnr.manage.module_rows_heading.sandbox'] = 'Sandbox / OT&E';
 $lang['Cnr.manage.module_rows_heading.dnssec'] = 'DNSSEC Management';
+$lang['Cnr.manage.module_rows_heading.status'] = 'Connectivity Status';
 $lang['Cnr.manage.module_rows_heading.options'] = 'Options';
 $lang['Cnr.manage.module_rows.edit'] = 'Edit';
 $lang['Cnr.manage.module_rows.delete'] = 'Delete';

@@ -722,8 +722,13 @@ class Cnr extends RegistrarModule
         // Load the helpers required for this view
         Loader::loadHelpers($this, ["Form", "Html", "Widget"]);
 
+        foreach ($module->rows as &$row) {
+            $row->meta->connectivity = (bool) Cache::fetchCache(
+                base64_encode("user_{$row->meta->user}"),
+                Configure::get("Blesta.company_id") . DS . "modules" . DS . "cnr" . DS
+            );
+        }
         $this->view->set("module", $module);
-
         return $this->view->fetch();
     }
 
@@ -2834,10 +2839,24 @@ class Cnr extends RegistrarModule
 
         Helper::errorHandler($r);
 
+        if ($r["CODE"] !== "200") {
+            Cache::clearCache(
+                base64_encode("user_{$user}"),
+                Configure::get("Blesta.company_id") . DS . "modules" . DS . "cnr" . DS
+            );
+        }
+
         // Handling api errors
         if ($this->Input->errors()) {
             return;
         }
+
+        Cache::writeCache(
+            base64_encode("user_{$user}"),
+            true,
+            strtotime('1980-01-01'), // 1980-01-01 is a date in the past so it will never expire
+            Configure::get("Blesta.company_id") . DS . "modules" . DS . "cnr" . DS
+        );
 
         return "OK";
     }
