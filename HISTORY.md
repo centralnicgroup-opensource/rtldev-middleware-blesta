@@ -1,3 +1,10 @@
+# [4.2.0](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v4.1.0...v4.2.0) (2024-10-17)
+
+
+### Features
+
+* **cnr registrar module:** show account login connectivity status in the manage module section ([820942a](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/commit/820942a405623569454051bda2c115bccbe4aac2))
+
 # [4.1.0](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v4.0.1...v4.1.0) (2024-10-15)
 
 
