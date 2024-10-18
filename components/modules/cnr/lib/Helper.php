@@ -61,10 +61,14 @@ class Helper
         return $zone;
     }
 
-    public static function errorHandler($response)
+    public static function errorHandler($response, $successCodes = "/^200$/")
     {
+        if ($response instanceof \stdClass) {
+            $response = json_decode(json_encode($response), true);
+        }
+
         // Check if response indicates an error
-        if (isset($response['CODE']) && $response['CODE'] !== "200") {
+        if (isset($response['CODE']) && !preg_match($successCodes, $response['CODE'])) {
             // Handle non-successful responses
             if (isset($response['error'])) {
                 Base::moduleInstance()->Input->setErrors([

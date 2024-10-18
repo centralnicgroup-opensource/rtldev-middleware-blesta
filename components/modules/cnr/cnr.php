@@ -245,7 +245,7 @@ class Cnr extends RegistrarModule
                         "DOMAIN" => $vars["domain"],
                         "AUTH" => $vars["transfer_key"],
                     ], "/^(200|218)$/");
-                    Helper::errorHandler($r);
+                    Helper::errorHandler($r, "/^(200|218)$/");
                     // Handling api errors
                     if ($this->Input->errors()) {
                         return;
@@ -1101,7 +1101,7 @@ class Cnr extends RegistrarModule
         Configure::set("Cnr.domain_fields{$tld}", (new AdditionalFields([
             "tld" => $tld,
             "domain" => $vars->domain,
-            "type" => "register"
+            "type" => isset($vars->transfer_key) ? "transfer" : "register",
         ]))->getConfiguration());
 
         // Set default name servers
@@ -1112,14 +1112,22 @@ class Cnr extends RegistrarModule
             }
         }
 
+        // Handle transfer request
+        if (!empty($vars->transfer) || !empty($vars->transfer_key)) {
+            return $this->arrayToModuleFields(array_merge(
+                Configure::get("Cnr.domain_fields{$tld}"),
+                Configure::get("Cnr.transfer_fields")
+            ), null, $vars);
+        }
+
         $fields = [
             "transfer" => [
                 "label" => Language::_("Cnr.domain.DomainAction", true),
                 "type" => "radio",
                 "value" => "1",
                 "options" => [
-                    "1" => "Register",
-                    "2" => "Transfer",
+                    "0" => "Register",
+                    "1" => "Transfer",
                 ],
             ],
             "domain" => [
@@ -1131,16 +1139,6 @@ class Cnr extends RegistrarModule
                 "type" => "text",
             ],
         ];
-
-        // Handle transfer request
-        if (!empty($vars->transfer) || !empty($vars->transfer_key)) {
-            return $this->arrayToModuleFields(array_merge(
-                $fields,
-                Configure::get("Cnr.domain_fields{$tld}"),
-                Configure::get("Cnr.transfer_fields"),
-                Configure::get("Cnr.nameserver_fields"),
-            ), null, $vars);
-        }
 
         // Handle domain registration
         $module_fields = $this->arrayToModuleFields(array_merge(
@@ -1158,12 +1156,12 @@ class Cnr extends RegistrarModule
                     $('#transfer_key_id').closest('li').hide();
                     // Set whether to show or hide the ACL option
                     $('#transfer_key').closest('li').hide();
-                    if ($('input[name=\"transfer\"]:checked').val() == '2') {
+                    if ($('input[name=\"transfer\"]:checked').val() == '1') {
                         $('#transfer_key_id').closest('li').show();
                     }
 
                     $('input[name=\"transfer\"]').change(function() {
-                        if ($('input[name=\"transfer\"]:checked').val() == '2') {
+                        if ($('input[name=\"transfer\"]:checked').val() == '1') {
                             $('#transfer_key_id').closest('li').show();
                             $('#ns1_id').closest('li').hide();
                             $('#ns2_id').closest('li').hide();
@@ -1210,7 +1208,7 @@ class Cnr extends RegistrarModule
         // Additional domain fields
         Configure::set(
             "Cnr.domain_fields{$tld}",
-            (new AdditionalFields(["tld" => $tld, "domain" => $vars->domain, "type" => "register"]))->getConfiguration()
+            (new AdditionalFields(["tld" => ltrim($tld, "."), "domain" => $vars->domain, "type" => isset($vars->transfer) ? "transfer" : "register"]))->getConfiguration()
         );
 
         // Set default name servers
