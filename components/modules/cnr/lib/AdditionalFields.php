@@ -511,7 +511,7 @@ class AdditionalFields
         // Custom Extensions / Workarounds / Rewrites of fields
         // ----------------------------------------------------
         foreach ($rows as &$row) {
-            if ($this->params["tld"] === "de") {
+            if ($this->params["tld"] === ".de") {
                 // WORKAROUND for RSRMID-1134
                 // could be reviewed by command parameter newformat=1
                 // that provides bulk parameters as X-DE-NSENTRY# with additional parameter max=#
@@ -544,7 +544,7 @@ class AdditionalFields
     {
         // .IT: entity type natural person -> cleanup company name
         if (
-            $params["tld"] === "it"
+            $params["tld"] === ".it"
             && $params["X-IT-ENTITY-TYPE"] === "1"
         ) {
             $params["companyname"] = "";
