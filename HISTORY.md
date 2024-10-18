@@ -1,3 +1,10 @@
+## [4.2.1](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v4.2.0...v4.2.1) (2024-10-18)
+
+
+### Bug Fixes
+
+* **cnr registrar module:** de and it additional fields patch ([28bae34](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/commit/28bae34c5a079d75d6641a6f61e16ff9801802dd))
+
 # [4.2.0](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v4.1.0...v4.2.0) (2024-10-17)
 
 
