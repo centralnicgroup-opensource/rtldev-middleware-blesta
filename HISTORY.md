@@ -1,3 +1,10 @@
+## [4.2.2](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v4.2.1...v4.2.2) (2024-10-18)
+
+
+### Bug Fixes
+
+* **cnr registrar module:** improved cache handling and tld pricing import fix ([e9b98ad](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/commit/e9b98adbfbfe86bda165e1f9f1e93d495b56aa7c))
+
 ## [4.2.1](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v4.2.0...v4.2.1) (2024-10-18)
 
 
