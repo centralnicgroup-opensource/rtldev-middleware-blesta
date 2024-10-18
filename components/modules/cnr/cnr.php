@@ -114,10 +114,17 @@ class Cnr extends RegistrarModule
         $tld = null;
         $input_fields = [];
 
-        if (isset($vars['domain'])) {
-            $tld = $this->getTld($vars['domain'], $row);
-            $vars['domain'] = trim($vars['domain']);
+        if (empty($vars["domain"])) {
+            $this->Input->setErrors([
+                "domain" => [
+                    "empty" => Language::_("Cnr.!error.domain.empty", true),
+                ],
+            ]);
+            return;
         }
+        $tld = $this->getTld($vars['domain'], $row);
+        $vars['domain'] = trim($vars['domain']);
+        $zoneInfo = $this->domainManager->getZoneInfo($vars["domain"]);
 
         Base::setModule($row);
         Base::moduleInstance($this);
@@ -133,13 +140,13 @@ class Cnr extends RegistrarModule
 
         $input_fields = array_merge(
             Configure::get("Cnr.domain_fields"),
-            $extension_fields ?? [],
             (array) Configure::get("Cnr.nameserver_fields"),
             (array) Configure::get("Cnr.transfer_fields"),
             [
                 "NumYears" => true,
                 "transfer" => isset($vars["transfer"]) ? $vars["transfer"] : 1,
-            ]
+            ],
+            $extension_fields ?? [],
         );
 
         // Set the whois privacy field based on the config option
@@ -238,7 +245,7 @@ class Cnr extends RegistrarModule
                     }
                 }
 
-                if (isset($vars["transfer_key"]) && !empty($vars["transfer_key"])) {
+                if ($zoneInfo->transfer->supportsPreCheck && !empty($vars["transfer_key"])) {
                     //domain transfer pre-check
                     $r = $this->domainManager->call([
                         "COMMAND" => "CheckDomainTransfer",
@@ -723,10 +730,7 @@ class Cnr extends RegistrarModule
         Loader::loadHelpers($this, ["Form", "Html", "Widget"]);
 
         foreach ($module->rows as &$row) {
-            $row->meta->connectivity = (bool) Cache::fetchCache(
-                base64_encode("user_{$row->meta->user}"),
-                Configure::get("Blesta.company_id") . DS . "modules" . DS . "cnr" . DS
-            );
+            $row->meta->connectivity = (bool) Helper::hasCache(base64_encode("user_{$row->meta->user}"));
         }
         $this->view->set("module", $module);
         return $this->view->fetch();
@@ -1736,7 +1740,7 @@ class Cnr extends RegistrarModule
             $additionalFields = new AdditionalFields([
                 "tld" => Helper::getSldTld($fields->domain, true),
                 "domain" => $fields->domain,
-                "type" => "register"
+                "type" => "modify"
             ]);
             $extension_fields = $additionalFields->getConfiguration();
 
@@ -2222,6 +2226,9 @@ class Cnr extends RegistrarModule
         $this->setModuleRow($moduleRow);
         $tld_prices = $this->getPrices($moduleRow, $filters);
         $tldYearlyPrices = [];
+        if (!isset($filters['terms'])) {
+            $filters['terms'] =  $_REQUEST['terms'] ?? [];
+        }
         foreach ($tld_prices as $tld => $priceTypes) {
             $tldYearlyPrices[$tld] = [];
             foreach ($priceTypes as $pType => $priceValue) {
@@ -2231,7 +2238,7 @@ class Cnr extends RegistrarModule
                 foreach ($priceValue["cost"] as $currency => $value) {
                     foreach ($priceValue["periods"] as $_ => $period) {
                         // Filter by 'terms'
-                        if (isset($filters['terms']) && !in_array($period, $filters['terms'])) {
+                        if (!empty($filters['terms']) && !in_array($period, $filters['terms'])) {
                             continue;
                         }
                         $setupFee = 0;
@@ -2244,9 +2251,9 @@ class Cnr extends RegistrarModule
                 }
             }
         }
-
         return $tldYearlyPrices;
     }
+
     /**
      * Get a list of the TLDs supported by the registrar module
      *
@@ -2262,12 +2269,9 @@ class Cnr extends RegistrarModule
         Base::moduleInstance($this);
         $cacheKey = $extended ? "tlds" : "tlds_extended";
         // Fetch the TLDs results from the cache, if they exist
-        $cache = Cache::fetchCache(
-            $cacheKey,
-            Configure::get("Blesta.company_id") . DS . "modules" . DS . "cnr" . DS
-        );
+        $cache = Helper::hasCache($cacheKey, true);
         if ($cache) {
-            return unserialize(base64_decode($cache));
+            return $cache;
         }
 
         // Fetch cnr TLDs
@@ -2333,19 +2337,7 @@ class Cnr extends RegistrarModule
 
         // Save the TLDs results to the cache
         if (count($convertIdnTlds) > 0) {
-            if (Configure::get("Caching.on") && is_writable(CACHEDIR)) {
-                try {
-                    Cache::writeCache(
-                        $cacheKey,
-                        base64_encode(serialize($convertIdnTlds)),
-                        strtotime(Configure::get("Blesta.cache_length")) - time(),
-                        Configure::get("Blesta.company_id") . DS . "modules" . DS . "cnr" . DS
-                    );
-                } catch (Exception $e) {
-                    // Write to cache failed, so disable caching
-                    Configure::set("Caching.on", false);
-                }
-            }
+            Helper::setCache($cacheKey, $convertIdnTlds);
         }
 
         return $convertIdnTlds;
@@ -2838,9 +2830,8 @@ class Cnr extends RegistrarModule
         Helper::errorHandler($r);
 
         if ($r["CODE"] !== "200") {
-            Cache::clearCache(
+            Helper::clearCache(
                 base64_encode("user_{$user}"),
-                Configure::get("Blesta.company_id") . DS . "modules" . DS . "cnr" . DS
             );
         }
 
@@ -2849,11 +2840,10 @@ class Cnr extends RegistrarModule
             return;
         }
 
-        Cache::writeCache(
+        Helper::setCache(
             base64_encode("user_{$user}"),
-            true,
+            [true => true],
             strtotime('1980-01-01'), // 1980-01-01 is a date in the past so it will never expire
-            Configure::get("Blesta.company_id") . DS . "modules" . DS . "cnr" . DS
         );
 
         return "OK";
@@ -2929,29 +2919,24 @@ class Cnr extends RegistrarModule
     protected function getPrices($moduleRow, array $filters = [])
     {
         // Fetch the TLDs results from the cache, if they exist
-        $cache = false; //Cache::fetchCache(
-        //     'tlds_prices',
-        //     Configure::get('Blesta.company_id') . DS . 'modules' . DS . 'cnr' . DS
-        // );
-
-        if ($cache) {
-            $tldPricing = unserialize(base64_decode($cache));
-        }
+        $tldPricing = Helper::hasCache("tld_pricing", true);
 
         Loader::loadModels($this, ['Currencies']);
         Base::setModule($moduleRow);
         Base::moduleInstance($this);
 
-        if (!isset($tldPriceData)) {
+        if (empty($tldPricing)) {
+            // Initialize an empty array to store TLD pricing information
+            $tldPricing = [];
+
+            // Fetch TLDs data based on filters or get all TLDs if no filters are provided
             $tldsRawData = $this->getTlds(null, true);
-            $domains = [];
-            foreach ($tldsRawData as $_ => $tld) {
-                $domains[] = "example" . $tld["tld"];
-            }
+
+            // Create example domains for each TLD
+            $domains = array_map(fn($tld) => "example" . $tld["tld"], $tldsRawData);
 
             $zoneInformations = $this->domainManager->getZoneInfo($domains);
             Helper::errorHandler($zoneInformations);
-
 
             // Fetch cnr User data including tlds data
             $userData = $this->domainManager->getUserData();
@@ -2975,7 +2960,7 @@ class Cnr extends RegistrarModule
                 $tldPricing[$tld]["renew"]["cost"][$tldPriceCurrency] = (float) $tldData["pricing"]["annualFee"]; // ( anuual fee * term )
                 $tldPricing[$tld]["renew"]["periods"] = $zoneInformations[$tldNoDot]->renewal->periods;
                 $tldPricing[$tld]["renew"]["defaultPeriod"] = $zoneInformations[$tldNoDot]->renewal->defaultPeriod;
-                $tldPricing[$tld]["transfer"]["cost"][$tldPriceCurrency] = (float) $tldData["pricing"]["transferFee"]; //transfer fee
+                $tldPricing[$tld]["transfer"]["cost"][$tldPriceCurrency] = (float) $tldData["pricing"]["transferFee"]; // transfer fee
                 $tldPricing[$tld]["transfer"]["periods"] = $zoneInformations[$tldNoDot]->transfer->periods;
                 $tldPricing[$tld]["transfer"]["defaultPeriod"] = $zoneInformations[$tldNoDot]->transfer->defaultPeriod;
                 $tldPricing[$tld]["redemption"]["cost"][$tldPriceCurrency] = (float) $tldData["pricing"]["redemptionFee"];
@@ -2988,31 +2973,22 @@ class Cnr extends RegistrarModule
             }
 
             // Save the TLDs results to the cache
-            if (
-                Configure::get('Caching.on') && is_writable(CACHEDIR)
-                && count($tldPricing) > 0
-            ) {
-                try {
-                    Cache::writeCache(
-                        'tlds_prices',
-                        base64_encode(serialize($tldPricing)),
-                        strtotime(Configure::get('Blesta.cache_length')) - time(),
-                        Configure::get('Blesta.company_id') . DS . 'modules' . DS . 'namesilo' . DS
-                    );
-                } catch (Exception $e) {
-                    // Write to cache failed, so disable caching
-                    Configure::set('Caching.on', false);
-                }
-            }
+            Helper::setCache("tld_pricing", $tldPricing);
         }
 
         // Get all currencies
         $currencies = $this->Currencies->getAll(Configure::get('Blesta.company_id'));
+        if (isset($filters['currencies']) && !empty($filters['currencies'])) {
+            $currencies = array_filter($currencies, function ($currency) use ($filters) {
+                return in_array($currency->code, $filters['currencies']);
+            });
+        }
+
         $priceWithCurrencies = [];
 
         // Convert prices to all currencies
         foreach ($tldPricing as $tld => $pricing) {
-            $tldFilter = '.' . trim($tld, '.');
+            $tldFilter = '.' . ltrim($tld, '.');
 
             // Filter by 'tlds'
             if (isset($filters['tlds']) && !in_array($tldFilter, $filters['tlds'])) {
@@ -3040,19 +3016,19 @@ class Cnr extends RegistrarModule
                     }
 
                     $tldCurrency = $pricing["tld"]["currency"] ?? $pricing["user"]["currency"];
-                    $price = $priceValue["cost"][$tldCurrency] ?? 0;
+                    $price = $priceValue["cost"][$tldCurrency] ?? "";
 
-                    if (empty($tldCurrency) || empty($price)) {
+                    if (empty($tldCurrency) || $price === "") {
                         continue;
                     }
 
                     // Convert the price and assign it to the appropriate currency
-                    $pricing[$priceKey]["cost"][$currency->code] = $this->Currencies->convert(
+                    $pricing[$priceKey]["cost"][$currency->code] = round((float) $this->Currencies->convert(
                         $price,
                         $tldCurrency,
                         $currency->code,
                         Configure::get('Blesta.company_id')
-                    );
+                    ), 2);
                 }
             }
             $priceWithCurrencies[$tld] = $pricing;

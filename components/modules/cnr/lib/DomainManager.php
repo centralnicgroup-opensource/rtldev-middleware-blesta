@@ -188,6 +188,7 @@ class DomainManager extends Base
                         "transfer" => [
                             "periods" => $transferPeriods,
                             "supportsTransferLock" => ((int)$responseProperty['SUPPORTSTRANSFERLOCKS'][0] === 1),
+                            "supportsPreCheck" => ((int)$responseProperty["FOAEMAIL"][0] === 1) || ($responseProperty["AUTHCODE"][0] === "required"),
                             "resetsRegistrationPeriod" => ((int)$responseProperty["TRANSFERRESETSREGISTRATIONPERIOD"] === 1),
                             "defaultPeriod" => $transferPeriods[0] ?? -1,
                             "isFree" => !($responseProperty['RENEWALATTRANSFER'][0] || $responseProperty['RENEWALAFTERTRANSFER'][0]),

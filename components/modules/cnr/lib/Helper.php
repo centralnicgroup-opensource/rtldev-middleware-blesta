@@ -240,7 +240,7 @@ class Helper
      * @param string $keyName The key name for the cache.
      * @return mixed|false The cached data or false if caching is disabled or an error occurs.
      */
-    public static function hasCache(string $keyName)
+    public static function hasCache(string $keyName, bool $returnAsArray = false)
     {
         // If cache is disabled or key name is empty, return false
         if (!\Configure::get("Caching.on") || empty($keyName)) {
@@ -255,7 +255,7 @@ class Helper
 
         // If cache exists, return the cached data
         if ($cache) {
-            return json_decode($cache);
+            return $returnAsArray ? json_decode($cache, true) : json_decode($cache);
         }
 
         return false;
@@ -268,8 +268,13 @@ class Helper
      * @param object|array $cacheData The data to store in cache.
      * @return bool True if the data was successfully cached, false otherwise.
      */
-    public static function setCache(string $keyName, object|array $cacheData)
+    public static function setCache(string $keyName, object|array $cacheData, $ttl = null)
     {
+        // Calculate TTL if not provided
+        if (is_null($ttl)) {
+            $ttl = strtotime(CNIC_TLD_CACHE) - time();
+        }
+
         // If caching is disabled, key name is empty, or cache data is empty, return false
         if (!\Configure::get("Caching.on") || empty($keyName) || empty($cacheData)) {
             return false;
@@ -280,7 +285,7 @@ class Helper
             \Cache::writeCache(
                 $keyName,
                 json_encode($cacheData),
-                strtotime(CNIC_TLD_CACHE) - time(),
+                $ttl,
                 \Configure::get("Blesta.company_id") . \DS . "modules" . \DS . "cnr" . \DS
             );
         } catch (\Exception $e) {
@@ -290,6 +295,20 @@ class Helper
         }
 
         return self::hasCache($keyName);
+    }
+
+    public static function clearCache(string $keyName)
+    {
+        // If cache is disabled or key name is empty, return false
+        if (!\Configure::get("Caching.on") || empty($keyName)) {
+            return false;
+        }
+
+        // Clear the cache
+        return \Cache::clearCache(
+            $keyName,
+            \Configure::get("Blesta.company_id") . \DS . "modules" . \DS . "cnr" . \DS
+        );
     }
 
     /**
