@@ -1,3 +1,10 @@
+## [4.2.3](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v4.2.2...v4.2.3) (2024-11-07)
+
+
+### Bug Fixes
+
+* **hexonet registrar module:** patches issue with getRegistrationDate for domains ([393b18d](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/commit/393b18dc96f07290f8a2e8a0c49b1975dd86b74d))
+
 ## [4.2.2](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v4.2.1...v4.2.2) (2024-10-18)
 
 
