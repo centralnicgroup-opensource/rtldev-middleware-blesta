@@ -81,6 +81,29 @@ function doZip(callback) {
   })();
 }
 
-exports.copy = series(doComposerUpdate, doDistClean, doCopyFiles);
 
+/**
+ * build latest zip archive
+ * @return stream
+ */
+function buildHxZip(callback) {
+  (async () => {
+    try {
+      const zip = await import('gulp-zip');
+      src(`./${cfg.archiveHxBuildPath}/**`)
+        .pipe(zip.default(`${cfg.archiveHXFileName}-latest.zip`))
+        .pipe(dest('.'))
+        .on('end', () => {
+          console.log('Archive generated successfully');
+          callback(null); // Pass null for success, or an error object for failure
+        });
+    } catch (error) {
+      console.error('Error importing module:', error);
+      callback(error); // Pass the error to the callback
+    }
+  })();
+}
+
+exports.copy = series(doComposerUpdate, doDistClean, doCopyFiles);
+exports.buildHx = buildHxZip;
 exports.release = series(exports.copy, doZip, doFullClean);

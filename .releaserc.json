@@ -13,12 +13,6 @@
             }
         ],
         [
-            "@semantic-release/exec",
-            {
-                "prepareCmd": "gulp release"
-            }
-        ],
-        [
             "semantic-release-replace-plugin",
             {
                 "replacements": [
@@ -48,6 +42,12 @@
                         "countMatches": true
                     }
                 ]
+            }
+        ],
+        [
+            "@semantic-release/exec",
+            {
+                "prepareCmd": "gulp release"
             }
         ],
         [
