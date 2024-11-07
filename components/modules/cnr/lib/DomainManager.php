@@ -228,6 +228,14 @@ class DomainManager extends Base
     public function addDNS($domain, $postData)
     {
         $record = Helper::getResourceRecord($postData, $domain);
+        if (array_key_exists("record_type", $record) && in_array($record["record_type"], ["RD", "MRD"])) {
+            return $this->call([
+                "COMMAND" => "AddWebFwd",
+                "source" => $record["hostname"],
+                "target" => $record["address"],
+                "type" => $record["record_type"]
+            ]);
+        }
         return $this->call([
             "COMMAND" => "ModifyDNSZone",
             "DNSZONE" => "{$domain}",
@@ -235,11 +243,17 @@ class DomainManager extends Base
         ]);
     }
 
-    public function deleteDNS($dns, $postData)
+    public function deleteDNS($domain, $postData)
     {
+        if ($postData["raw_record"] == "URL" || $postData["raw_record"] == "FRAME") {
+            return $this->call([
+            "COMMAND" => "DeleteWebFwd",
+            "source" => $domain
+            ]);
+        }
         return $this->call([
             "COMMAND" => "ModifyDNSZone",
-            "DNSZONE" => "{$dns}",
+            "DNSZONE" => "{$domain}",
             "DELRR0" => "{$postData['raw_record']}"
         ]);
     }
