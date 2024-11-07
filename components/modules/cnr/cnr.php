@@ -593,7 +593,7 @@ class Cnr extends RegistrarModule
         Loader::loadHelpers($this, ['Date']);
 
         $domain = $this->getServiceDomain($service);
-        $row = $this->getModuleRow($service->module_row_id ?? $service->module_row);
+        $row = $this->getModuleRow($service->module_row_id ?? $service->module_row) ?? $this->getModuleRows()[0];
         Base::setModule($row);
         Base::moduleInstance($this);
 
@@ -667,7 +667,6 @@ class Cnr extends RegistrarModule
                 ];
             }
         }
-
         return $meta;
     }
 
@@ -1273,7 +1272,7 @@ class Cnr extends RegistrarModule
 
         $fields = new ModuleFields();
 
-        Base::setModule($this->getModuleRow($package->module_row));
+        Base::setModule($this->getModuleRow($package->module_row) ?? $this->getModuleRows()[0]);
         Base::moduleInstance($this);
 
         if ($package->meta->type === "domain" && $_SERVER["REQUEST_METHOD"] === "GET") {
@@ -1958,7 +1957,6 @@ class Cnr extends RegistrarModule
 
         // check if id_protection is enabled for the domain
         $vars->whois_privacy = !$this->featureServiceEnabled('id_protection', $service) ? "disabled" : $vars->whois_privacy;
-
         // To get epp/auth code
         if (isset($post["request_epp"])) {
             // Expiring Authorization Codes
@@ -2205,7 +2203,7 @@ class Cnr extends RegistrarModule
      */
     public function getTldPricing($module_row_id = null)
     {
-        $this->getFilteredTldPricing($module_row_id);
+        return $this->getFilteredTldPricing($module_row_id);
     }
 
     /**

@@ -239,7 +239,11 @@ class AdditionalFields
                 // } elseif ($name === "X-EU-REGISTRANT-CITIZENSHIP") {
                 //     $options[$val] = $val . "|" . Language::_($val, $labels[$idx], true); // todo, fallback logic to translation file
                 // } else {
-                $options[$val] = $val . "|" . $this->getTranslation($name, $val, $labels[$idx], true, true);
+                $options[$val] = $val;
+                $valTranslation = $this->getTranslation($name, $val, $labels[$idx], true, true);
+                if ($val !== $valTranslation) {
+                    $options[$val] = $val . "|" . $valTranslation;
+                }
                 // }
             }
         }

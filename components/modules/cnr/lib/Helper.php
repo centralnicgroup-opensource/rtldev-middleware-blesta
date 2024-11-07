@@ -5,30 +5,39 @@ namespace CNR\MODULE\LIB;
 use CNR\MODULE\LIB\Base;
 use CNIC\IDNA\Factory\ConverterFactory;
 
-define("CNIC_TLD_CACHE", "1 day");
+if (!defined("CNIC_TLD_CACHE")) {
+    define("CNIC_TLD_CACHE", "1 day");
+}
 
 class Helper
 {
-    public static function getResourceRecord($record, $domain = "")
+    /**
+     * Retrieves the resource record for a given domain.
+     *
+     * @param array $record resource record with their respective data.
+     * @param string $domain The domain name for which to retrieve the resource record. Default is an empty string.
+     * @return mixed The resource record data for the specified domain and record type.
+     */
+    public static function getResourceRecord(array $record, string $domain = "")
     {
-        // hostname ttl IN record_type priority address
-        // $record = $data['hostname'] . " " . $data['ttl'] . " IN " . $data['record_type'];
-        // if (isset($data['priority']) && !empty($data['priority']) && ($data['record_type'] == 'MX' || $data['record_type'] == 'MXE' || $data['record_type'] == 'SRV')) {
-        //     $record .= " " . $data['priority'];
-        // }
-        // $record .= " " . $data['address'];
-
         // Determine record to add
         $zone = [];
         $ttl = $record["ttl"] ?? "3600";
         if (!is_numeric($ttl)) {
             $ttl = "3600";
         }
-        if (!$record['hostname'] || (isset($domain) && $record['hostname'] === $domain)) {
+
+        if (!$record['hostname'] || (!empty($domain) && $record['hostname'] === $domain)) {
             $record['hostname'] = "@";
         }
 
         switch ($record['record_type']) {
+            case "URL":
+            case "FRAME":
+                $record["hostname"] = ($record["hostname"] == "@") ? $domain : $record["hostname"] . "." . $domain;
+                $record["record_type"] = $record["record_type"] == "URL" ? "RD" : "MRD";
+                $zone[] = $record;
+                break;
             case "MXE":
                 $address = $record["address"];
                 $mxpref = is_numeric($record["priority"]) ? $record["priority"] : "100";
@@ -61,7 +70,14 @@ class Helper
         return $zone;
     }
 
-    public static function errorHandler($response, $successCodes = "/^200$/")
+    /**
+     * Handles errors based on the response and success codes.
+     *
+     * @param array|\stdClass|null $response The response to be evaluated. Expected to be an associative array or an object with a 'CODE' key and optionally an 'error' key.
+     * @param string $successCodes A regex pattern representing the success codes. Defaults to "/^200$/".
+     * @return boolean
+     */
+    public static function errorHandler(array|\stdClass|null $response, string $successCodes = "/^200$/")
     {
         if ($response instanceof \stdClass) {
             $response = json_decode(json_encode($response), true);
@@ -93,7 +109,7 @@ class Helper
      * @param string $domain
      * @return array
      */
-    public static function getResourceRecords($resourceRecords, $domain = "")
+    public static function getResourceRecords(array $resourceRecords, string $domain = "")
     {
         if (empty($resourceRecords)) {
             return [];
@@ -119,48 +135,29 @@ class Helper
                 continue;
             }
 
-            if ((bool)preg_match("/^(A|AAAA|CNAME)$/", $rrtype)) {
-                if (
-                    $rrtype !== "A" ||
-                    !preg_match("/^mxe-host-for-ip-(\d+)-(\d+)-(\d+)-(\d+)$/i", $domain, $m)
-                ) {
-                    $hostrecords[$i] = [
-                        "hostname" => $name,
-                        "ttl" => $ttl,
-                        "record_type" => $rrtype,
-                        "address" => $content
-                    ];
-                    $hostrecords[$i]["raw_record"] = Helper::getResourceRecord($hostrecords[$i]);
+            if ($resourceRecords['LOCKED'][$i] == 1) {
+                $fwdtype = "URL";
+                if (strtolower($rrtype) == "mrd") {
+                    $fwdtype = "FRAME";
+                }
+                $hostrecords[$i] = [
+                    'hostname' => $name,
+                    'record_type' => $fwdtype,
+                    'address' => $content
+                ];
+                $hostrecords[$i]["raw_record"] = $fwdtype;
+                continue;
+            }
+
+            if ($rrtype == 'MX') {
+                if ($content == $priority) {
                     continue;
                 }
-            }
-
-            if ($rrtype === "SRV" || $rrtype === "MX") {
-                $hostrecords[$i] = [
-                    "hostname" => $name,
-                    "ttl" => $ttl,
-                    "record_type" => $rrtype,
-                    "address" => $content,
-                    "priority" => $priority
-                ];
-                $hostrecords[$i]["raw_record"] = Helper::getResourceRecord($hostrecords[$i]);
-                continue;
-            }
-
-            if ($rrtype === "X-HTTP") {
-                if ($rrtype === "REDIRECT") {
-                    $url_type = "URL";
+                if (substr($content, 0, strlen($priority)) === $priority) {
+                    $content = substr($content, strlen($priority) + 1);
                 }
-
-                $hostrecords[$i] = [
-                    "hostname" => $name,
-                    "ttl" => $ttl,
-                    "record_type" => $url_type,
-                    "address" => $content
-                ];
-                $hostrecords[$i]["raw_record"] = Helper::getResourceRecord($hostrecords[$i]);
-                continue;
             }
+
 
             // TXT or other records
             $hostrecords[$i] = [
@@ -169,11 +166,18 @@ class Helper
                 "record_type" => $rrtype,
                 "address" => $content
             ];
-            $hostrecords[$i]["raw_record"] = Helper::getResourceRecord($hostrecords[$i]);
+            $hostrecords[$i]["raw_record"] = Helper::getResourceRecord($hostrecords[$i], $domain);
         }
         return $hostrecords;
     }
 
+    /**
+     * Retrieves the supported Resource Record (RR) types.
+     *
+     * This method returns an array of supported DNS Resource Record types.
+     *
+     * @return array An array of supported RR types.
+     */
     public static function getSupportedRRTypes()
     {
         return [
@@ -192,7 +196,8 @@ class Helper
             "SRV",
             "TXT",
             "TLSA",
-            "X-HTTP"
+            "URL",
+            "FRAME"
         ];
     }
 
@@ -200,9 +205,10 @@ class Helper
      * Builds and returns the rules required to add/edit a module row
      *
      * @param array $vars An array of key/value data pairs
+     * @param int|null $module_row_id The module row ID to validate against
      * @return array An array of Input rules suitable for Input::setRules()
      */
-    public static function getRowRules(&$vars, $module_row_id = null)
+    public static function getRowRules(array &$vars, $module_row_id = null)
     {
         $instance = Base::moduleInstance();
         return [
@@ -238,6 +244,7 @@ class Helper
      * retrieve data from cache if available.
      *
      * @param string $keyName The key name for the cache.
+     * @param bool $returnAsArray Whether to return the cached data as an array.
      * @return mixed|false The cached data or false if caching is disabled or an error occurs.
      */
     public static function hasCache(string $keyName, bool $returnAsArray = false)
@@ -266,6 +273,7 @@ class Helper
      *
      * @param string $keyName The key name for the cache.
      * @param object|array $cacheData The data to store in cache.
+     * @param int|null $ttl The time-to-live for the cache data. Default is null.
      * @return bool True if the data was successfully cached, false otherwise.
      */
     public static function setCache(string $keyName, object|array $cacheData, $ttl = null)
@@ -297,15 +305,21 @@ class Helper
         return self::hasCache($keyName);
     }
 
+    /**
+     * Clears the cache for the given key name.
+     *
+     * @param string $keyName The name of the cache key to clear.
+     * @return void
+     */
     public static function clearCache(string $keyName)
     {
         // If cache is disabled or key name is empty, return false
         if (!\Configure::get("Caching.on") || empty($keyName)) {
-            return false;
+            return;
         }
 
         // Clear the cache
-        return \Cache::clearCache(
+        \Cache::clearCache(
             $keyName,
             \Configure::get("Blesta.company_id") . \DS . "modules" . \DS . "cnr" . \DS
         );
@@ -317,7 +331,7 @@ class Helper
      * @param array|string $periods Periods data from API response.
      * @return array Parsed periods.
      */
-    public static function parsePeriods($periods)
+    public static function parsePeriods(array|string $periods)
     {
         return array_values(array_unique( // unique values, re-indexed
             array_map( // convert strings to ints
@@ -340,7 +354,7 @@ class Helper
      * @param array $domains list of domain names (or tlds)
      * @return array
      */
-    public static function IDNConvert($data)
+    public static function IDNConvert(array $data)
     {
         return ConverterFactory::convert($data);
     }

@@ -1,0 +1,37 @@
+parameters:
+    level: 5
+    #phpVersion: 80100
+    #treatPhpDocTypesAsCertain: false
+    fileExtensions:
+        - php
+        - module
+        - inc
+    paths:
+        - ../../components/modules/cnr
+    excludePaths:
+        - ../../components/modules/cnr/apis/vendor
+    scanDirectories:
+        # - /usr/share/rtldev-middleware-blesta/compon
+        ents
+        - /var/www/html/blesta
+    bootstrapFiles:
+        - /var/www/html/blesta/lib/init.php
+        #- /var/www/html/blesta/vendors/autoload.php
+    ignoreErrors:
+        #- "#^Access to an undefined property WHMCS\\\\Domain\\\\Domain::\\$.*.$#"
+        #- "#^Call to an undefined static method WHMCS\\\\Domain\\\\Domain::.+\\(\\).$#"
+        #- "#^Method WHMCS\\\\View\\\\Menu\\\\Item::getChild\\(\\) invoked with 1 parameter, 2 required.$#"
+        #-
+        #    message: '#Access to an undefined property [a-zA-Z0-9\\_]+::\$(autosetup|code|status|remoteid|id|gid)#'
+        #    paths:
+        #        - ../../modules/addons/cnicssl_addon/cnicssl_addon.php
+        #        - ../../modules/servers/cnicssl/cnicssl.php
+        #        - ../../modules/servers/cnicssl/lib/SSLHelper.php
+        #- '#Function [a-zA-Z0-9\\_]+ not found.#'
+        #- '#Variable \$[a-zA-Z0-9\\_]+ might not be defined.#'
+        #- '#Undefined variable: \$[a-zA-Z0-9\\_]+#'
+        #- '#Access to an undefined property object::#'
+        #- '#Parameter \#2 \$callback of function array_walk expects callable#'
+    parallel:
+        maximumNumberOfProcesses: 1000
+    tmpDir: /tmp/phpstan
