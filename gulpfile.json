@@ -2,6 +2,7 @@
   "archiveFileName": "blesta-cnr-registrar",
   "archiveHXFileName": "blesta-ispapi-registrar",
   "archiveBuildPath": "build",
+  "archiveHxBuildPath": "components/modules/ispapi",
   "filesForArchive": [
     "README.md",
     "CONTRIBUTING.md",
