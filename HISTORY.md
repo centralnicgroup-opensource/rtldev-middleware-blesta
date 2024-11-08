@@ -1,3 +1,10 @@
+## [4.2.4](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v4.2.3...v4.2.4) (2024-11-08)
+
+
+### Bug Fixes
+
+* **cnic registrar module:** patched url forwarding bug and improved user experience ([b55ed76](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/commit/b55ed76fc9505594ed54106d6f9aee9e2e8d2dc3))
+
 ## [4.2.3](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v4.2.2...v4.2.3) (2024-11-07)
 
 
