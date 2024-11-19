@@ -593,19 +593,36 @@ class Cnr extends RegistrarModule
         Loader::loadHelpers($this, ['Date']);
 
         $domain = $this->getServiceDomain($service);
+
+        if (empty($domain)) {
+            return false;
+        }
+
         $row = $this->getModuleRow($service->module_row_id ?? $service->module_row) ?? $this->getModuleRows()[0];
         Base::setModule($row);
         Base::moduleInstance($this);
 
-        $r = $this->domainManager->getDomainStatus($domain);
+        $r = $this->domainManager->call([
+            "COMMAND" => "QueryDomainList",
+            "DOMAIN" => $domain,
+            "WIDE" => 1
+        ]);
+
+        // handle api errors
         if (!Helper::errorHandler($r)) {
-            return;
+            return false;
+        }
+
+        $r = $r["PROPERTY"];
+
+        if ((int)$r["COUNT"][0] <= 0) {
+            return false;
         }
 
         $expiryDate = Helper::getExpiryDate(
-            $r["PROPERTY"]["RENEWALDATE"][0] ?? null,
-            $r["PROPERTY"]["PAIDUNTILDATE"][0] ?? null,
-            $r["PROPERTY"]["REGISTRATIONEXPIRATIONDATE"][0] ?? null
+            $r["DOMAINRENEWALDATE"][0] ?? null,
+            $r["PAIDUNTILDATE"][0] ?? null,
+            $r["DOMAINREGISTRATIONEXPIRATIONDATE"][0] ?? null
         );
 
         return $this->Date->format(
@@ -2156,6 +2173,10 @@ class Cnr extends RegistrarModule
 
         $domain = $this->getServiceDomain($service);
 
+        if (empty($domain)) {
+            return false;
+        }
+
         Base::setModule($this->getModuleRow($service->module_row_id ?? null));
         Base::moduleInstance($this);
 
@@ -2165,13 +2186,19 @@ class Cnr extends RegistrarModule
             "WIDE" => 1
         ]);
 
-        Helper::errorHandler($r);
-        if ($r["CODE"] !== "200") {
+        // handle api errors
+        if (!Helper::errorHandler($r)) {
+            return false;
+        }
+
+        $r = $r["PROPERTY"];
+
+        if ((int)$r["COUNT"][0] <= 0) {
             return false;
         }
 
         // cast our UTC API timestamp format to useful formats in local timezone
-        $createdDate = $this->_castDate($r["PROPERTY"]["DOMAINCREATEDDATE"][0], $format);
+        $createdDate = $this->_castDate($r["DOMAINCREATEDDATE"][0], $format);
         return $this->Date->format($format, $createdDate["ts"]);
     }
 
