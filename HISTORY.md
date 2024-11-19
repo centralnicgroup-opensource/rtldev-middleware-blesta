@@ -1,3 +1,10 @@
+## [4.2.5](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v4.2.4...v4.2.5) (2024-11-19)
+
+
+### Bug Fixes
+
+* **cnr & ispapi module:** patches issue with domain registration/expiration date synchronisation ([e892900](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/commit/e892900ceb140901d9afd72d7c6d1b0071083de4))
+
 ## [4.2.4](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v4.2.3...v4.2.4) (2024-11-08)
 
 
