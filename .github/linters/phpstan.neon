@@ -11,8 +11,7 @@ parameters:
     excludePaths:
         - ../../components/modules/cnr/apis/vendor
     scanDirectories:
-        # - /usr/share/rtldev-middleware-blesta/compon
-        ents
+        # - /usr/share/rtldev-middleware-blesta/components
         - /var/www/html/blesta
     bootstrapFiles:
         - /var/www/html/blesta/lib/init.php
@@ -35,3 +34,5 @@ parameters:
     parallel:
         maximumNumberOfProcesses: 1000
     tmpDir: /tmp/phpstan
+#includes:
+#	- phar://phpstan.phar/conf/bleedingEdge.neon
