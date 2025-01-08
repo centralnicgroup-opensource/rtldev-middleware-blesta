@@ -1978,33 +1978,19 @@ class Cnr extends RegistrarModule
         if (isset($post["request_epp"])) {
             // Expiring Authorization Codes
             // https://confluence.centralnic.com/display/RSR/Expiring+Authcodes
-            // pending cases:
-            // - RSRBE-3774
-            // - RSRBE-3753
             $response = $r; //StatusDomain
-            if (preg_match("/\.(eu|be)$/i", $fields->domain)) {
+            if (preg_match("/\.(de|be|no|eu)$/i", $fields->domain)) {
                 $response = $this->domainManager->call([
-                    "COMMAND" => "RequestDomainAuthInfo",
+                    "COMMAND" => "SetAuthCode",
                     "DOMAIN" => $fields->domain,
                 ]);
-                // TODO -> PENDING = 1|0
-                if ($response["CODE"] === "540") { // .eu
-                    // Object exists; The domain name already has a transfer authorisation code
-                    $response = $r;
-                }
-            } elseif (preg_match("/\.de$/i", $fields->domain)) {
+            } elseif (preg_match("/\.(cn)$/i", $fields->domain)) {
                 $response = $this->domainManager->call([
                     "COMMAND" => "ModifyDomain",
-                    "GENERATERANDOMAUTH" => 1,
-                    "TRANSFERLOCK" => 0,
+                    "AUTH" => "AUTO",
                     "DOMAIN" => $fields->domain
                 ]);
-            } elseif (preg_match("/\.(nz|fi)$/i", $fields->domain)) {
-                $response = $this->domainManager->call([
-                    "COMMAND" => "ModifyDomain",
-                    "GENERATERANDOMAUTH" => 1,
-                    "DOMAIN" => $fields->domain
-                ]);
+                Helper::errorHandler($response);
                 if ($response["CODE"] === "200") {
                     $response = $this->domainManager->call([
                         "COMMAND" => "StatusDomain",
@@ -2024,7 +2010,7 @@ class Cnr extends RegistrarModule
                         "errors" => ["No AuthInfo code assigned to this domain name. Contact Support."],
                     ]);
                 } else {
-                    $vars->{"auth"} = $response["PROPERTY"]["AUTH"][0];
+                    $vars->{"auth"} = htmlspecialchars($response["PROPERTY"]["AUTH"][0]);
                 }
             } else {
                 $this->Input->setErrors([
