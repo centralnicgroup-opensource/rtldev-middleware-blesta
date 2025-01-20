@@ -1,3 +1,10 @@
+## [4.2.6](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v4.2.5...v4.2.6) (2025-01-20)
+
+
+### Bug Fixes
+
+* **cnr registrar module:** patch issue with Get EPP Codes functionality for DE, BE, EU, NO, CN TLDs ([ce6626f](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/commit/ce6626f3704ec9e9cc8506149ebec16bc87081b6))
+
 ## [4.2.5](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v4.2.4...v4.2.5) (2024-11-19)
 
 
