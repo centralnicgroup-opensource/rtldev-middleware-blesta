@@ -1,3 +1,17 @@
+# [5.0.0](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v4.2.6...v5.0.0) (2025-02-12)
+
+
+### Bug Fixes
+
+* **deps:** bumped PHP-SDK to version from v9 to v11 ([c9e756d](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/commit/c9e756d6fae63cce26a25f49e0fc9f18241882bc))
+
+
+### BREAKING CHANGES
+
+* **deps:** The CNR Blesta Registrar Module no longer supports PHP 7. Ensure your SYSTEM
+environment is updated to PHP 8 to ensure compatibility and upgrade to our future releases
+hassle-free.
+
 ## [4.2.6](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v4.2.5...v4.2.6) (2025-01-20)
 
 
