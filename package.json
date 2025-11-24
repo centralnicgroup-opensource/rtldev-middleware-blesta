@@ -33,9 +33,10 @@
     "isp",
     "registration"
   ],
-  "overrides": {
-    "glob-parent": "^6.0.2",
-    "shelljs": "^0.8.5"
+  "pnpm": {
+    "overrides": {
+      "shelljs": "^0.8.5"
+    }
   },
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.3",

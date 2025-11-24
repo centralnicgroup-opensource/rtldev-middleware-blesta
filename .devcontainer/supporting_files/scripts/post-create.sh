@@ -2,14 +2,16 @@
 # NOTE: This file will be executed as remoteUser (devcontainer.json)
 echo "=> Script: post-create.sh Executed by: $(whoami)"
 
-sudo npm install --silent --progress=false --global gulp-cli commitizen@latest cz-conventional-changelog@latest semantic-release-cli@latest
-
 # shellcheck source=/dev/null
 source ~/.zshrc
 
+# install pnpm and global packages
+sudo npm i --silent -g pnpm
+sudo pnpm add -g gulp-cli commitizen@latest cz-conventional-changelog@latest semantic-release-cli@latest
+
 # install composer deps
 composer install
-npm i
+pnpm i
 
 RET=1
 totalTries=0

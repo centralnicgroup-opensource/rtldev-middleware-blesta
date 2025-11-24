@@ -1,5 +1,7 @@
 vendor
 node_modules
+.pnpm-store
+package-lock.json
 pkg
 composer.lock
 build
