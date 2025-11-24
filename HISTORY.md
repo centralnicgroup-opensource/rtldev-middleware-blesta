@@ -1,3 +1,10 @@
+## [5.0.1](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v5.0.0...v5.0.1) (2025-11-24)
+
+
+### Bug Fixes
+
+* **deps:** update centralnic-reseller/php-sdk requirement ([1ba0a0f](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/commit/1ba0a0fa75ea65d17c5e33a7219d6cdd57932ba2))
+
 # [5.0.0](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v4.2.6...v5.0.0) (2025-02-12)
 
 
