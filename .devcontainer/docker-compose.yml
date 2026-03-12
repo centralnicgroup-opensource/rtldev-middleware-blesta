@@ -24,6 +24,7 @@ services:
         PHP_VERSION: 8.1
     volumes:
       - ..:/usr/share/rtldev-middleware-blesta:cached
+      - ~/.ssh:/home/vscode/.ssh:ro
     ports:
       - 80:80
       - 3306:3306
