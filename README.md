@@ -7,8 +7,6 @@
 
 This repository contains the Blesta Registrar Module for CentralNic Reseller, offering a comprehensive suite of features for efficient domain management and sales.
 
-> **DEPRECATION NOTICE, MARCH 12th 2026**: WE NO LONGER MAINTAIN THIS MODULE BECAUSE OF THE RARE DEMAND. FEEL FREE TO REACH OUT TO US VIA SUPPORT@CENTRALNICRESELLER.COM AND ADDRESS YOUR BUSINESS CASE TO US SO THAT WE MAY REDECIDE. EVEN THOUGH THE STATUS OF THIS REPOSITORY IS "ARCHIVED", THE ZIP ARCHIVE IS STILL AVAILABLE FOR DOWNLOAD AND WE MAY RESTART MAINTAINING THE MODULE ON DEMAND.
-
 #### Key / Additional Features:
 
 - **Domain Registrations**: Supports new domain registrations through a streamlined interface.
