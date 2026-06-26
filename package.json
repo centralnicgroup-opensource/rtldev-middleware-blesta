@@ -49,8 +49,7 @@
     "gulp-rename": "^2.1.0",
     "gulp-zip": "^6.1.0",
     "semantic-release": "^25.0.5",
-    "semantic-release-replace-plugin": "github:centralnicgroup-opensource/rtldev-middleware-semantic-release-replace-plugin",
-    "semantic-release-teams-notify-plugin": "github:centralnicgroup-opensource/rtldev-middleware-semantic-release-notify-plugin"
+    "@team-internet/semantic-release-plugins": "^1.0.6"
   },
   "scripts": {
     "codeCheck": "composer run-script codecheck",
