@@ -1,10 +1,26 @@
 # pnpm settings live here, not in the `pnpm` field of package.json. pnpm 10 stopped
-# reading that field; it kept warning rather than failing, so the override below quietly
-# stopped applying while the lockfile still recorded it. A frozen install then refused the
-# mismatch, which is what blocked every release after v5.0.1.
+# reading that field; it kept warning rather than failing, so the overrides below quietly
+# stopped applying while the lockfile still recorded them. A frozen install then refused
+# the mismatch, which is what blocked every release after v5.0.1.
+#
+# Both overrides exist for the same reason: gulp-composer@0.4.5 declares its dependencies
+# with ranges that do not pin anything meaningful — `shelljs: ~0.2.6` and
+# `through2: latest` — and it is unmaintained, so those ranges are never going to be
+# tightened upstream. Whatever the registry resolves them to is what the release build
+# gets. These two lines are what make that resolution deterministic.
 overrides:
-  # gulp-composer pulls shelljs, and versions below 0.8.5 carry CVE-2022-0144
-  # (GHSA-4rq4-32rv-6wp6), improper privilege management. Nothing here depends on shelljs
-  # directly, so without this pin the resolved version is whatever the transitive range
-  # happens to allow.
+  # ~0.2.6 resolves to versions carrying CVE-2022-0144 (GHSA-4rq4-32rv-6wp6), improper
+  # privilege management. Nothing here depends on shelljs directly, so without this pin
+  # the resolved version is whatever gulp-composer's range allows.
   shelljs: ^0.8.5
+
+  # `latest` resolves to through2 5.x, which is ESM-only: a CJS `require("through2")`
+  # returns the module namespace object rather than the callable, so gulp-composer's
+  # `through.obj(...)` throws `TypeError: through.obj is not a function` at require time.
+  # gulpfile.js requires gulp-composer at the top, so this killed `gulp release` — the
+  # prepareCmd of @semantic-release/exec — before a single file was built.
+  #
+  # 4.0.2 is the newest release that still exports a callable with `.obj`. The override is
+  # scoped to gulp-composer rather than flat: everything else in the tree resolves through2
+  # 2.0.5 via git-log-parser, and a flat pin would move those too for no reason.
+  gulp-composer>through2: ^4.0.2
