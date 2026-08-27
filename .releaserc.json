@@ -1,4 +1,5 @@
 {
+    "repositoryUrl": "git@github.com:centralnicgroup-opensource/rtldev-middleware-blesta.git",
     "ci": false,
     "branch": [
         "master"
