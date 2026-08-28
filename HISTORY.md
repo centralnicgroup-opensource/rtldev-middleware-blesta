@@ -1,3 +1,14 @@
+## [5.0.2](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v5.0.1...v5.0.2) (2026-08-28)
+
+
+### Bug Fixes
+
+* **deps:** bump handlebars from 4.7.8 to 4.7.9 ([74c5818](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/commit/74c5818e2618e65377d7accd8112ce57253a812b))
+* **deps:** bump lodash from 4.17.23 to 4.18.1 ([d34295c](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/commit/d34295cb743409d3ce35616578e6bd57044b5d66))
+* **deps:** bump lodash-es from 4.17.23 to 4.18.1 ([5dd4325](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/commit/5dd4325285ee2f38d079ddcf477afa5e1aa245a9))
+* **deps:** pin gulp-composer's through2 below the ESM-only major ([6814396](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/commit/6814396aedc5847fed2f492e1afbb794a716ee45))
+* **deps:** rehome the shelljs override to pnpm-workspace.yaml ([775b7c7](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/commit/775b7c7a9a167cf749bbf7f2c14e2dc6533ddb94))
+
 ## [5.0.1](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v5.0.0...v5.0.1) (2025-11-24)
 
 
