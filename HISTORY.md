@@ -1,3 +1,17 @@
+# [6.0.0](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v5.0.2...v6.0.0) (2026-09-03)
+
+
+### Bug Fixes
+
+* **cnr registrar module:** add support for Blesta 6 ([a320ccf](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/commit/a320ccf8f165d2237132a02ba844dee49d1b8ad0))
+
+
+### BREAKING CHANGES
+
+* **cnr registrar module:** The CNR Blesta Registrar Module now requires PHP 8.3.
+Ensure your SYSTEM environment is updated to PHP 8.3 before upgrading, to
+ensure compatibility and upgrade to our future releases hassle-free.
+
 ## [5.0.2](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/compare/v5.0.1...v5.0.2) (2026-08-28)
 
 
