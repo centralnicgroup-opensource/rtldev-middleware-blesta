@@ -13,7 +13,7 @@ use Monolog\ErrorHandler;
  * @subpackage blesta.components.modules.cnr
  * @copyright Copyright (c) 2018-2024, CNR.
  * @license https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/master/LICENSE MIT
- * @see https://www.hexonet.net/ CNR
+ * @see https://www.centralnicreseller.com/ CNR
  */
 class Cnr extends RegistrarModule
 {
@@ -1261,7 +1261,7 @@ class Cnr extends RegistrarModule
         $fields = array_merge(
             Configure::get("Cnr.nameserver_fields"),
             Configure::get("Cnr.domain_fields"),
-            (array) Configure::get("Cnr.domain_fields${tld}"),
+            (array) Configure::get("Cnr.domain_fields{$tld}"),
         );
 
         // We should already have the domain name don't make editable
@@ -1365,7 +1365,14 @@ class Cnr extends RegistrarModule
             }
         }
 
-        if (!isset($_POST["submit"])) {
+        // These three are only built in the GET branch above. Blesta 6's Domain
+        // Manager fetches this form over POST (admin_main::getModuleFields), so
+        // without the isset() guard they are undefined there, setField() is
+        // handed null and throws - ModuleManager::moduleRpc() swallows the
+        // Throwable and returns null, and the caller then dies on
+        // method_exists(null, 'label'), leaving the domain page blank with
+        // "Error loading module fields" in the browser console.
+        if (isset($domain_information) && !isset($_POST["submit"])) {
             $fields->setField($domain_information);
             $fields->setField($domain_status);
             $fields->setField($expirydate);
@@ -2060,7 +2067,16 @@ class Cnr extends RegistrarModule
 
         $r = $this->domainManager->call([
             "COMMAND" => "CheckDomains",
-            "DOMAIN0" => $domain
+            "DOMAIN0" => $domain,
+            // Fee extension. Without it the registry returns no X-FEE-* data, so a
+            // premium domain looks identical to a standard one here and AddDomain
+            // is later rejected with 504 "Confirm the Premium pricing by providing
+            // the necessary premium domain price data." The WHMCS CNIC module sends
+            // these on every check for the same reason (RSRMID-2447, RSRMID-2263).
+            "X-FEE-COMMAND0" => "create",
+            "X-FEE-DOMAIN0" => $domain,
+            "X-FEE-PERIOD0" => 1,
+            "X-FEE-PERIODTYPE0" => "YEAR"
         ]);
 
         if ($r["CODE"] !== "200") {
@@ -2076,6 +2092,23 @@ class Cnr extends RegistrarModule
         $fulldc = $r["PROPERTY"]["DOMAINCHECK"][0];
         $dc = substr($fulldc, 0, 3);
         if ($dc === "210") { //AVAILABLE
+            // A premium name is returned as plainly available; only the fee
+            // extension distinguishes it. Blesta has no premium concept at all -
+            // RegistrarModule::checkAvailability() is a boolean and neither the
+            // Domain Manager nor the order system can carry a per-name price - so
+            // the premium fee could never reach the customer's invoice. Letting
+            // the order through would either fail at AddDomain with 504, or (if
+            // the fee were confirmed silently) register at the registry's premium
+            // price while charging the standard TLD price. Refuse instead.
+            if (
+                !empty($r["PROPERTY"]["X-FEE-CLASS"][0])
+                && strtolower($r["PROPERTY"]["X-FEE-CLASS"][0]) === "premium"
+            ) {
+                $this->Input->setErrors([
+                    "errors" => [$domain . ": Premium Domain. Contact Support."],
+                ]);
+                return false;
+            }
             return true;
         }
 

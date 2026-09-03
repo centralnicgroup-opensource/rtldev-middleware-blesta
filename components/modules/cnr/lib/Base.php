@@ -33,9 +33,9 @@ class Base
             throw new \Exception("Row is not set. Please set row before making the call.");
         }
 
-        $cl = \CNIC\ClientFactory::getClient([
-            "registrar" => "CNR",
-        ]);
+        // php-sdk v14 replaced the generic getClient(["registrar" => ...]) lookup
+        // with one factory method per backend.
+        $cl = \CNIC\ClientFactory::cnr();
         if (self::$module->meta->sandbox == "true") {
             $cl->useOTESystem();
         }

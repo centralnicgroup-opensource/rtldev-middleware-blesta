@@ -155,7 +155,7 @@ class DomainManager extends Base
 
                     $contactsForTransfer = [];
                     foreach (explode(",", $responseProperty["TRANSFERSUPPORTEDCONTACTS"][0]) as $transferContact) {
-                        $contactsForTransfer[] = "${transferContact}CONTACT";
+                        $contactsForTransfer[] = "{$transferContact}CONTACT";
                     }
 
                     // Build the tld data structure

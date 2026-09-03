@@ -3,6 +3,7 @@
 namespace CNR\MODULE\LIB\API;
 
 use Blesta\Core\Util\Common\Traits\Container;
+use CNIC\ResponseInterface;
 
 class BlestaLogger implements \CNIC\LoggerInterface
 {
@@ -19,12 +20,32 @@ class BlestaLogger implements \CNIC\LoggerInterface
     }
 
     /**
+     * Build the debug record for a request/response pair.
+     *
+     * Required by CNIC\LoggerInterface since php-sdk v14. This class implements
+     * the interface directly rather than extending CNIC\AbstractLogger, because
+     * that base class declares log() final and writes to its own sink - the
+     * records here have to go to Blesta's module log instead.
+     *
+     * @param string $post post request data in string format (already masked)
+     */
+    public function format(string $post, ResponseInterface $response, ?string $error = null): string
+    {
+        return implode("\n", [
+            print_r($response->getCommand(), true),
+            $post,
+            $error !== null && $error !== "" ? "HTTP communication failed: " . $error : "",
+            $response->getPlain(),
+        ]);
+    }
+
+    /**
      * output/log given data
      * @param string $post post request data in string format
-     * @param \CNIC\CNR\Response $r Response to log
+     * @param ResponseInterface $r Response to log
      * @param string|null $error error message
      */
-    public function log(string $post, $r, string $error = null): void
+    public function log(string $post, ResponseInterface $r, ?string $error = null): void
     {
         $this->logHandle(
             $this->apiURL,

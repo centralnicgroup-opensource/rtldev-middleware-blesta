@@ -36,13 +36,7 @@ function doDistClean() {
  */
 function doCopyFiles() {
   return src(cfg.filesForArchive, { base: "." })
-    .pipe(dest(cfg.archiveBuildPath))
-    .on('end', () => {
-      // Copy the blesta-ispapi-registrar-latest.zip file to the pkg folder
-      src(`${cfg.archiveHXFileName}-latest.zip`, { base: "." })
-      .pipe(rename(`${cfg.archiveHXFileName}.zip`))
-        .pipe(dest("./pkg"));
-    });
+    .pipe(dest(cfg.archiveBuildPath));
 }
 
 /**
@@ -82,28 +76,6 @@ function doZip(callback) {
 }
 
 
-/**
- * build latest zip archive
- * @return stream
- */
-function buildHxZip(callback) {
-  (async () => {
-    try {
-      const zip = await import('gulp-zip');
-      src(`./${cfg.archiveHxBuildPath}/**`)
-        .pipe(zip.default(`${cfg.archiveHXFileName}-latest.zip`))
-        .pipe(dest('.'))
-        .on('end', () => {
-          console.log('Archive generated successfully');
-          callback(null); // Pass null for success, or an error object for failure
-        });
-    } catch (error) {
-      console.error('Error importing module:', error);
-      callback(error); // Pass the error to the callback
-    }
-  })();
-}
 
 exports.copy = series(doComposerUpdate, doDistClean, doCopyFiles);
-exports.buildHx = buildHxZip;
 exports.release = series(exports.copy, doZip, doFullClean);

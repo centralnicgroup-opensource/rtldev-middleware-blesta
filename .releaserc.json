@@ -72,10 +72,6 @@
                     {
                         "label": "CentralNic Reseller (CNR) Blesta Module (ZIP)",
                         "path": "pkg/blesta-cnr-registrar.zip"
-                    },
-                    {
-                        "label": "Hexonet (ISPAPI) Blesta Module (ZIP)",
-                        "path": "pkg/blesta-ispapi-registrar.zip"
                     }
                 ]
             }

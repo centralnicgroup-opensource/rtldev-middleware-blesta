@@ -3,7 +3,8 @@
     "description": "Blesta CentralNic Reseller Registrar Module",
     "type": "project",
     "require": {
-        "centralnic-reseller/php-sdk": "^13.0.1"
+        "php": ">=8.3",
+        "centralnic-reseller/php-sdk": "^33.0.3"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^4.0",
@@ -27,9 +28,9 @@
     ],
     "scripts": {
         "phpstan": [
-			"@composer update",
-			"phpstan analyze -vvv -c .github/linters/phpstan.neon --memory-limit 10G"
-		],
+            "@composer update",
+            "phpstan analyze -vvv -c .github/linters/phpstan.neon --memory-limit 10G"
+        ],
         "codecheck": [
             "@composer update",
             "phpcs --standard=PSR12 -q -n -s --colors --ignore=node_modules,vendor,build,tmp components"

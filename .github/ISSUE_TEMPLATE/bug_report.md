@@ -27,4 +27,3 @@ If applicable, add screenshots to help explain your problem.
  - Blesta Version [e.g. 5.10.2]
  - PHP Version [e.g. 8.1.0]
  - CentralNic Reseller Registrar Module Version [e.g. v4.0.0]
- - Ispapi Registrar Module Version [e.g. v3.7.0]
