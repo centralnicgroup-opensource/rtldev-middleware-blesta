@@ -17,8 +17,7 @@
       "mrmlnc.vscode-apache",
       "ms-azuretools.vscode-docker",
       "bmewburn.vscode-intelephense-client",
-      "xdebug.php-debug",
-      "GitHub.copilot"
+      "xdebug.php-debug"
     ],
 		"settings": {
 		  "terminal.integrated.defaultProfile.linux": "zsh",
