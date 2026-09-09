@@ -1,0 +1,41 @@
+# Normalize line endings on commit; check out LF everywhere. Windows clones with
+# core.autocrlf=true otherwise write CRLF into the container scripts, and a
+# `#!/bin/bash\r` shebang makes the kernel report the script as not found.
+* text=auto eol=lf
+
+# Files executed inside the container or by the release tooling: LF always.
+*.sh text eol=lf
+*.php text eol=lf
+*.pdt text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.neon text eol=lf
+*.xml text eol=lf
+*.ini text eol=lf
+*.conf text eol=lf
+*.sql text eol=lf
+Dockerfile text eol=lf
+.htaccess text eol=lf
+
+# Binary — never touch. The z01/z02/... parts are the split Blesta core archive
+# (see scripts/release-cli/dev-commands.js); Git must not look inside them.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svgz binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.zip binary
+*.z01 binary
+*.z02 binary
+*.z03 binary
+*.z04 binary
+*.gz binary
+*.tgz binary
+*.tar binary
+*.so binary

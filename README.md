@@ -1,48 +1,131 @@
-# Blesta "CentralNic Reseller" Registrar Module
+# Blesta Integration
 
+[![Latest Release](https://img.shields.io/github/v/release/centralnicgroup-opensource/rtldev-middleware-blesta)](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/releases)
+[![Tests](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/actions/workflows/test.yml)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
-[![Build Status](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/workflows/Release/badge.svg?branch=master)](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/workflows/Release/badge.svg?branch=master)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/blob/master/CONTRIBUTING.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![GitHub Closed Issues](https://img.shields.io/github/issues-closed/centralnicgroup-opensource/rtldev-middleware-blesta)](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/issues?q=is:issue+is:closed)
+[![Contributors](https://img.shields.io/github/contributors/centralnicgroup-opensource/rtldev-middleware-blesta)](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/graphs/contributors)
+[![GitHub Stars](https://img.shields.io/github/stars/centralnicgroup-opensource/rtldev-middleware-blesta)](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/stargazers)
 
-This repository contains the Blesta Registrar Module for CentralNic Reseller, offering a comprehensive suite of features for efficient domain management and sales.
+Registrar module for **Blesta 6**, letting you sell and manage domains across more than 1,000 TLDs through the CentralNic Reseller API — from the same admin and client area your customers already use.
 
-#### Key / Additional Features:
+---
 
-- **Domain Registrations**: Supports new domain registrations through a streamlined interface.
-- **Domain Transfers**: Facilitates domain transfers, including handling auth code requirements for specific TLDs such as .nz and .fi.
-- **Domain Renewals**: Supports both manual and automatic domain renewals via the Blesta admin panel for increased flexibility.
-- **Registrar Lock**: Provides the ability to enable a registrar lock to prevent unauthorized domain transfers.
-- **Custom Nameservers & Nameserver Management**: Allows easy management and setup of custom nameservers.
-- **WHOIS Contact Updates**: Supports updating Whois contact information for registered domains.
-- **Get EPP Code**: Offers retrieval of EPP (authorization) codes required for domain transfers.
-- **Additional Domain Fields**: Supports additional domain-specific fields required by certain TLDs.
-- **TLD Import**: Automates the import of TLDs to streamline domain setup and management.
-- **TLD Pricing**: Supports importing TLD pricing lists for efficient pricing management.
+## Contents
 
-#### Supported Add-Ons:
+- [Key Features](#key-features)
+- [Registrar Module](#registrar-module)
+  - [Installation](#installation)
+  - [Account Settings](#account-settings)
+- [Selling Domains](#selling-domains)
+- [Managing Domains](#managing-domains)
+- [What's New](#whats-new)
+- [Resources](#resources)
+- [Support](#support)
+- [Maintainers](#maintainers)
+- [License](#license)
 
-- **DNS Management**: Provides comprehensive DNS management, including adding, updating, and deleting DNS records.
-- **Email Forwarding**: Enables the configuration of email forwarding services for domains.
-- **ID Protection**: Offers ID protection for domains to safeguard personal information associated with registrations.
-- **DNSSEC Management**: Integrates DNSSEC to improve domain security by enabling DNS Security Extensions.
-- **Custom Nameservers**: Allows users to set up and manage custom nameserver hosts for their domains.
+---
+
+## Key Features
+
+- **All-in-one, inside Blesta** — Domains, DNS, DNSSEC and contacts are managed from the Blesta admin and client area, with no separate control panel to learn.
+- **Fewer failed orders** — Terms are read per registry and orders are validated before they reach an invoice, so a customer cannot buy a period the registry will refuse.
+- **Self-service DNS & DNSSEC** — Customers manage their own records and DNSSEC keys from the client area, on the tabs you choose to enable.
+- **TLD-aware** — Registry-specific additional fields, IDN support and per-TLD feature detection, so demanding TLDs go through the first time.
+
+---
+
+## Registrar Module
+
+| Brand               | Blesta Module ID | Status                                                           | Download                                                                                                                                       | Docs                                                                                                                                |
+| ------------------- | ---------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| CentralNic Reseller | `cnr`            | ![maintained](https://img.shields.io/badge/MAINTAINED-green.svg) | [📦 Download](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/raw/refs/heads/master/blesta-cnr-registrar-latest.zip) | [📘 Docs](https://support.centralnicreseller.com/hc/en-gb/articles/21607819808285-Blesta-Module-Installation-Upgrade-Coming-soon) |
+
+[**Download the latest module →**](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/raw/refs/heads/master/blesta-cnr-registrar-latest.zip)
+
+### Installation
+
+Extract the archive over your Blesta root, so the resulting path is `components/modules/cnr`. If extracted elsewhere, Blesta will not detect the module.
+
+Then go to **Settings → Company → Modules → Available**, install **CentralNic Reseller**, and add an account with your API credentials.
+
+Requires **PHP 8.3+** with `ext-intl`, and **Blesta 6**. The API client is bundled — there is nothing to install with Composer.
+
+### Account Settings
+
+| Setting                        | Description                                                              |
+| ------------------------------ | ------------------------------------------------------------------------ |
+| **User / Password**            | Your CentralNic Reseller API credentials.                                |
+| **Sandbox**                    | Point the account at the OT&E environment, where nothing is billed.      |
+| **DNSSEC Management**          | Show the DNSSEC tab to staff and customers.                              |
+| **Proxy Server**               | Route API calls through an HTTP proxy.                                   |
+| **DNS Management Nameservers** | The delegation applied when a customer enables managed DNS.              |
+| **Default DNS Record TTL**     | Applied to records created without one.                                  |
+
+---
+
+## Selling Domains
+
+| Feature                | Description                                                                          |
+| ---------------------- | ------------------------------------------------------------------------------------ |
+| **Registrations**      | New registrations, offered only for the terms each registry actually allows.         |
+| **Transfers**          | Including auth codes where the registry requires one, such as `.nz` and `.fi`.       |
+| **Renewals**           | Manual and automatic, from the admin panel or on the billing cycle.                  |
+| **TLD Import**         | Pull the TLD catalogue into Blesta's Domain Manager.                                 |
+| **TLD Pricing**        | Import and synchronise registration, renewal and transfer prices.                    |
+| **Additional Fields**  | Registry-specific data collected at order time, per TLD.                             |
+
+---
+
+## Managing Domains
+
+| Feature                 | Description                                                                                     |
+| ----------------------- | ------------------------------------------------------------------------------------------------- |
+| **Nameservers**         | Set the delegation, or fall back to the managed DNS defaults.                                   |
+| **Nameserver Hosts**    | Create and manage glue records on your own domains.                                             |
+| **WHOIS Contacts**      | Update registrant, administrative, technical and billing contacts.                              |
+| **Registrar Lock**      | Prevent unauthorised transfers away.                                                            |
+| **EPP Code**            | Retrieve the auth code needed to transfer a domain out.                                         |
+| **DNS Management**      | A, AAAA, CNAME, MX, MXE, TXT, SRV and NS records, plus URL and frame forwarding.                |
+| **Email Forwarding**    | Forward addresses on a domain to existing mailboxes.                                            |
+| **ID Protection**       | Hide registrant details in public WHOIS, where the registry supports it.                        |
+| **DNSSEC**              | Manage DS and key records.                                                                      |
+
+Each appears as a tab on the service, for staff and for the customer, and is shown only when the TLD supports it and the customer has bought it.
+
+---
+
+## What's New
+
+- **Correct terms for every TLD.** Registration, renewal and transfer periods are read per zone, so a customer can no longer buy a term the registry will refuse. `.no` is one year only, `.com.ai` starts at two, `.ac.cr` registers for up to ten years but renews one at a time.
+- **DNS management works for every record type.** Adding an A, AAAA, MX, TXT, CNAME, SRV or NS record previously failed outright.
+- **Orders are checked before they are invoiced.** A malformed domain or nameserver is rejected at the order form instead of after the customer has paid.
+- **TLD price synchronisation completes.** It could previously stop partway without any sign of failure, leaving prices stale.
+- **Domains can be added from the admin area again.** Add Service showed no domain field at all.
+- **Proxy, managed DNS nameservers and record TTL** are configurable per account.
+- **The module logo follows the light and dark themes.**
+
+See the [changelog](CHANGELOG.md) for the full history.
+
+---
 
 ## Resources
 
-To get started, download the latest version of the CentralNic Reseller (CNR) module and refer to the documentation for installation and usage instructions:
+- [📘 Module documentation](https://support.centralnicreseller.com/hc/en-gb/articles/21607819808285-Blesta-Module-Installation-Upgrade-Coming-soon)
+- [📝 Release notes](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/releases)
+- [🛠 Contributing and running the tests](DEVELOPMENT.md)
 
-- [Download ZIP Archive](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/raw/master/blesta-cnr-registrar-latest.zip)
-- [Blesta Module Documentation](https://support.centralnicreseller.com/hc/en-gb/articles/21607819808285-Blesta-Module-Installation-Upgrade-Coming-soon)
-- [Release Notes](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/releases)
+## Support
 
-## Authors
+Found a bug or missing a feature? [Open an issue](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/issues). For account or registry questions, contact [CentralNic Reseller support](https://support.centralnicreseller.com/).
 
-- **Kai Schwarz** - _Team Lead_ - [KaiSchwarz-cnic](https://github.com/kaischwarz-cnic)
-- **Asif Nawaz** - _Development_ - [AsifNawaz-cnic](https://github.com/asifnawaz-cnic)
+## Maintainers
+
+- **Kai Schwarz** — _Team Lead_ — [KaiSchwarz-cnic](https://github.com/kaischwarz-cnic)
+- **Asif Nawaz** — _Development_ — [AsifNawaz-cnic](https://github.com/asifnawaz-cnic)
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/blob/master/LICENSE) file for details.
-
-For more information, visit [CentralNic Reseller, Team Internet Group PLC](https://www.centralnicreseller.com).
+MIT — see [LICENSE](LICENSE). For more information, visit [CentralNic Reseller, Team Internet Group PLC](https://www.centralnicreseller.com).

@@ -1,0 +1,70 @@
+        <?php
+        $this->Widget->clear();
+        $this->Widget->create($this->_('Cnr.add_row.box_title', true));
+        ?>
+        <div class="inner">
+            <?php
+            $this->Form->create();
+            ?>
+            <div class="title_row first">
+                <h3><?php $this->_('Cnr.add_row.basic_title');?></h3>
+            </div>
+            <div class="pad">
+                <ul>
+                    <li>
+                        <?php
+                        $this->Form->label($this->_('Cnr.row_meta.user', true), 'user');
+                        $this->Form->fieldText('user', $this->Html->ifSet($vars->user), ['id' => 'user']);
+                        ?>
+                    </li>
+                    <li>
+                        <?php
+                        $this->Form->label($this->_('Cnr.row_meta.key', true), 'key');
+                        $this->Form->fieldPassword('key', $this->Html->ifSet($vars->key), ['id' => 'key']);
+                        ?>
+                    </li>
+                    <li>
+                        <?php
+                        $this->Form->fieldCheckbox('sandbox', 'true', $this->Html->ifSet($vars->sandbox) == 'true', ['id' => 'sandbox']);
+                        $this->Form->label($this->_('Cnr.row_meta.sandbox', true), 'sandbox', ['class' => 'inline']);
+                        ?>
+                    </li>
+                    <li>
+                        <?php
+                        $this->Form->fieldCheckbox('dnssec', 'true', $this->Html->ifSet($vars->dnssec) == 'true', ['id' => 'dnssec']);
+                        $this->Form->label($this->_('Cnr.row_meta.dnssec', true), 'dnssec', ['class' => 'inline']);
+                        ?>
+                    </li>
+                    <li>
+                        <?php
+                        $this->Form->label($this->_('Cnr.row_meta.proxy_server', true), 'proxy_server');
+                        $this->Form->fieldText('proxy_server', $this->Html->ifSet($vars->proxy_server), ['id' => 'proxy_server', 'placeholder' => 'http://proxy.example.com:8080']);
+                        ?>
+                    </li>
+                    <li>
+                        <?php
+                        $this->Form->label($this->_('Cnr.row_meta.dns_nameservers', true), 'dns_nameservers');
+                        $this->Form->fieldText('dns_nameservers', $this->Html->ifSet($vars->dns_nameservers), ['id' => 'dns_nameservers', 'placeholder' => implode(', ', CnrModuleSettings::DEFAULT_DNS_NAMESERVERS)]);
+                        ?>
+                    </li>
+                    <li>
+                        <?php
+                        $this->Form->label($this->_('Cnr.row_meta.default_ttl', true), 'default_ttl');
+                        $this->Form->fieldText('default_ttl', $this->Html->ifSet($vars->default_ttl), ['id' => 'default_ttl', 'placeholder' => (string) CnrModuleSettings::DEFAULT_TTL]);
+                        ?>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="button_row">
+                <?php
+                $this->Form->fieldSubmit('save', $this->_('Cnr.add_row.add_btn', true), ['class' => 'btn btn-primary pull-right']);
+                ?>
+            </div>
+            <?php
+            $this->Form->end();
+            ?>
+        </div>
+        <?php
+        $this->Widget->end();
+        ?>
