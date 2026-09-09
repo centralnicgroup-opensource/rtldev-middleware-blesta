@@ -1,12 +1,34 @@
-name: Dependabot auto-merge & tests
+name: Tests
 on:
   pull_request:
     types:
       - opened
       - synchronize
       - reopened
+  push:
+    branches:
+      - master
 
 jobs:
-  tests:
-    uses: centralnicgroup-opensource/rtldev-middleware-shareable-workflows/.github/workflows/middleware-blesta-test.yml@main
-    secrets: inherit
+  checks:
+    name: 🧪 Lint and unit tests
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: intl, mbstring
+          coverage: none
+      - name: Install dependencies
+        run: composer install --no-interaction --no-progress
+      - name: Coding standards
+        run: apis/vendor/bin/phpcs -q -n -s --no-colors
+      - name: Unit tests
+        run: apis/vendor/bin/phpunit --colors=never

@@ -1,0 +1,344 @@
+{
+    "no": {
+        "ZONE": [
+            "no"
+        ],
+        "ISNTLD": [
+            "0"
+        ],
+        "SUPPORTSDNSSECDSDATA": [
+            "1"
+        ],
+        "NTLDCATEGORIES": [
+            "geographic"
+        ],
+        "PERIODS": [
+            "1y"
+        ],
+        "REDEMPTIONPERIODDAYS": [
+            "59"
+        ],
+        "AUTORENEWGRACEPERIODDAYS": [
+            "0"
+        ],
+        "REGISTRATIONPERIODS": [
+            "1y"
+        ],
+        "RENEWALPERIODS": [
+            "1y"
+        ],
+        "RRPSUPPORTSRENEWAL": [
+            "1"
+        ],
+        "TRANSFERPERIODS": [
+            "1y"
+        ],
+        "TRANSFERSUPPORTEDCONTACTS": [
+            "n/a"
+        ],
+        "SUPPORTSTRANSFERLOCKS": [
+            "0"
+        ],
+        "FOAEMAIL": [
+            "0"
+        ],
+        "AUTHCODE": [
+            "optional"
+        ],
+        "TRANSFERRESETSREGISTRATIONPERIOD": [
+            "0"
+        ],
+        "RENEWALATTRANSFER": [
+            "1"
+        ],
+        "RENEWALAFTERTRANSFER": [
+            "0"
+        ],
+        "OWNERCHANGEPROCESS": [
+            "UPDATE"
+        ],
+        "IRTP": [
+            "0"
+        ],
+        "RRPSUPPORTSWHOISPRIVACY": [
+            "0"
+        ],
+        "SUPPORTSTRUSTEE": [
+            "0"
+        ]
+    },
+    "com": {
+        "ZONE": [
+            "com"
+        ],
+        "ISNTLD": [
+            "0"
+        ],
+        "SUPPORTSDNSSECDSDATA": [
+            "1"
+        ],
+        "NTLDCATEGORIES": [
+            "commerce,company,computer,generic,technology"
+        ],
+        "PERIODS": [
+            "1y,2y,3y,4y,5y,6y,7y,8y,9y,10y"
+        ],
+        "REDEMPTIONPERIODDAYS": [
+            "30"
+        ],
+        "AUTORENEWGRACEPERIODDAYS": [
+            "35"
+        ],
+        "REGISTRATIONPERIODS": [
+            "1y,2y,3y,4y,5y,6y,7y,8y,9y,10y"
+        ],
+        "RENEWALPERIODS": [
+            "1y,2y,3y,4y,5y,6y,7y,8y,9y,10y"
+        ],
+        "RRPSUPPORTSRENEWAL": [
+            "1"
+        ],
+        "TRANSFERPERIODS": [
+            "1y"
+        ],
+        "TRANSFERSUPPORTEDCONTACTS": [
+            "ADMIN,BILLING,OWNER,TECH"
+        ],
+        "SUPPORTSTRANSFERLOCKS": [
+            "1"
+        ],
+        "FOAEMAIL": [
+            "1"
+        ],
+        "AUTHCODE": [
+            "required"
+        ],
+        "TRANSFERRESETSREGISTRATIONPERIOD": [
+            "0"
+        ],
+        "RENEWALATTRANSFER": [
+            "1"
+        ],
+        "RENEWALAFTERTRANSFER": [
+            "1"
+        ],
+        "OWNERCHANGEPROCESS": [
+            "UPDATE"
+        ],
+        "IRTP": [
+            "1"
+        ],
+        "RRPSUPPORTSWHOISPRIVACY": [
+            "1"
+        ],
+        "SUPPORTSTRUSTEE": [
+            "0"
+        ]
+    },
+    "com.ai": {
+        "ZONE": [
+            "ai"
+        ],
+        "ISNTLD": [
+            "0"
+        ],
+        "SUPPORTSDNSSECDSDATA": [
+            "1"
+        ],
+        "NTLDCATEGORIES": [
+            "geographic,geographic/america,technology"
+        ],
+        "PERIODS": [
+            "2y,3y,4y,5y,6y,7y,8y,9y,10y"
+        ],
+        "REDEMPTIONPERIODDAYS": [
+            "30"
+        ],
+        "AUTORENEWGRACEPERIODDAYS": [
+            "43"
+        ],
+        "REGISTRATIONPERIODS": [
+            "2y,3y,4y,5y,6y,7y,8y,9y,10y"
+        ],
+        "RENEWALPERIODS": [
+            "2y,3y,4y,5y,6y,7y,8y,9y"
+        ],
+        "RRPSUPPORTSRENEWAL": [
+            "1"
+        ],
+        "TRANSFERPERIODS": [
+            "2y"
+        ],
+        "TRANSFERSUPPORTEDCONTACTS": [
+            "n/a"
+        ],
+        "SUPPORTSTRANSFERLOCKS": [
+            "1"
+        ],
+        "FOAEMAIL": [
+            "0"
+        ],
+        "AUTHCODE": [
+            "required"
+        ],
+        "TRANSFERRESETSREGISTRATIONPERIOD": [
+            "0"
+        ],
+        "RENEWALAFTERTRANSFER": [
+            "1"
+        ],
+        "OWNERCHANGEPROCESS": [
+            "UPDATE"
+        ],
+        "IRTP": [
+            "0"
+        ],
+        "RRPSUPPORTSWHOISPRIVACY": [
+            "1"
+        ],
+        "SUPPORTSTRUSTEE": [
+            "0"
+        ]
+    },
+    "ac.cr": {
+        "ZONE": [
+            "ac.cr"
+        ],
+        "ISNTLD": [
+            "0"
+        ],
+        "SUPPORTSDNSSECDSDATA": [
+            "0"
+        ],
+        "NTLDCATEGORIES": [
+            "geographic,geographic/america,thirdlevel"
+        ],
+        "PERIODS": [
+            "1y"
+        ],
+        "AUTORENEWGRACEPERIODDAYS": [
+            "0"
+        ],
+        "REGISTRATIONPERIODS": [
+            "1y,2y,3y,4y,5y,6y,7y,8y,9y,10y"
+        ],
+        "RENEWALPERIODS": [
+            "1y"
+        ],
+        "RRPSUPPORTSRENEWAL": [
+            "1"
+        ],
+        "TRANSFERPERIODS": [
+            "n/a"
+        ],
+        "SUPPORTSTRANSFERLOCKS": [
+            "0"
+        ],
+        "FOAEMAIL": [
+            "n/a"
+        ],
+        "AUTHCODE": [
+            "n/a"
+        ],
+        "RENEWALATTRANSFER": [
+            "0"
+        ],
+        "RENEWALAFTERTRANSFER": [
+            "n/a"
+        ],
+        "RRPSUPPORTSWHOISPRIVACY": [
+            "0"
+        ],
+        "SUPPORTSTRUSTEE": [
+            "n/a"
+        ]
+    },
+    "aaa.pro": {
+        "ZONE": [
+            "aaa.pro"
+        ],
+        "ISNTLD": [
+            "0"
+        ],
+        "SUPPORTSDNSSECDSDATA": [
+            "1"
+        ],
+        "NTLDCATEGORIES": [
+            "commerce,company,thirdlevel"
+        ],
+        "PERIODS": [
+            "1y,2y,3y,4y,5y,6y,7y,8y,9y,10y"
+        ],
+        "REDEMPTIONPERIODDAYS": [
+            "30"
+        ],
+        "AUTORENEWGRACEPERIODDAYS": [
+            "35"
+        ],
+        "REGISTRATIONPERIODS": [
+            "1y,2y,3y,4y,5y,6y,7y,8y,9y,10y"
+        ],
+        "RENEWALPERIODS": [
+            "1y,2y,3y,4y,5y,6y,7y,8y,9y"
+        ],
+        "RRPSUPPORTSRENEWAL": [
+            "1"
+        ],
+        "TRANSFERPERIODS": [
+            "1y"
+        ],
+        "TRANSFERSUPPORTEDCONTACTS": [
+            "n/a"
+        ],
+        "SUPPORTSTRANSFERLOCKS": [
+            "1"
+        ],
+        "FOAEMAIL": [
+            "1"
+        ],
+        "AUTHCODE": [
+            "required"
+        ],
+        "TRANSFERRESETSREGISTRATIONPERIOD": [
+            "0"
+        ],
+        "RENEWALATTRANSFER": [
+            "1"
+        ],
+        "RENEWALAFTERTRANSFER": [
+            "1"
+        ],
+        "OWNERCHANGEPROCESS": [
+            "UPDATE"
+        ],
+        "IRTP": [
+            "1"
+        ],
+        "RRPSUPPORTSWHOISPRIVACY": [
+            "1"
+        ]
+    },
+    "com.vu": {
+        "ZONE": [
+            "com.vu"
+        ],
+        "NTLDCATEGORIES": [
+            "geographic,geographic/asia,thirdlevel"
+        ],
+        "PERIODS": [
+            "1y,2y,3y,4y,5y,6y,7y,8y,9y,10y"
+        ],
+        "AUTORENEWGRACEPERIODDAYS": [
+            "0"
+        ],
+        "REGISTRATIONPERIODS": [
+            "1y,2y,3y,4y,5y,6y,7y,8y,9y,10y"
+        ],
+        "TRANSFERPERIODS": [
+            "n/a"
+        ],
+        "SUPPORTSTRANSFERLOCKS": [
+            "0"
+        ]
+    }
+}

@@ -1,15 +1,19 @@
-vendor
-node_modules
-.pnpm-store
-package-lock.json
-pkg
+# Composer pulls the CentralNic Reseller PHP SDK in here. The release archive
+# ships it so Blesta never has to run composer, but it is built, not committed.
+apis/vendor
 composer.lock
+
 build
-.devcontainer/blesta/data/
-vendor
-.devcontainer/supporting_files/archives/blesta
-.devcontainer/supporting_files/archives/uploads
-.devcontainer/supporting_files/archives/hotfix-php8
-blesta-cnr-registrar-latest.zip
-blesta
-blesta-upgrade.sh
+tmp
+templates_c
+
+# The development harness lives in its own repository and is checked out here
+# only while working on the module.
+rtldev-middleware-blesta-dev
+
+# PHPUnit result cache
+.phpunit.cache/
+
+# PHPUnit
+.phpunit.cache/
+.phpunit.result.cache
