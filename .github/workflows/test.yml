@@ -7,7 +7,7 @@ on:
       - reopened
   push:
     branches:
-      - master
+      - main
 
 jobs:
   checks:

@@ -1,7 +1,7 @@
 # Blesta Integration
 
 [![Latest Release](https://img.shields.io/github/v/release/centralnicgroup-opensource/rtldev-middleware-blesta)](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/releases)
-[![Tests](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/actions/workflows/test.yml)
+[![Tests](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/actions/workflows/test.yml)
 [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![GitHub Closed Issues](https://img.shields.io/github/issues-closed/centralnicgroup-opensource/rtldev-middleware-blesta)](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/issues?q=is:issue+is:closed)
@@ -41,9 +41,9 @@ Registrar module for **Blesta 6**, letting you sell and manage domains across mo
 
 | Brand               | Blesta Module ID | Status                                                           | Download                                                                                                                                       | Docs                                                                                                                                |
 | ------------------- | ---------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
-| CentralNic Reseller | `cnr`            | ![maintained](https://img.shields.io/badge/MAINTAINED-green.svg) | [📦 Download](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/raw/refs/heads/master/blesta-cnr-registrar-latest.zip) | [📘 Docs](https://support.centralnicreseller.com/hc/en-gb/articles/21607819808285-Blesta-Module-Installation-Upgrade-Coming-soon) |
+| CentralNic Reseller | `cnr`            | ![maintained](https://img.shields.io/badge/MAINTAINED-green.svg) | [📦 Download](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/raw/refs/heads/main/blesta-cnr-registrar-latest.zip) | [📘 Docs](https://support.centralnicreseller.com/hc/en-gb/articles/21607819808285-Blesta-Module-Installation-Upgrade-Coming-soon) |
 
-[**Download the latest module →**](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/raw/refs/heads/master/blesta-cnr-registrar-latest.zip)
+[**Download the latest module →**](https://github.com/centralnicgroup-opensource/rtldev-middleware-blesta/raw/refs/heads/main/blesta-cnr-registrar-latest.zip)
 
 ### Installation
 
