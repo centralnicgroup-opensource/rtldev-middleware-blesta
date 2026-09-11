@@ -1,0 +1,72 @@
+
+    <?php
+    $this->Form->create();
+    ?>
+    <div class="pad">
+        <ul>
+            <li>
+            <div class="form-group">
+            <div class="form-check">
+                <?php
+                if ($vars->registrar_lock === "disabled"):
+                    $this->Form->fieldCheckbox('registrar_lock', null, false, ['id' => 'registrar_lock', 'class' => 'form-check-input', 'disabled' => 'disabled']);
+                ?>
+                    <label class="form-check-label" for="registrar_lock">
+                        <?php $this->Form->label($this->_("Cnr.tab_settings.field_registrar_lock_unsupported", true), "registrar_lock", ['class' => "form-check-label"]);?>
+                    </label>
+                <?php 
+                    else:
+                        $this->Form->fieldCheckbox('registrar_lock', null, $this->Html->ifSet($vars->registrar_lock), ['id' => 'registrar_lock', 'class' => 'form-check-input']);
+                ?>
+                    <label class="form-check-label" for="registrar_lock">
+                        <?php $this->Form->label($this->_("Cnr.tab_settings.field_registrar_lock_yes", true), "registrar_lock", ['class' => "form-check-label"]);?>
+                    </label>
+                <?php    
+                    endif;
+                ?>
+            </div>
+            </div>
+            </li>
+            
+            <li>
+            <div class="form-group">
+                <div class="form-check">
+                    <?php
+                    if ($vars->whois_privacy === "disabled"):
+                        $this->Form->fieldCheckbox('whois_privacy', null, false, ['id' => 'whois_privacy', 'class' => 'form-check-input', 'disabled' => 'disabled']);
+                    ?>
+                        <label class="form-check-label" for="whois_privacy">
+                            <?php $this->Form->label($this->_("Cnr.tab_settings.WhoisPrivacy_unsupported", true), "whois_privacy", ['class' => "form-check-label"]);?>
+                        </label>
+                    <?php 
+                        else:
+                            $this->Form->fieldCheckbox('whois_privacy', null, $this->Html->ifSet($vars->whois_privacy), ['id' => 'whois_privacy', 'class' => 'form-check-input']);
+                    ?>
+                        <label class="form-check-label" for="whois_privacy">
+                            <?php $this->Form->label($this->_("Cnr.tab_settings.WhoisPrivacy", true), "whois_privacy", ['class' => "form-check-label"]);?>
+                        </label>
+                    <?php    
+                        endif;
+                    ?>
+                </div>
+            </div>
+            </li>
+
+            <li>
+                <?php
+                    $this->Form->fieldSubmit('request_epp', $this->_('Cnr.tab_settings.field_request_epp', true));
+                    if ($this->Html->ifSet($vars->auth)) {
+                        $this->Form->fieldText('', $this->Html->ifSet($vars->auth), ['id' => 'auth', 'readonly' => 'readonly']);
+                    }
+                ?>
+            </li>
+        </ul>
+    </div>
+    <div class="button_row">
+        <?php
+            $this->Form->fieldSubmit('save', $this->_('Cnr.tab_settings.field_submit', true), ['class' => 'btn btn-primary pull-right']);
+        ?>
+    </div>
+    <?php
+    $this->Form->end();
+    ?>

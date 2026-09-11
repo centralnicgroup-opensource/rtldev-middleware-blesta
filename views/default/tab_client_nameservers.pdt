@@ -1,0 +1,28 @@
+
+    <?php
+    $this->Form->create();
+    ?>
+    <div class="row panel-fix">
+        <div class="col-md-12">
+            <?php
+            for ($i=0; $i<5; $i++) {
+                ?>
+            <div class="form-group">
+                <?php
+                $idx = $i + 1;
+                $key = 'ns' . $idx;
+                $this->Form->label($this->_('Cnr.tab_nameserver.field_ns', true, $idx), $key);
+                $this->Form->fieldText('ns[]', $this->Html->ifSet($vars->ns[$i]), ['id' => $key, 'class'=>'form-control', 'placeholder'=>$this->_('Cnr.tab_nameserver.field_ns', true, $idx)]);
+                ?>
+            </div>
+                    <?php
+            }
+            ?>
+        </div>
+    </div>
+    <button class="btn btn-default pull-right" type="submit">
+        <i class="fa fa-edit"></i> <?php $this->_('Cnr.tab_nameservers.field_submit');?>
+    </button>
+    <?php
+    $this->Form->end();
+    ?>

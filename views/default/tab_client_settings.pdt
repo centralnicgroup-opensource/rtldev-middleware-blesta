@@ -1,0 +1,107 @@
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/css/bootstrap3/bootstrap-switch.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.4/js/bootstrap-switch.min.js"></script>
+<?php
+$this->Form->create(null, ['id' => 'tab_settings']);
+?>
+<div class="row panel-fix">
+    <div class="col-md-12">
+        <h4><?php $this->_('Cnr.tab_settings.title');?></h4>
+            <div class="form-group">
+            <div class="form-check">
+                <?php
+                if ($vars->registrar_lock === "disabled"):
+                    $this->Form->fieldCheckbox('registrar_lock', null, false, ['id' => 'registrar_lock', 'class' => 'form-check-input', 'disabled' => 'disabled']);
+                ?>
+                    <label class="form-check-label" for="registrar_lock">
+                        <?php $this->Form->label($this->_("Cnr.tab_settings.field_registrar_lock_unsupported", true), "registrar_lock", ['class' => "form-check-label"]);?>
+                    </label>
+                <?php 
+                    else:
+                        $this->Form->fieldCheckbox('registrar_lock', null, $this->Html->ifSet($vars->registrar_lock), ['id' => 'registrar_lock', 'class' => 'form-check-input']);
+                ?>
+                    <label class="form-check-label" for="registrar_lock">
+                        <?php $this->Form->label($this->_("Cnr.tab_settings.field_registrar_lock_yes", true), "registrar_lock", ['class' => "form-check-label"]);?>
+                    </label>
+                <?php    
+                    endif;
+                ?>
+            </div>
+            </div>
+
+            <div class="form-group">
+                <div class="form-check">
+                    <?php
+                    if ($vars->whois_privacy === "disabled"):
+                        $this->Form->fieldCheckbox('whois_privacy', null, false, ['id' => 'whois_privacy', 'class' => 'form-check-input', 'disabled' => 'disabled']);
+                    ?>
+                        <label class="form-check-label" for="whois_privacy">
+                            <?php $this->Form->label($this->_("Cnr.tab_settings.WhoisPrivacy_unsupported", true), "whois_privacy", ['class' => "form-check-label"]);?>
+                        </label>
+                    <?php 
+                        else:
+                            $this->Form->fieldCheckbox('whois_privacy', null, $this->Html->ifSet($vars->whois_privacy), ['id' => 'whois_privacy', 'class' => 'form-check-input']);
+                    ?>
+                        <label class="form-check-label" for="whois_privacy">
+                            <?php $this->Form->label($this->_("Cnr.tab_settings.WhoisPrivacy", true), "whois_privacy", ['class' => "form-check-label"]);?>
+                        </label>
+                    <?php    
+                        endif;
+                    ?>
+                </div>
+            </div>
+
+            <div class="form-group row align-items-center">
+                <label class="col-sm-auto col-form-label">
+                    <button class="btn btn-default" name="request_epp">
+                        <i class="fa fa edit"></i> <?php $this->_('Cnr.tab_settings.field_request_epp');?>
+                    </button>
+                </label>
+                <?php if (isset($vars->auth) && $vars->auth): ?>
+                    <div class="col-sm">
+                        <?php
+                        $this->Form->fieldText('', $this->Html->ifSet($vars->auth), ['id' => 'auth', 'readonly' => 'readonly', 'class' => 'form-control']);
+                        ?>
+                    </div>
+                    <div class="col-sm-auto">
+                        <button type="button" class="btn btn-default copy-btn">
+                            <i class="fa fa-copy"></i> Copy
+                        </button>
+                    </div>
+                <?php endif; ?>
+            </div>
+    </div>
+</div>
+<?php
+$this->Form->end();
+?>
+
+<script>
+    $(document).ready(function(){
+        // Initialize Bootstrap Switch for radio buttons and checkboxes
+        $('.form-check-input').bootstrapSwitch({
+            size: 'small',
+            onText: 'Activated',
+            offText: 'Deactivated',
+            onColor: 'success',
+            offColor: 'danger',
+            handleWidth: 80,
+        });
+
+        // Listen for change event on the switch
+        $('.form-check-input').on('switchChange.bootstrapSwitch', function(event, state) {
+            if (!state) {
+                // Append the dynamically created ID to the form
+                $('#tab_settings').append('<input type="hidden" name="' + event.target.name + '" value="off">');
+            }
+            // Submit the form when the switch state changes
+            $('#tab_settings').submit();
+        });
+
+        $('.copy-btn').click(function(){
+            var copyText = $('#auth');
+            copyText.select();
+            document.execCommand("copy");
+            alert("Copied the text: " + copyText.val());
+        });
+    });
+</script>

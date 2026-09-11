@@ -1,0 +1,203 @@
+<div id="ds-records" class="card mb-2 alert-primary">
+    <div class="card-header">
+        <span class="font-weight-bold card-title"><?php $this->_('Cnr.tab_dnssec.title_disclaimer'); ?></span>
+    </div>
+    <div class="card-body small">
+        <p><?php $this->_('Cnr.tab_dnssec.warning_message1'); ?></p>
+        <p><?php $this->_('Cnr.tab_dnssec.warning_message2'); ?></p>
+    </div>
+</div>
+<?php if ($supports_ds_data): ?>
+<div class="card mb-2">
+    <div class="card-header">
+        <span class="font-weight-bold card-title"><?php $this->_('Cnr.tab_dnssec.ds_title_list'); ?></span>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th><?php $this->_('Cnr.dnssec.key_tag'); ?></th>
+                        <th><?php $this->_('Cnr.dnssec.algorithm'); ?></th>
+                        <th><?php $this->_('Cnr.dnssec.digest_type'); ?></th>
+                        <th><?php $this->_('Cnr.dnssec.digest'); ?></th>
+                        <th><?php $this->_('Cnr.tab_dnssec.field_actions'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php 
+                        if (!empty($vars->ds_records) && count($vars->ds_records) > 0) {
+                            foreach ($vars->ds_records ?? [] as $record) { ?>
+                            <tr>
+                                <td><?php echo (isset($record["key_tag"]) ? $record["key_tag"] : null); ?></td>
+                                <td><?php echo (isset($record["algorithm"]) ? $record["algorithm"] : null); ?></td>
+                                <td><?php echo (isset($record["digest_type"]) ? $record["digest_type"] : null); ?></td>
+                                <td style="word-break: break-word;white-space:normal"><?php echo (isset($record["digest"]) ? $record["digest"] : null); ?></td>
+                                <td>
+                                    <?php
+                                    $this->Form->create($this->base_uri . 'services/manage/' . (isset($service_id) ? $service_id : null) . '/tabClientDnssec');
+
+                                    $this->Form->fieldHidden('digest', (isset($record["digest"]) ? $record["digest"] : null));
+                                    $this->Form->fieldHidden('key_tag', (isset($record["key_tag"]) ? $record["key_tag"] : null));
+                                    $this->Form->fieldHidden('algorithm', (isset($record["algorithm"]) ? $record["algorithm"] : null));
+                                    $this->Form->fieldHidden('digest_type', (isset($record["digest_type"]) ? $record["digest_type"] : null));
+
+                                    $button_attributes = [
+                                        'class' => 'btn btn-sm btn-danger',
+                                        'value' => 'deleteDsDnssec',
+                                        'type' => 'submit',
+                                    ];
+
+                                    $this->Form->fieldButton('action', $this->_('Cnr.tab_dnssec.field_delete', true), $button_attributes);
+
+                                    $this->Form->end();
+                                    ?>
+                                </td>
+                            </tr>
+                            <?php
+                        }
+                    } else { ?> 
+                        <tr><td colspan="5"><span class="p-1 d-flex justify-content-center align-items-center"><?php $this->_('Cnr.dnssec.nodata'); ?></span></tr></td>
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <span class="font-weight-bold card-title"><?php $this->_('Cnr.tab_dnssec.ds_title_add'); ?></span>
+    </div>
+    <div class="card-body">
+        <?php
+        $this->Form->create($this->base_uri . 'services/manage/' . (isset($service_id) ? $service_id : null) . '/tabClientDnssec');
+        ?>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="key_tag"><?php $this->_('Cnr.dnssec.key_tag'); ?></label>
+                    <?php $this->Form->fieldText('key_tag', null, ['class' => 'form-control']); ?>
+                </div>
+                <div class="form-group">
+                    <label for="algorithm"><?php $this->_('Cnr.dnssec.algorithm'); ?></label>
+                    <?php $this->Form->fieldSelect('algorithm', $vars->selects['algorithm']['options'], null, ['class' => 'form-control']); ?>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="digest_type"><?php $this->_('Cnr.dnssec.digest_type'); ?></label>
+                    <?php $this->Form->fieldSelect('digest_type', $vars->selects['digest_type']['options'], null, ['class' => 'form-control']); ?>
+                </div>
+                <div class="form-group">
+                    <label for="digest"><?php $this->_('Cnr.dnssec.digest'); ?></label>
+                    <?php $this->Form->fieldText('digest', null, ['class' => 'form-control']); ?>
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-primary" type="submit" name="action" value="addDsDnssec">
+            <i class="fas fa-plus"></i> <?php $this->_('Cnr.tab_dnssec.field_add'); ?>
+        </button>
+        <?php
+        $this->Form->end();
+        ?>
+    </div>
+</div>
+<?php 
+endif;
+if ($supports_key_data): ?>
+<div class="card mb-2">
+    <div class="card-header">
+        <span class="font-weight-bold card-title"><?php $this->_('Cnr.tab_dnssec.key_title_list'); ?></span>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th><?php $this->_('Cnr.dnssec.flags'); ?></th>
+                        <th><?php $this->_('Cnr.dnssec.protocol'); ?></th>
+                        <th><?php $this->_('Cnr.dnssec.algorithm'); ?></th>
+                        <th><?php $this->_('Cnr.dnssec.public_key'); ?></th>
+                        <th><?php $this->_('Cnr.tab_dnssec.field_actions'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php 
+                        if (!empty($vars->key_records) && count($vars->key_records) > 0) {
+                            foreach ($vars->key_records ?? [] as $record) { ?>
+                            <tr>
+                                <td><?php echo (isset($record["flags"]) ? $record["flags"] : null); ?></td>
+                                <td><?php echo (isset($record["protocol"]) ? $record["protocol"] : null); ?></td>
+                                <td><?php echo (isset($record["algorithm"]) ? $record["algorithm"] : null); ?></td>
+                                <td style="word-break: break-word;white-space:normal"><?php echo (isset($record["public_key"]) ? $record["public_key"] : null); ?></td>
+                                <td>
+                                    <?php
+                                    $this->Form->create($this->base_uri . 'services/manage/' . (isset($service_id) ? $service_id : null) . '/tabClientDnssec');
+
+                                    $this->Form->fieldHidden('flags', (isset($record["flags"]) ? $record["flags"] : null));
+                                    $this->Form->fieldHidden('protocol', (isset($record["protocol"]) ? $record["protocol"] : null));
+                                    $this->Form->fieldHidden('algorithm', (isset($record["algorithm"]) ? $record["algorithm"] : null));
+                                    $this->Form->fieldHidden('public_key', (isset($record["public_key"]) ? $record["public_key"] : null));
+
+                                    $button_attributes = [
+                                        'class' => 'btn btn-sm btn-danger',
+                                        'value' => 'deleteKeyDnssec',
+                                        'type' => 'submit',
+                                    ];
+
+                                    $this->Form->fieldButton('action', $this->_('Cnr.tab_dnssec.field_delete', true), $button_attributes);
+
+                                    $this->Form->end();
+                                    ?>
+                                </td>
+                            </tr>
+                            <?php
+                        }
+                    } else { ?> 
+                        <tr><td colspan="5"><span class="p-1 d-flex justify-content-center align-items-center"><?php $this->_('Cnr.dnssec.nodata'); ?></span></td></tr>     
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <span class="font-weight-bold card-title"><?php $this->_('Cnr.tab_dnssec.key_title_add'); ?></span>
+    </div>
+    <div class="card-body">
+        <?php
+        $this->Form->create($this->base_uri . 'services/manage/' . (isset($service_id) ? $service_id : null) . '/tabClientDnssec');
+        ?>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="digest_type"><?php $this->_('Cnr.dnssec.flags'); ?></label>
+                    <?php $this->Form->fieldSelect('flags', $vars->selects['flags']['options'], null, ['class' => 'form-control']); ?>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="algorithm"><?php $this->_('Cnr.dnssec.algorithm'); ?></label>
+                    <?php $this->Form->fieldSelect('algorithm', $vars->selects['algorithm']['options'], null, ['class' => 'form-control']); ?>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="digest"><?php $this->_('Cnr.dnssec.public_key'); ?></label>
+                    <?php $this->Form->fieldHidden('protocol', '3'); ?>
+                    <?php $this->Form->fieldText('public_key', null, ['class' => 'form-control']); ?>
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-primary" type="submit" name="action" value="addKeyDnssec">
+            <i class="fas fa-plus"></i> <?php $this->_('Cnr.tab_dnssec.field_add'); ?>
+        </button>
+        <?php
+        $this->Form->end();
+        ?>
+    </div>
+</div>
+<?php endif; ?>

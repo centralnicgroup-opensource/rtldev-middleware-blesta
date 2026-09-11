@@ -1,55 +1,43 @@
 {
-    "name": "centralnicgroup-opensource/rtldev-middleware-blesta",
-    "description": "Blesta CentralNic Reseller Registrar Module",
-    "type": "project",
-    "require": {
-        "php": ">=8.3",
-        "centralnic-reseller/php-sdk": "^33.0.3"
+  "name": "centralnicgroup-opensource/blesta-cnr",
+  "description": "CentralNic Reseller registrar module for Blesta",
+  "type": "blesta-module",
+  "license": "MIT",
+  "require": {
+    "php": ">=8.3",
+    "centralnic-reseller/php-sdk": "^33.0.3"
+  },
+  "authors": [
+    {
+      "name": "Kai Schwarz",
+      "homepage": "https://github.com/KaiSchwarz-cnic"
     },
-    "require-dev": {
-        "squizlabs/php_codesniffer": "^4.0",
-        "phpstan/phpstan": "^2.1.1",
-        "phpstan/extension-installer": "^1.4"
+    {
+      "name": "Sebastian Vassiliou",
+      "homepage": "https://github.com/SebastianVassiliou-cnic"
     },
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Kai Schwarz",
-            "homepage": "https://github.com/KaiSchwarz-cnic"
-        },
-        {
-            "name": "Sebastian Vassiliou",
-            "homepage": "https://github.com/SebastianVassiliou-cnic"
-        },
-        {
-            "name": "Asif Nawaz",
-            "homepage": "https://github.com/AsifNawaz-cnic"
-        }
-    ],
-    "scripts": {
-        "phpstan": [
-            "@composer update",
-            "phpstan analyze -vvv -c .github/linters/phpstan.neon --memory-limit 10G"
-        ],
-        "codecheck": [
-            "@composer update",
-            "phpcs --standard=PSR12 -q -n -s --colors --ignore=node_modules,vendor,build,tmp components"
-        ],
-        "codefix": [
-            "@composer update",
-            "phpcbf --standard=PSR12 -q --ignore=node_modules,vendor,build,tmp components"
-        ]
-    },
-    "config": {
-        "optimize-autoloader": true,
-        "vendor-dir": "components/modules/cnr/apis/vendor",
-        "allow-plugins": {
-            "phpstan/extension-installer": true
-        }
-    },
-    "autoload": {
-        "psr-4": {
-            "CNR\\MODULE\\LIB\\": "components/modules/cnr/lib/"
-        }
+    {
+      "name": "Asif Nawaz",
+      "homepage": "https://github.com/AsifNawaz-cnic"
     }
+  ],
+  "config": {
+    "optimize-autoloader": true,
+    "vendor-dir": "apis/vendor"
+  },
+  "require-dev": {
+    "squizlabs/php_codesniffer": "^4.0",
+    "phpunit/phpunit": "^11.5"
+  },
+  "scripts": {
+    "test": [
+      "phpunit --colors=always"
+    ],
+    "codecheck": [
+      "phpcs -q -n -s --colors"
+    ],
+    "codefix": [
+      "phpcbf -q"
+    ]
+  }
 }
